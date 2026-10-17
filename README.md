@@ -10,8 +10,7 @@ A personalised morning newspaper that gathers the day's stories, writes one edit
 
 The demo account is seeded (`make seed` creates it), so the demo needs no sign-up. The API also has a one-click demo login at `POST /auth/demo`.
 
-<!-- TODO: add a screenshot of /today (docs/screenshots/today.png). Only the /interests screenshots exist so far. -->
-> TODO: screenshot of `/today` is not in the repo yet.
+![The /today page for the demo reader](docs/screenshots/today.png)
 
 Sample edition as a PDF: [docs/samples/newshelper-sample-edition.pdf](docs/samples/newshelper-sample-edition.pdf)
 
@@ -35,10 +34,9 @@ Precision@10 rose from 0.52 on day 1 to 0.88 on day 7, on simulated readers (5 s
 
 ## Architecture
 
-<!-- TODO: docs/architecture.md is not in the repo, so the Mermaid diagram is not included yet. Paste it in from docs/architecture.md once that file is added. -->
-> TODO: the architecture diagram (`docs/architecture.md`) is not in the repo yet.
+![NewsHelper architecture](docs/architecture.png)
 
-For now, the flow in short: the daily pipeline runs `ingest -> enrich -> learn -> compose -> render` against Postgres, the API serves editions and PDFs, and the web app talks to the API through a `/api/*` rewrite. See [docs/composer.md](docs/composer.md), [docs/ingestion.md](docs/ingestion.md) and [docs/decisions/0001-stack.md](docs/decisions/0001-stack.md).
+In short: the daily pipeline runs `ingest -> enrich -> learn -> compose -> render` against Postgres, the API serves editions and PDFs, and the web app talks to the API through a `/api/*` rewrite. See [docs/composer.md](docs/composer.md), [docs/ingestion.md](docs/ingestion.md) and [docs/decisions/0001-stack.md](docs/decisions/0001-stack.md).
 
 ## Stack
 
