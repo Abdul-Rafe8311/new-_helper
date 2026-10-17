@@ -76,7 +76,7 @@ describe("questionsOf", () => {
   });
 
   it("files an older question without a story under the lead story", () => {
-    const { item_id: _unused, ...legacy } = QUESTION;
+    const legacy = { ...QUESTION, item_id: undefined };
     expect(questionsOf(edition("2026-10-17", [legacy]))[0].itemId).toBe("lead-1");
   });
 });
