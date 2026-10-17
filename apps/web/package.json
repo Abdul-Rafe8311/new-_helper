@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "gen:api": "uv run --directory ../api python -m app.scripts.export_openapi ../web/node_modules/.cache/openapi.json && openapi-typescript node_modules/.cache/openapi.json -o src/lib/api-schema.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -22,6 +23,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-hook-form": "^7.90.0",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.7"
   },

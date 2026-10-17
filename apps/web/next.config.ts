@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
+const API_URL = process.env.API_URL ?? "http://localhost:8000";
+
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
@@ -11,6 +12,10 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  // Same-origin API: the browser calls /api/*, so the auth cookie stays first-party.
+  async rewrites() {
+    return [{ source: "/api/:path*", destination: `${API_URL}/:path*` }];
   },
 };
 
