@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError, api } from "@/lib/api";
 
 /** Signs into the shared demo account and opens today's paper. */
-export function DemoButton({ className }: { className?: string }) {
+export function DemoButton({ className, buttonClassName }: { className?: string; buttonClassName?: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -27,7 +27,7 @@ export function DemoButton({ className }: { className?: string }) {
 
   return (
     <div className={className}>
-      <Button variant="outline" size="lg" onClick={tryDemo} disabled={pending}>
+      <Button variant="outline" size="lg" className={buttonClassName} onClick={tryDemo} disabled={pending}>
         {pending ? "Opening the demo…" : "Try the demo"}
       </Button>
       {error ? (

@@ -1,16 +1,21 @@
 import { expect, test } from "@playwright/test";
 
-test("landing renders the masthead and both calls to action", async ({ page }) => {
+test("landing renders the front page and the three top-bar actions", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (msg) => {
+    if (msg.type() === "error") errors.push(msg.text());
+  });
 
   await page.goto("/");
 
   await expect(page).toHaveTitle(/NewsHelper/);
-  await expect(page.getByRole("heading", { level: 1, name: "NewsHelper" })).toBeVisible();
-  await expect(page.getByText("Your morning, on one page")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Try the demo" })).toBeEnabled();
-  await expect(page.getByRole("link", { name: "Start my paper" })).toHaveAttribute("href", "/signup");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your morning, on one page");
+  const bar = page.getByRole("banner");
+  await expect(bar.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/login");
+  await expect(bar.getByRole("link", { name: "Start my paper" })).toHaveAttribute("href", "/signup");
+  await expect(bar.getByRole("button", { name: "Try the demo" })).toBeEnabled();
+  await expect(page.getByText("Sample edition")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
