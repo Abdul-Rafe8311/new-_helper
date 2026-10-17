@@ -8,7 +8,7 @@
 - [x] T5 Ingestion
 - [x] T6 Enrichment
 - [ ] T7 Onboarding
-- [ ] T8 Ranking & composer
+- [x] T8 Ranking & composer
 - [ ] T9 PDF
 - [ ] T10 Web reader & archive
 - [ ] T11 Learning loop
@@ -43,3 +43,9 @@
 - T6: clustering is a pairwise self-join over the 36h window, fine for a few thousand articles; switch to per-article HNSW lookups if the window grows past ~10k.
 - T6: migration 0003 was not run against a real migrated DB locally (no Docker); CI's `alembic check` is the verification.
 - T6: set the `ANTHROPIC_API_KEY` secret in the `production` environment before the first scheduled run.
+- T8: the T7 onboarding branch was not merged when T8 started, so there is no onboarding stub to replace. `EditionService.prepare()` + `run()` (or `generate_edition()`) is the interface T7's `POST /onboarding/complete` should call, and `GET /editions/today` is what its finale polls.
+- T8: no real LLM or Open-Meteo call has been made yet (all tests use FakeLLM and respx); the section names for the demo user need one real `compose` run, which is deliberately left to the owner.
+- T8: weights and thresholds in `app/personalize/config.py` are untuned against real bge-small vectors (raw cosine is used for the semantic component); revisit once real editions exist.
+- T8: the "seen" penalty uses impression/open/skip events, which nothing records until T10/T11; until then only the 7-edition exclusion applies.
+- T8: keyword retrieval uses an unindexed `to_tsvector` over the 24h window; add a GIN index if the daily article volume grows past a few thousand.
+- T8: `--stage all` runs compose without `learn` (T11) and `render` (T9) for now.
