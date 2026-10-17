@@ -1,4 +1,4 @@
-# Only pyproject.toml, uv.lock and app/ are needed in the image.
+# Only pyproject.toml, uv.lock, app/, alembic.ini and migrations/ are needed in the image.
 .venv/
 **/__pycache__/
 *.py[cod]

@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     supabase_bucket: str = "editions"
 
     # Auth & internal
-    jwt_secret: SecretStr = SecretStr("dev-insecure-change-me")
+    jwt_secret: SecretStr = SecretStr("dev-insecure-jwt-secret-change-me-in-env")
     jwt_expiry_days: int = 7
     cron_secret: SecretStr = SecretStr("dev-cron-secret")
     demo_email: str = "demo@newshelper.app"

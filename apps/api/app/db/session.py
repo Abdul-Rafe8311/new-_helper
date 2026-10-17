@@ -20,12 +20,11 @@ from app.core.config import get_settings
 ASYNCPG_CONNECT_ARGS: dict[str, Any] = {"statement_cache_size": 0}
 
 
-def build_engine(database_url: str) -> AsyncEngine:
-    return create_async_engine(
-        database_url,
-        connect_args=dict(ASYNCPG_CONNECT_ARGS),
-        pool_pre_ping=True,
-    )
+def build_engine(database_url: str, *, search_path: str | None = None) -> AsyncEngine:
+    connect_args = dict(ASYNCPG_CONNECT_ARGS)
+    if search_path:
+        connect_args["server_settings"] = {"search_path": search_path}
+    return create_async_engine(database_url, connect_args=connect_args, pool_pre_ping=True)
 
 
 @lru_cache
