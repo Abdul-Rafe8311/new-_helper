@@ -54,6 +54,9 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LLM_DAILY_BUDGET_USD: ${{ vars.LLM_DAILY_BUDGET_USD || '2.0' }}
+          # compose makes one LLM_SMART_MODEL call per reader; enrich uses LLM_FAST_MODEL
+          LLM_SMART_MODEL: ${{ vars.LLM_SMART_MODEL || 'claude-sonnet-5-5' }}
+          LLM_FAST_MODEL: ${{ vars.LLM_FAST_MODEL || 'claude-haiku-5-5' }}
           FASTEMBED_CACHE_DIR: ~/.cache/fastembed
           # Optional: Apify fallbacks switch on only when this secret exists.
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
