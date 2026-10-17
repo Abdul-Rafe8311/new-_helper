@@ -1,0 +1,172 @@
+{#- One broadsheet edition. Everything is auto-escaped; every headline links to its original. -#}
+{% macro headline(v, extra="") -%}
+<a class="hl {{ extra }}" href="{{ v.url }}">{{ v.headline }}</a>
+{%- endmacro %}
+
+{% macro source_line(v) -%}
+<p class="source"><a href="{{ v.url }}">{{ v.byline }} · {{ v.domain }}</a></p>
+{%- endmacro %}
+
+{% macro figure(v) -%}
+{% set img = images.get(v.story.item_id) %}
+{%- if img %}<div class="figure"><img src="{{ img }}" alt=""></div>{% endif %}
+{%- endmacro %}
+
+{% macro paragraphs(v, dropcap=False) -%}
+{% if v.summary and dropcap %}<p><span class="dropcap">{{ v.summary[:1] }}</span>{{ v.summary[1:] }}</p>
+{%- elif v.summary %}<p>{{ v.summary }}</p>{% endif %}
+{%- if v.facts %}<ul class="facts">{% for fact in v.facts %}<li>{{ fact }}</li>{% endfor %}</ul>{% endif %}
+{%- endmacro %}
+
+{% macro brief(v) -%}
+<div class="brief"><a class="hl" href="{{ v.url }}">{{ v.headline }}.</a> {% if v.summary %}<p>{{ v.summary }}</p>{% endif %}<p class="source"><a href="{{ v.url }}">{{ v.source }}</a></p></div>
+{%- endmacro %}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ snap.paper_name }} · {{ snap.edition_date.isoformat() }}</title>
+  <meta name="author" content="{{ snap.paper_name }}">
+  <meta name="description" content="{{ snap.tagline or '' }}">
+</head>
+<body>
+
+<section class="front sq{{ plan.squeeze }}">
+  <header class="masthead">
+    <div class="ears">
+      <span>Curated for {{ snap.reader_name }}</span>
+      <span>{{ snap.tagline or "Your morning paper" }}</span>
+      <span>Edition No. {{ snap.number }}</span>
+    </div>
+    <div class="title-rules"><h1>{{ snap.paper_name }}</h1></div>
+    <div class="dateline">{{ plan.date_line }}</div>
+  </header>
+
+  <div class="front-grid">
+    {% set lead = plan.front.lead %}
+    <article class="lead">
+      <p class="kicker">{{ lead.story.section }}</p>
+      {{ headline(lead) }}
+      {{ source_line(lead) }}
+      {{ figure(lead) }}
+      <div class="body">
+        {{ paragraphs(lead, dropcap=True) }}
+      </div>
+    </article>
+
+    <aside class="sidebar">
+      {% if snap.three_things %}
+      <div class="ear-panel">
+        <h3>Three things to know</h3>
+        <ol>{% for line in snap.three_things %}<li>{{ line }}</li>{% endfor %}</ol>
+      </div>
+      {% endif %}
+      {% if qr %}
+      <a class="qr" href="{{ lead.url }}"><img src="{{ qr }}" alt="QR code for the lead story"><span>Scan to read the lead story at {{ lead.domain }}</span></a>
+      {% endif %}
+      {% if plan.front.briefs %}
+      <div class="briefs-col">
+        <h3>In brief</h3>
+        {% for v in plan.front.briefs %}{{ brief(v) }}{% endfor %}
+      </div>
+      {% endif %}
+    </aside>
+
+    {% if snap.editor_note %}
+    <div class="note">
+      <h3>Editor's note</h3>
+      <p>{{ snap.editor_note }}</p>
+    </div>
+    {% endif %}
+
+    {% if plan.front.features %}
+    <div class="features">
+      {% for v in plan.front.features %}
+      <article class="feature">
+        <p class="kicker">{{ v.story.section }}</p>
+        {{ headline(v) }}
+        {{ source_line(v) }}
+        {{ figure(v) }}
+        {{ paragraphs(v) }}
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if not front_only %}
+{% for block in plan.sections %}
+<section class="inside {{ 'big' if block.big else 'small' }}{{ ' explore' if block.explore else '' }}">
+  {% if block.explore %}<div class="explore-box">{% endif %}
+  <div class="banner"><h2>{{ block.name }}</h2><span>{{ snap.paper_name }}</span></div>
+  <div class="section-grid{{ '' if block.briefs else ' no-side' }}">
+    <div class="section-main">
+      {% for v in block.stories %}
+      {% if loop.first %}
+      <header class="story-head">
+        {{ headline(v) }}
+        {{ source_line(v) }}
+        {% if block.explore and v.story.why_text %}<p class="why">{{ v.story.why_text }}</p>{% endif %}
+        {{ figure(v) }}
+      </header>
+      <div class="section-cols">
+      {{ paragraphs(v) }}
+      {% if block.pull_quote %}<div class="pull-quote">{{ block.pull_quote }}</div>{% endif %}
+      {% else %}
+      <article class="story">
+        {{ headline(v) }}
+        {{ source_line(v) }}
+        {% if block.explore and v.story.why_text %}<p class="why">{{ v.story.why_text }}</p>{% endif %}
+        {{ figure(v) }}
+        {{ paragraphs(v) }}
+      </article>
+      {% endif %}
+      {% endfor %}
+      {% if block.stories %}</div>{% endif %}
+    </div>
+    {% if block.briefs %}
+    <aside class="section-side">
+      <h3>In brief</h3>
+      {% for v in block.briefs %}{{ brief(v) }}{% endfor %}
+    </aside>
+    {% endif %}
+  </div>
+  {% if block.explore %}</div>{% endif %}
+</section>
+{% endfor %}
+
+<section class="back">
+  <div class="banner"><h2>Before you go</h2><span>{{ snap.paper_name }}</span></div>
+  <div class="back-grid">
+    {% if snap.quiz %}
+    <div class="quiz">
+      <h2>The morning quiz</h2>
+      {% for q in snap.quiz %}
+      <div class="q">
+        <p>{{ loop.index }}. {{ q.question }}</p>
+        <ol>{% for option in q.options %}<li><b>{{ "ABCD"[loop.index0] }}</b>{{ option }}</li>{% endfor %}</ol>
+      </div>
+      {% endfor %}
+      <p class="answers">Answers: {% for q in snap.quiz %}{{ loop.index }}-{{ "ABCD"[q.answer] }}{{ ", " if not loop.last }}{% endfor %}</p>
+    </div>
+    {% endif %}
+    {% if snap.quote %}
+    <div class="qotd">
+      <h3>Quote of the day</h3>
+      <blockquote>{{ snap.quote.text }}</blockquote>
+      {% if snap.quote.source %}<cite>{{ snap.quote.source }}</cite>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="colophon">
+    <p><strong>{{ snap.paper_name }}</strong> · {{ plan.date_line }}</p>
+    <p>Curated for {{ snap.reader_name }} from {{ snap.source_count }} sources. Every headline links to its original story.</p>
+    <p>Set in Playfair Display and Source Serif 4. Produced by NewsHelper.</p>
+  </div>
+</section>
+{% endif %}
+
+</body>
+</html>
