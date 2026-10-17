@@ -1,6 +1,8 @@
 import io
 import re
-import time
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 from pypdf import PdfReader
@@ -38,18 +40,37 @@ def link_targets(pdf: bytes) -> set[str]:
 
 
 @pytest.fixture(scope="module")
-def rendered() -> tuple[bytes, float]:
-    started = time.perf_counter()
-    pdf = render_pdf(fixture_snapshot())
-    return pdf, time.perf_counter() - started
+def rendered() -> tuple[bytes, None]:
+    return render_pdf(fixture_snapshot()), None
 
 
-def test_renders_a_multi_page_pdf_quickly_and_small(rendered):
-    pdf, seconds = rendered
+def test_renders_a_multi_page_pdf_that_is_small(rendered):
+    pdf, _ = rendered
     assert pdf.startswith(b"%PDF")
     assert len(PdfReader(io.BytesIO(pdf)).pages) >= 2
     assert len(pdf) < MAX_PDF_BYTES
-    assert seconds < MAX_RENDER_SECONDS
+
+
+def test_a_cold_render_takes_under_ten_seconds():
+    """Timed in a fresh interpreter: coverage tracing in this process slows the layout ~3x."""
+    script = (
+        "import time\n"
+        "from tests.pdf_helpers import fixture_snapshot\n"
+        "from app.pdf.render import render_pdf\n"
+        "snapshot = fixture_snapshot()\n"
+        "started = time.perf_counter()\n"
+        "render_pdf(snapshot)\n"
+        "print(time.perf_counter() - started)\n"
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=Path(__file__).resolve().parents[1],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=60,
+    )
+    assert float(result.stdout.strip()) < MAX_RENDER_SECONDS
 
 
 def test_masthead_and_every_headline_are_in_the_text(rendered):
