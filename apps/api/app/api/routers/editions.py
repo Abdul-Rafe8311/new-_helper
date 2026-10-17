@@ -1,9 +1,10 @@
 """Daily editions, the archive and the PDF download."""
 
+import uuid
 from datetime import UTC, date, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from fastapi.responses import Response
 from sqlalchemy import select
 
@@ -12,7 +13,8 @@ from app.core.errors import AppError
 from app.editions.service import local_date
 from app.models import Edition, EditionStatus, EventType, ReaderEvent
 from app.pdf.service import PDF_CONTENT_TYPE, pdf_filename, read_pdf, render_edition
-from app.schemas.editions import EditionOut, EditionSummary
+from app.schemas.editions import EditionOut, EditionSummary, SavedItem
+from app.schemas.stories import StoryOut
 from app.services import editions as read
 from app.storage import Storage, StorageError, default_storage
 
@@ -31,8 +33,14 @@ def _today(user: CurrentUser) -> date:
 
 
 @router.get("", response_model=list[EditionSummary])
-async def list_editions(user: CurrentUser, session: SessionDep) -> list[EditionSummary]:
-    return await read.list_archive(session, user.id)
+async def list_editions(
+    user: CurrentUser,
+    session: SessionDep,
+    before: Annotated[date | None, Query(description="Only editions before this date")] = None,
+    limit: Annotated[int, Query(ge=1, le=read.ARCHIVE_MAX_PAGE)] = read.ARCHIVE_PAGE,
+) -> list[EditionSummary]:
+    """The archive, newest first. A page shorter than ``limit`` is the last one."""
+    return await read.list_archive(session, user.id, before=before, limit=limit)
 
 
 @router.get("/today", response_model=EditionOut)
@@ -105,3 +113,21 @@ async def download_pdf(
         media_type=PDF_CONTENT_TYPE,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+saved_router = APIRouter(tags=["editions"], dependencies=[Depends(current_user)])
+
+
+@saved_router.get("/saved", response_model=list[SavedItem])
+async def list_saved(user: CurrentUser, session: SessionDep) -> list[SavedItem]:
+    """Stories the reader saved, from any edition."""
+    return await read.list_saved(session, user.id)
+
+
+story_router = APIRouter(prefix="/stories", tags=["editions"], dependencies=[Depends(current_user)])
+
+
+@story_router.get("/{edition_item_id}", response_model=StoryOut)
+async def get_story(edition_item_id: uuid.UUID, user: CurrentUser, session: SessionDep) -> StoryOut:
+    """One story from the reader's paper, with the pictures and outlets of the same story."""
+    return await read.get_story(session, user.id, edition_item_id)

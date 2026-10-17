@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 import { ApiError, createApiClient, type Profile, type User } from "@/lib/api";
 
@@ -12,14 +13,22 @@ export function apiUrl(): string {
 
 export type Session = { user: User; profile: Profile };
 
-/** The signed-in reader, or null. Reads the request cookie, so call it inside <Suspense>. */
-export async function getSession(): Promise<Session | null> {
+/** An API client that acts as the signed-in reader (or anonymously if there is no cookie). */
+export async function serverApi() {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-  const client = createApiClient({
+  return createApiClient({
     baseUrl: apiUrl(),
-    headers: { Cookie: `${SESSION_COOKIE}=${token}` },
+    headers: token ? { Cookie: `${SESSION_COOKIE}=${token}` } : {},
   });
+}
+
+/**
+ * The signed-in reader, or null. Reads the request cookie, so call it inside <Suspense>.
+ * Cached per request: the layout and the page both ask, but the API is only called once.
+ */
+export const getSession = cache(async (): Promise<Session | null> => {
+  if (!(await cookies()).get(SESSION_COOKIE)?.value) return null;
+  const client = await serverApi();
   try {
     const [user, profile] = await Promise.all([client.auth.me(), client.profile.get()]);
     return { user, profile };
@@ -27,4 +36,4 @@ export async function getSession(): Promise<Session | null> {
     if (error instanceof ApiError && error.status === 401) return null;
     throw error;
   }
-}
+});

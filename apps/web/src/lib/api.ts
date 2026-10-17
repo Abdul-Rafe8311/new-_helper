@@ -24,6 +24,14 @@ export type BeatsStep = Schemas["BeatsStep"];
 export type WordsStep = Schemas["WordsStep"];
 export type TasteStep = Schemas["TasteStep"];
 export type ReadingStep = Schemas["ReadingStep"];
+export type Edition = Schemas["EditionOut"];
+export type EditionItem = Schemas["EditionItemOut"];
+export type EditionSummary = Schemas["EditionSummary"];
+export type ItemState = Schemas["ItemState"];
+export type SavedItem = Schemas["SavedItem"];
+export type Story = Schemas["StoryOut"];
+export type StoryImage = Schemas["StoryImage"];
+export type StorySource = Schemas["StorySource"];
 export type StepBody = NameStep | BeatsStep | WordsStep | TasteStep | ReadingStep;
 
 /** Every API failure, carrying the `{"error": {"code", "message"}}` body. */
@@ -95,6 +103,21 @@ export function createApiClient({ baseUrl = "/api", headers = {}, fetch: fetchIm
       get: () => request<Profile>("GET", "/me/profile"),
       update: (changes: ProfileUpdate) => request<Profile>("PUT", "/me/profile", changes),
     },
+    editions: {
+      today: () => request<Edition>("GET", "/editions/today"),
+      byDate: (date: string) => request<Edition>("GET", `/editions/${date}`),
+      list: ({ before, limit }: { before?: string; limit?: number } = {}) => {
+        const query = new URLSearchParams();
+        if (before) query.set("before", before);
+        if (limit) query.set("limit", String(limit));
+        const qs = query.toString();
+        return request<EditionSummary[]>("GET", `/editions${qs ? `?${qs}` : ""}`);
+      },
+      /** Start (or restart) building today's paper; poll `today()` for the result. */
+      regenerate: () => request<Edition>("POST", "/editions/today/regenerate"),
+    },
+    saved: () => request<SavedItem[]>("GET", "/saved"),
+    story: (itemId: string) => request<Story>("GET", `/stories/${itemId}`),
     taxonomy: () => request<Taxonomy>("GET", "/taxonomy"),
     onboarding: {
       state: () => request<OnboardingState>("GET", "/onboarding/state"),
@@ -111,6 +134,12 @@ export function createApiClient({ baseUrl = "/api", headers = {}, fetch: fetchIm
     },
   };
 }
+
+/** The PDF download for a day (a plain link: the session cookie rides along). */
+export const pdfHref = (date: string) => `/api/editions/${date}/pdf`;
+
+/** "Read original": logs an open event, then redirects to the source. */
+export const originalHref = (itemId: string) => `/api/r/${itemId}`;
 
 export type ApiClient = ReturnType<typeof createApiClient>;
 

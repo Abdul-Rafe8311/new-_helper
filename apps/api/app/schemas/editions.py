@@ -1,10 +1,19 @@
 import uuid
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel
 
 from app.models import EditionStatus, Slot
+
+
+class ItemState(BaseModel):
+    """What this reader has done with a story, folded from their events (latest event wins)."""
+
+    read: bool = False
+    saved: bool = False
+    skipped: bool = False
+    reaction: Literal["more", "less"] | None = None
 
 
 class EditionItemOut(BaseModel):
@@ -15,6 +24,7 @@ class EditionItemOut(BaseModel):
     slot: Slot
     headline: str
     summary: str
+    key_facts: list[str]
     why_text: str | None
     url: str
     source: str
@@ -22,6 +32,7 @@ class EditionItemOut(BaseModel):
     published_at: datetime | None
     score: float | None
     score_breakdown: dict[str, Any]
+    state: ItemState
 
 
 class EditionOut(BaseModel):
@@ -44,3 +55,7 @@ class EditionSummary(BaseModel):
     title: str | None
     item_count: int
     top_topics: list[str]
+
+
+class SavedItem(EditionItemOut):
+    edition_date: date

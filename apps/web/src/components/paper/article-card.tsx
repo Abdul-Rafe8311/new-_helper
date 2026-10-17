@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,12 @@ type ArticleCardProps = {
   article: CardArticle;
   variant?: CardVariant;
   className?: string;
+  /** When set, the headline is a button that calls this (the reader expands the story in place). */
+  onActivate?: () => void;
+  /** Rendered under the byline, e.g. the expanded details. */
+  children?: ReactNode;
+  /** Adds a "why" tooltip with the score breakdown to the story's WhyChip. */
+  breakdown?: Record<string, unknown> | null;
 };
 
 const headlineSize: Record<CardVariant, string> = {
@@ -41,7 +48,7 @@ function Picture({ article, variant }: { article: CardArticle; variant: CardVari
 }
 
 /** One story, in one of five layouts: lead, feature, standard, brief or explore. */
-export function ArticleCard({ article, variant = "standard", className }: ArticleCardProps) {
+export function ArticleCard({ article, variant = "standard", className, onActivate, children, breakdown }: ArticleCardProps) {
   const showPicture = variant === "lead" || (variant === "feature" && Boolean(article.imageUrl));
   const showSummary = variant !== "brief" && Boolean(article.summary);
 
@@ -61,14 +68,24 @@ export function ArticleCard({ article, variant = "standard", className }: Articl
       ) : null}
       {showPicture ? <Picture article={article} variant={variant} /> : null}
       <h3 className={cn("font-display text-ink", headlineSize[variant])}>
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="decoration-accent decoration-2 underline-offset-4 hover:underline focus-visible:underline focus-visible:outline-none"
-        >
-          {article.headline}
-        </a>
+        {onActivate ? (
+          <button
+            type="button"
+            onClick={onActivate}
+            className="text-left decoration-accent decoration-2 underline-offset-4 hover:underline focus-visible:underline focus-visible:outline-none"
+          >
+            {article.headline}
+          </button>
+        ) : (
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="decoration-accent decoration-2 underline-offset-4 hover:underline focus-visible:underline focus-visible:outline-none"
+          >
+            {article.headline}
+          </a>
+        )}
       </h3>
       {showSummary ? (
         <p
@@ -88,7 +105,10 @@ export function ArticleCard({ article, variant = "standard", className }: Articl
         publishedAt={variant === "brief" ? undefined : article.publishedAt}
         readingMinutes={article.readingMinutes}
       />
-      {article.why && variant !== "brief" ? <WhyChip className="mt-2 self-start" reason={article.why} /> : null}
+      {article.why && variant !== "brief" ? (
+        <WhyChip className="mt-2 self-start" reason={article.why} breakdown={breakdown} />
+      ) : null}
+      {children}
     </article>
   );
 }

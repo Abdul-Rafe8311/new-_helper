@@ -10,7 +10,7 @@
 - [x] T7 Onboarding
 - [x] T8 Ranking & composer
 - [x] T9 PDF
-- [ ] T10 Web reader & archive
+- [x] T10 Web reader & archive
 - [ ] T11 Learning loop
 - [ ] T12 Explore features
 - [ ] T13 Docs & submission
@@ -63,6 +63,14 @@
 - T9: fonts (Playfair Display, Source Serif 4) are Latin subsets under `app/pdf/static/fonts` with their OFL licences; non-Latin headlines fall back to the system font. On macOS, WeasyPrint needs `DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib` (`brew install pango`).
 - T9: images come from scraped URLs, so each fetch hop must resolve to a public host; the cache lives in `STORAGE_LOCAL_DIR/image-cache` (ephemeral on Render, which only costs a re-download). Real photographs have not been run through it yet: the sample uses generated stand-ins (`python -m tests.make_sample_pdf`).
 - T9: `SupabaseStorage` is tested against mocked REST responses only; create the private `editions` bucket and set `STORAGE_BACKEND=supabase`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` before the first prod render.
+- T10: visual direction is Particle-inspired (masthead, 240px category nav, ambient glow, photo-led grid), written from the brief; particle.news itself was not inspected. The PDF keeps its own Modern Editorial design.
+- T10: categories are the reader's sections, in `?section=<slug>`. Card colours come from a stable palette per section (`reader/palette.ts`); no image analysis. There is no cached image colour to reuse.
+- T10: event semantics for T11: `skip`, `save`, `more_like`, `less_like` carry `value` 1 (set) or 0 (retract; latest wins). `mark_read` (migration 0009) is a story opened on its own page or Shift+A; `open` is logged only by `GET /r/{item}`. `dwell.value` is seconds.
+- T10: `GET /stories/{item}` takes pictures and outlets from the article's cluster (within 4 days). Outlet counts show only when the composer recorded `cluster_size > 1`. Story pages show the stored summary and key facts, not scraped body text.
+- T10: `POST /events` is limited to 30 batches a minute per reader by an in-process limiter (fine for one Render instance; swap the store if it scales out).
+- T10: Next 16 keeps visited pages mounted but hidden, so hidden pages' effects are paused; e2e counts only `:visible` stories. The reader's saves, skips and reactions live in a shared client store so a feed shows what the story page did.
+- T10: Lighthouse mobile on /today (mock API, production build): performance 91, accessibility 100; LCP 3.5 s on the simulated slow 4G. Images use `unoptimized` because source hosts are unknown.
+- T10: the Listen slot is gone with the old toolbar; T12 should add it to the masthead.
 - T11 (part 1, backend): the signal weights, update rules and `profile_changes` log are in; `learn` is a real pipeline stage and runs before `compose`. Migration 0008 adds `reader_profiles.learned_entities`, `explore_rate`, `learn_state` and the `profile_changes` table. T11 stays unticked until part 2 (the `/interests` page and calling `learn_after_events` from `POST /events`).
 - T11: the learner reads `reader_events` rows, so it does not depend on Task 10's HTTP shape; it already understands `mark_read` (counted as an open) and only queries event types that exist in the database enum.
 - T11: retractions (`value: 0`) only cancel inside one learner run; undoing a skip after the run that counted it does not reverse that run.
