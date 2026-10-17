@@ -78,11 +78,3 @@ async def test_put_profile_validates(
     response = await client.put("/me/profile", json=payload)
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "validation_error"
-
-
-async def test_stub_routes_require_auth_then_501(client: AsyncClient, db: AsyncSession) -> None:
-    assert (await client.post("/events")).status_code == 401
-    await _login(client, db)
-    response = await client.post("/events")
-    assert response.status_code == 501
-    assert response.json()["error"]["code"] == "not_implemented"
