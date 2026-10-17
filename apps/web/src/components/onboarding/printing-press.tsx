@@ -16,7 +16,7 @@ type PrintingPressProps = {
 /** A blank front page that the press scans line by line. Still when motion is reduced. */
 export function PrintingPress({ label, progress, idle = false }: PrintingPressProps) {
   return (
-    <div aria-hidden="true" data-testid="printing-press" className="relative mx-auto h-72 w-64 overflow-hidden rounded-sm border-2 border-ink bg-paper text-accent">
+    <div aria-hidden="true" data-testid="printing-press" className="relative mx-auto h-72 w-64 overflow-hidden rounded-2xl border border-rule bg-surface text-accent shadow-[var(--shadow-card)]">
       <div className="space-y-2 px-4 pt-4">
         <div className="h-4 w-3/4 bg-ink" />
         <div className="h-px w-full bg-ink" />

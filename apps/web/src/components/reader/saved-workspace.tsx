@@ -1,7 +1,9 @@
 "use client";
 
+import { Bookmark } from "lucide-react";
 import { useCallback, useMemo } from "react";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import type { SavedItem } from "@/lib/api";
 
 import { useAccent, useActiveEdition } from "./chrome-context";
@@ -33,10 +35,12 @@ export function SavedWorkspace({ items, now }: { items: SavedItem[]; now: string
     <PageFrame nav={<SideNav base="/today" />}>
       <EditionHeader title="Saved" dateLine="Set aside to come back to" />
       {core.items.length === 0 ? (
-        <p className="py-16 text-center font-sans text-xl font-bold">
-          Nothing saved yet.
-          <span className="mt-1 block text-base font-normal text-muted">Use the bookmark on any story to keep it here.</span>
-        </p>
+        <EmptyState
+          icon={Bookmark}
+          title="Nothing saved yet."
+          body="Use the bookmark on any story to keep it here."
+          action={{ href: "/today", label: "Back to today's paper" }}
+        />
       ) : (
         <StoryGrid items={core.items} core={core} now={nowDate} />
       )}

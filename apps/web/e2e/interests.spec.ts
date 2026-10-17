@@ -39,7 +39,7 @@ test("skips and dislikes on /today show up on /interests after the learner runs"
   await expect(card(page, DISLIKED).getByRole("button", { name: "Less like this" })).toHaveAttribute("aria-pressed", "true");
   // events are batched every 10s; leaving the page flushes them
   await page.goto("/interests");
-  await expect(page.getByRole("heading", { level: 1, name: "What Daybreak has learned about you" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "What NewsHelper has learned about you" })).toBeVisible();
   await expect.poll(async () => (await page.request.get(`${MOCK_API}/__state`, { headers: { Cookie: `dp_session=${id}` } }).then((r) => r.json())).events.length).toBeGreaterThan(1);
 
   await page.reload();
@@ -62,7 +62,7 @@ test("skips and dislikes on /today show up on /interests after the learner runs"
 test("sliders are keyboard operable and every change is logged; reset asks first", async ({ page }) => {
   await signIn(page);
   await page.goto("/interests");
-  await expect(page.getByRole("heading", { level: 1, name: "What Daybreak has learned about you" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "What NewsHelper has learned about you" })).toBeVisible();
 
   const cricket = page.getByRole("slider", { name: /Cricket/ });
   await cricket.focus();
@@ -98,7 +98,7 @@ for (const [name, width] of [
     await signIn(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/interests");
-    await expect(page.getByRole("heading", { level: 1, name: "What Daybreak has learned about you" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "What NewsHelper has learned about you" })).toBeVisible();
     await expect(page.getByRole("slider", { name: /Climate/ })).toHaveCount(0);
 
     // search and section filters narrow the list
@@ -147,7 +147,7 @@ for (const [name, width, height] of [
     await signIn(page);
     await page.setViewportSize({ width, height });
     await page.goto("/interests");
-    await expect(page.getByRole("heading", { level: 1, name: "What Daybreak has learned about you" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "What NewsHelper has learned about you" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.screenshot({ path: `../../docs/screenshots/interests-${name}.png`, fullPage: true });
   });

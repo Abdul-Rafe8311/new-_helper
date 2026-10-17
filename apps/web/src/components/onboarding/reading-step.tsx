@@ -24,7 +24,8 @@ export function ReadingStep({ draft, dispatch }: StepProps) {
   const surpriseId = useId();
   return (
     <section>
-      <StepHeading step={5} title="How do you read?" lede="So your paper fits the time you actually have." />
+      <StepHeading step={5} title="How do you read?" lede="So your paper fits the time you actually have."
+        why="Your reading time and depth set how many stories your paper holds and how long each one runs." />
 
       <div className="space-y-8">
         <Choice
@@ -101,11 +102,11 @@ function Choice<T extends string | number>({
               aria-checked={selected}
               onClick={() => onChange(option.value)}
               className={cn(
-                "flex min-h-16 flex-col items-start rounded-sm border px-4 py-3 text-left outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                "flex min-h-16 flex-col items-start rounded-2xl border px-4 py-3 text-left outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50",
                 selected ? "border-ink bg-ink text-paper" : "border-ink/40 hover:border-ink hover:bg-paper-2",
               )}
             >
-              <span className="font-display text-xl font-black">{option.label}</span>
+              <span className="font-sans text-xl font-extrabold tracking-tight">{option.label}</span>
               <span className={cn("font-sans text-xs", selected ? "text-paper/80" : "text-muted")}>{option.note}</span>
             </button>
           );

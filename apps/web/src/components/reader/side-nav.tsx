@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Bookmark, Newspaper, Settings, SlidersHorizontal, X } from "lucide-react";
+import { Archive, Bookmark, Settings, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Dialog } from "radix-ui";
@@ -107,8 +107,8 @@ export function SideNav(props: SideNavProps) {
             className="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] overflow-y-auto bg-canvas p-5 shadow-2xl outline-none lg:hidden"
           >
             <div className="mb-5 flex items-center justify-between">
-              <Dialog.Title className="flex items-center gap-2 font-display text-xl font-black">
-                <Newspaper aria-hidden="true" className="size-5" /> NewsHelper
+              <Dialog.Title className="font-display text-2xl font-black tracking-tight">
+                NewsHelper<span aria-hidden="true" className="text-cat">.</span>
               </Dialog.Title>
               <Dialog.Close className="inline-flex size-10 items-center justify-center rounded-full outline-none hover:bg-paper-2 focus-visible:ring-[3px] focus-visible:ring-ring/50" aria-label="Close menu">
                 <X aria-hidden="true" className="size-5" />

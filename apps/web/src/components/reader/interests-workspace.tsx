@@ -23,7 +23,7 @@ function dayLabel(iso: string): string {
 
 type Props = { initial: Interests; initialTimeline: Timeline; topicCatalogue: TopicCatalogue; sourceCatalogue: SourceCatalogue };
 
-/** "What Daybreak has learned about you": sliders, learned names, blocked topics, and the log. */
+/** "What NewsHelper has learned about you": sliders, learned names, blocked topics, and the log. */
 export function InterestsWorkspace({ initial, initialTimeline, topicCatalogue, sourceCatalogue }: Props) {
   useActiveEdition(null);
   useAccent(FRONT_COLOR);
@@ -95,7 +95,7 @@ export function InterestsWorkspace({ initial, initialTimeline, topicCatalogue, s
 
   return (
     <div className="max-w-5xl">
-      <EditionHeader title="What Daybreak has learned about you" dateLine="Your interests" note="Everything here is yours to change. The paper listens to what you read, skip, save and rate." />
+      <EditionHeader title="What NewsHelper has learned about you" dateLine="Your interests" note="Everything here is yours to change. The paper listens to what you read, skip, save and rate." />
       <p role="status" aria-live="polite" className="min-h-6 pb-2 font-sans text-sm text-muted">
         {message}
       </p>

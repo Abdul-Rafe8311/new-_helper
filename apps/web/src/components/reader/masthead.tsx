@@ -1,8 +1,8 @@
 "use client";
 
 import { Headphones, Menu } from "lucide-react";
-import Link from "next/link";
 
+import { Brand } from "@/components/brand/brand";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 
@@ -22,10 +22,10 @@ type MastheadProps = {
 export function Masthead({ displayName, email, pdfDate, listen = false }: MastheadProps) {
   const { menuOpen, setMenuOpen } = useChrome();
   return (
-    <header className="relative z-20 mx-auto flex h-16 w-full max-w-[1680px] items-center gap-2 px-4 sm:h-20 sm:gap-3 lg:h-[88px] lg:px-8">
+    <header className="relative z-20 mx-auto flex h-16 w-full max-w-[1680px] items-center gap-1.5 px-4 sm:h-20 sm:gap-3 lg:h-[88px] lg:px-8">
       <Button
         variant="ghost"
-        size="icon"
+        size="icon-sm"
         className="-ml-2 lg:hidden"
         aria-label="Open menu"
         aria-expanded={menuOpen}
@@ -33,9 +33,7 @@ export function Masthead({ displayName, email, pdfDate, listen = false }: Masthe
       >
         <Menu aria-hidden="true" />
       </Button>
-      <Link href="/today" className="font-display text-lg font-black tracking-tight text-ink min-[400px]:text-2xl sm:text-3xl">
-        NewsHelper<span aria-hidden="true" className="text-cat">.</span>
-      </Link>
+      <Brand href="/today" className="text-[17px] min-[400px]:text-2xl sm:text-3xl" />
       <div className="ml-auto flex items-center gap-1 sm:gap-3">
         <DownloadButton defaultDate={pdfDate} />
         {listen ? (
@@ -43,7 +41,7 @@ export function Masthead({ displayName, email, pdfDate, listen = false }: Masthe
             variant="outline"
             disabled
             aria-label="Listen (coming soon)"
-            className="size-10 rounded-full p-0 font-semibold sm:w-auto sm:px-3 lg:px-4"
+            className="size-9 rounded-full p-0 font-semibold sm:size-10 sm:w-auto sm:px-3 lg:px-4"
           >
             <Headphones aria-hidden="true" />
             <span className="hidden lg:inline">Listen (coming soon)</span>

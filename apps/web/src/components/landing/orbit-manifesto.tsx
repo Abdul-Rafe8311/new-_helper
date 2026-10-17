@@ -126,7 +126,7 @@ export function OrbitManifesto() {
           One daily paper.
         </h1>
         <p className="lp-hero__copy">Stories around your interests. Read your edition online, or take the newspaper PDF with you.</p>
-        <Link href="/signup" className="lp-pill lp-pill--light">
+        <Link href="/signup" className="lp-pill lp-pill--primary">
           Build my paper
         </Link>
         <p className="lp-hero__meta">Read online · Download the PDF · Keep past editions</p>

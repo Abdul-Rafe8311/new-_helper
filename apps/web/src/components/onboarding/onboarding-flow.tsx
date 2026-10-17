@@ -66,14 +66,18 @@ export function OnboardingFlow({ initial, taxonomy, today }: Props) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(progress(draft) * 100)}
-        className="h-1.5 w-full bg-paper-2"
+        className="flex gap-1.5"
       >
-        <motion.div
-          className="h-full bg-accent"
-          initial={false}
-          animate={{ width: `${progress(draft) * 100}%` }}
-          transition={{ duration: reduceMotion ? 0 : 0.4, ease: "easeOut" }}
-        />
+        {Array.from({ length: FINALE - 1 }, (_, i) => (
+          <span key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink/10">
+            <motion.span
+              className="block h-full rounded-full bg-accent"
+              initial={false}
+              animate={{ width: `${(i + 1 < draft.step ? 1 : i + 1 === draft.step ? 0.5 : 0) * 100}%` }}
+              transition={{ duration: reduceMotion ? 0 : 0.4, ease: "easeOut" }}
+            />
+          </span>
+        ))}
       </div>
 
       <form noValidate onSubmit={advance} className="flex flex-col gap-8">
@@ -96,13 +100,13 @@ export function OnboardingFlow({ initial, taxonomy, today }: Props) {
         </AnimatePresence>
 
         {error ? (
-          <p role="alert" className="border-l-2 border-destructive pl-3 font-sans text-sm text-destructive">
+          <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 font-sans text-sm text-destructive">
             {error}
           </p>
         ) : null}
 
         {onFinale ? null : (
-          <nav aria-label="Setup steps" className="flex items-center justify-between gap-3">
+          <nav aria-label="Setup steps" className="flex items-center justify-between gap-3 pt-2">
             <Button type="button" variant="ghost" onClick={goBack} disabled={draft.step === 1 || saving}>
               <ArrowLeft aria-hidden="true" />
               Back

@@ -1,3 +1,4 @@
+import { StaticAmbient } from "@/components/brand/ambient";
 import { DeskCards } from "@/components/landing/desk-cards";
 import { Faq } from "@/components/landing/faq";
 import { LandingNav } from "@/components/landing/landing-nav";
@@ -9,7 +10,8 @@ import "@/components/landing/landing.css";
 
 export default function Home() {
   return (
-    <div className="lp flex-1">
+    <div className="lp brand-scope flex-1">
+      <StaticAmbient />
       <LandingNav />
       <main>
         <OrbitManifesto />

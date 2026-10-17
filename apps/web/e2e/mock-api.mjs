@@ -148,6 +148,50 @@ function editionStatus(s) {
   return { status: "pending", stage: STAGES[index], edition_id };
 }
 
+/**
+ * Sign-in stand-ins so the forms can be exercised end to end. Test accounts (not real):
+ *   reader@example.com / correct-horse  signs in to a finished reader with a ready paper
+ *   taken@example.com                   cannot register (email_taken)
+ *   any other email, 8+ character password: registers a brand-new reader who still has to onboard
+ */
+function handleAuth({ req, res, path }) {
+  if (req.method !== "POST") return false;
+  const finish = (finished) => {
+    const id = `auth-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const s = sessionFor(id);
+    if (finished) seed(s, {});
+    res
+      .writeHead(200, {
+        "Content-Type": "application/json",
+        "Set-Cookie": `${SESSION_COOKIE}=${id}; Path=/; HttpOnly; SameSite=Lax`,
+      })
+      .end(JSON.stringify(user(s)));
+  };
+  return (
+    {
+      "/auth/logout": () => {
+        res.writeHead(204, { "Set-Cookie": `${SESSION_COOKIE}=; Path=/; Max-Age=0` }).end();
+        return true;
+      },
+      "/auth/demo": () => (finish(true), true),
+      "/auth/login": () => {
+        readJson(req).then((body) => {
+          if (body.email === "reader@example.com" && body.password === "correct-horse") finish(true);
+          else error(res, 401, "invalid_credentials", "That email and password don't match.");
+        });
+        return true;
+      },
+      "/auth/register": () => {
+        readJson(req).then((body) => {
+          if (body.email === "taken@example.com") error(res, 409, "email_taken", "An account with this email already exists.");
+          else finish(false);
+        });
+        return true;
+      },
+    }[path]?.() ?? false
+  );
+}
+
 async function handle(req, res) {
   const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
   const path = url.pathname;
@@ -158,6 +202,8 @@ async function handle(req, res) {
   }
 
   if (handleCatalogue({ res, path, send })) return;
+
+  if (path.startsWith("/auth/") && handleAuth({ req, res, path })) return;
 
   const id = cookieOf(req);
   // test-only: read what the app saved

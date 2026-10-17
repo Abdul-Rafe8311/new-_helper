@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowRight, Download, Loader2 } from "lucide-react";
+import { Archive, ArrowRight, Download, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ApiError, api, pdfHref, type EditionSummary } from "@/lib/api";
 
 import { useAccent, useActiveEdition } from "./chrome-context";
@@ -65,10 +66,12 @@ export function ArchiveList({ initial }: { initial: EditionSummary[] }) {
     <PageFrame nav={<SideNav base="/today" />}>
       <EditionHeader title="Archive" dateLine="Every edition, as it was printed" />
       {editions.length === 0 ? (
-        <p className="py-16 text-center font-sans text-xl font-bold">
-          No past editions yet.
-          <span className="mt-1 block text-base font-normal text-muted">They are filed here each morning.</span>
-        </p>
+        <EmptyState
+          icon={Archive}
+          title="No past editions yet."
+          body="They are filed here each morning."
+          action={{ href: "/today", label: "Read today's paper" }}
+        />
       ) : (
         <ul aria-label="Past editions" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {editions.map((edition) => {
@@ -89,7 +92,7 @@ export function ArchiveList({ initial }: { initial: EditionSummary[] }) {
                   {edition.top_topics.length > 0 ? (
                     <ul className="mt-3 flex flex-wrap gap-1.5">
                       {edition.top_topics.slice(0, 3).map((topic) => (
-                        <li key={topic} className="rounded-full bg-cat/10 px-2.5 py-0.5 font-sans text-xs font-semibold text-cat">
+                        <li key={topic} className="rounded-full bg-ink/8 px-2.5 py-0.5 font-sans text-xs font-semibold text-ink">
                           {topic}
                         </li>
                       ))}
