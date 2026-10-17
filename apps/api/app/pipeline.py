@@ -119,11 +119,22 @@ async def enrich(ctx: StageContext) -> None:
     await run(ctx.settings)
 
 
+async def render(ctx: StageContext) -> None:
+    from app.pdf.stage import RenderFailedError
+    from app.pdf.stage import render as run  # lazy: keeps WeasyPrint off the other stages
+
+    try:
+        await run(ctx.settings, ctx.user_email)
+    except RenderFailedError as exc:
+        raise PipelineError(str(exc)) from exc
+
+
 STAGE_FNS: dict[str, StageFn] = {
     "healthcheck": healthcheck,
     "seed": seed,
     "ingest": ingest,
     "enrich": enrich,
+    "render": render,
 }
 
 
