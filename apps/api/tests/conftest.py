@@ -17,10 +17,12 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
+from app.api.deps import get_background_sessionmaker
 from app.core.config import Settings
 from app.db.session import build_engine, get_session
 from app.main import create_app
 from app.models import Base  # importing app.models registers every table
+from tests.editions_helpers import sessionmaker_for
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 TEST_DB_SCHEMA = os.environ.get("TEST_DB_SCHEMA")
@@ -94,6 +96,7 @@ def api(db: AsyncSession) -> FastAPI:
         yield db
 
     app.dependency_overrides[get_session] = _session
+    app.dependency_overrides[get_background_sessionmaker] = lambda: sessionmaker_for(db)
     return app
 
 

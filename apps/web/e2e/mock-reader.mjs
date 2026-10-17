@@ -132,6 +132,125 @@ function archive(before, limit) {
   }));
 }
 
+// --- interests: a stand-in for apps/api/app/services/interests.py and the learner -------------------
+
+const TOPIC_OF = { "The Agent Economy": "ai", "Pavilion End": "cricket", Markets: "markets", Science: "science", "Outside your bubble": "food" };
+const LABELS = { ai: "Artificial Intelligence", cricket: "Cricket", markets: "Markets", science: "Science", food: "Food" };
+
+function interests(s) {
+  return (s.interests ??= {
+    topics: { ai: 0.9, cricket: 0.8, markets: 0.6, science: 0.4 },
+    entities: [
+      { id: "ent-babar", kind: "people", name: "Babar Azam", pinned: false },
+      { id: "ent-qalandars", kind: "teams", name: "Lahore Qalandars", pinned: true },
+    ],
+    blocked: [],
+    log: [{ day: isoDay(1), text: "Raised Cricket: 4 recent reads of Cricket stories" }],
+  });
+}
+
+const interestsOut = (s) => {
+  const i = interests(s);
+  return {
+    topics: Object.entries(i.topics)
+      .sort((a, b) => b[1] - a[1])
+      .map(([slug, weight]) => ({ slug, label: LABELS[slug] ?? slug, weight })),
+    entities: i.entities,
+    blocked: i.blocked.map((topic) => ({ topic, label: LABELS[topic] ?? topic })),
+    is_new: false,
+  };
+};
+
+const timelineOut = (s) => {
+  const days = new Map();
+  [...interests(s).log].reverse().forEach((entry, n) => {
+    if (!days.has(entry.day)) days.set(entry.day, []);
+    days.get(entry.day).push({ id: `${entry.day}-${n}`, at: new Date().toISOString(), kind: "topic_weight", text: entry.text });
+  });
+  return { days: [...days].sort((a, b) => b[0].localeCompare(a[0])).map(([date, entries]) => ({ date, entries })) };
+};
+
+const STRONG = new Set(["more_like", "less_like", "save"]);
+
+/** The learner, reduced to its outline: skips lower a topic, reads raise it, less_like blocks it. */
+function learn(s, { strongOnly }) {
+  const i = interests(s);
+  const topicOf = (itemId) => TOPIC_OF[STORIES[Number(itemId.slice(-12)) - 1]?.[0]];
+  for (const e of s.events) {
+    if (e.learned || (strongOnly && !STRONG.has(e.type))) continue;
+    const topic = topicOf(e.edition_item_id);
+    if (!topic || e.value === 0) continue;
+    const label = LABELS[topic];
+    const note = (text) => i.log.push({ day: isoDay(), text });
+    if (e.type === "skip") {
+      i.topics[topic] = Math.max(0, (i.topics[topic] ?? 0.3) - 0.1);
+      e.learned = true;
+      note(`Lowered ${label}: you skipped a ${label} story`);
+    } else if (e.type === "open" || e.type === "more_like" || e.type === "save") {
+      i.topics[topic] = Math.min(1, (i.topics[topic] ?? 0.3) + 0.1);
+      e.learned = true;
+      note(`Raised ${label}: you ${e.type === "open" ? "read" : e.type === "save" ? "saved" : "asked for more of"} a ${label} story`);
+    } else if (e.type === "less_like") {
+      e.learned = true;
+      if (!i.blocked.includes(topic)) i.blocked.push(topic);
+      note(`Blocked ${label}: you kept asking for less of it`);
+    }
+  }
+}
+
+/** Test-only: the nightly learn stage. */
+export function runNightly(s) {
+  s.events ??= [];
+  learn(s, { strongOnly: false });
+}
+
+function handleInterests({ req, res, path, session: s, send, error, readJson }) {
+  const i = interests(s);
+  if (path === "/me/interests" && req.method === "GET") return send(res, 200, interestsOut(s)), true;
+  if (path === "/me/interests/timeline") return send(res, 200, timelineOut(s)), true;
+  if (path === "/me/interests/topics" && req.method === "PUT") {
+    return readJson(req).then((body) => {
+      for (const [slug, weight] of Object.entries(body.topics ?? {})) {
+        if (i.topics[slug] !== weight) i.log.push({ day: isoDay(), text: `You set ${LABELS[slug] ?? slug} to ${Math.round(weight * 100)}%` });
+        i.topics[slug] = weight;
+      }
+      send(res, 200, interestsOut(s));
+    }), true;
+  }
+  const pin = /^\/me\/interests\/entities\/([\w-]+)\/pin$/.exec(path);
+  if (pin && req.method === "POST") {
+    return readJson(req).then((body) => {
+      const entity = i.entities.find((e) => e.id === pin[1]);
+      if (!entity) return error(res, 404, "entity_not_found", "That item is not in your learned list");
+      entity.pinned = body.pinned ?? true;
+      send(res, 200, interestsOut(s));
+    }), true;
+  }
+  const entity = /^\/me\/interests\/entities\/([\w-]+)$/.exec(path);
+  if (entity && req.method === "DELETE") {
+    i.entities = i.entities.filter((e) => e.id !== entity[1]);
+    return send(res, 200, interestsOut(s)), true;
+  }
+  if (path === "/me/interests/blocked" && req.method === "POST") {
+    return readJson(req).then((body) => {
+      if (!i.blocked.includes(body.topic)) i.blocked.push(body.topic);
+      send(res, 200, interestsOut(s));
+    }), true;
+  }
+  const unblock = /^\/me\/interests\/blocked\/([\w-]+)$/.exec(path);
+  if (unblock && req.method === "DELETE") {
+    i.blocked = i.blocked.filter((t) => t !== unblock[1]);
+    return send(res, 200, interestsOut(s)), true;
+  }
+  if (path === "/me/interests/reset" && req.method === "POST") {
+    i.topics = { ai: 0.9, cricket: 0.8, markets: 0.6, science: 0.4 };
+    i.entities = [];
+    i.log.push({ day: isoDay(), text: "Reset to your onboarding choices" });
+    return send(res, 200, interestsOut(s)), true;
+  }
+  return false;
+}
+
 const PDF = Buffer.from("%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Count 0/Kids[]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n");
 
 /**
@@ -143,6 +262,8 @@ export function handleReader({ req, res, path, url, session, send, error, readJs
   s.events ??= [];
   s.opens ??= [];
   s.pdfDownloads ??= 0;
+
+  if (path.startsWith("/me/interests") && handleInterests({ req, res, path, session: s, send, error, readJson })) return true;
 
   if (path === "/editions/today" && req.method === "GET") {
     const today = todaysEdition(s);
@@ -207,6 +328,8 @@ export function handleReader({ req, res, path, url, session, send, error, readJs
           accepted += 1;
         }
       }
+      // like the API: a strong signal teaches the paper straight away, the rest waits for the night
+      if ((body.events ?? []).some((e) => STRONG.has(e.type))) learn(s, { strongOnly: true });
       s.eventBatches = (s.eventBatches ?? 0) + 1;
       send(res, 200, { accepted, rejected: (body.events?.length ?? 0) - accepted });
     }), true;

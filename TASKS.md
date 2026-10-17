@@ -11,7 +11,7 @@
 - [x] T8 Ranking & composer
 - [x] T9 PDF
 - [x] T10 Web reader & archive
-- [ ] T11 Learning loop
+- [x] T11 Learning loop
 - [ ] T12 Explore features
 - [ ] T13 Docs & submission
 
@@ -76,3 +76,4 @@
 - T11: retractions (`value: 0`) only cancel inside one learner run; undoing a skip after the run that counted it does not reverse that run.
 - T11: weights, thresholds and the 14-day half-life are untuned against real readers; the simulator shows the loop works, not that these numbers are optimal.
 - T11: matplotlib is a dev-only dependency (the simulator's chart); the API never imports it.
+- T11 (part 2): `/interests` ("What Daybreak has learned about you") and `/me/interests/*` are in; manual edits log `profile_changes` rows with `run="manual"` and `config.manual_edit_weight`. Pins and the onboarding snapshot (for reset) live in `reader_profiles.learn_state` (no migration). `POST /events` now schedules `learn_after_events` as a background task; the `/events` contract is unchanged. Deferred: adding a blocked topic from the UI (the API has `POST /me/interests/blocked`), and readers who finished onboarding before this change reset to their saved `beats` rather than the full original weights. The e2e mock API stands in for the learner (see `e2e/mock-reader.mjs`).

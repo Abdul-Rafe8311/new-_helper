@@ -106,6 +106,11 @@ async def build_and_store_profile(session: AsyncSession, user: User) -> None:
         profile.reading_minutes = reading.reading_minutes
         profile.depth = Depth(reading.depth)
         profile.surprise_me = reading.surprise_me
+    # what "reset" on the interests page returns to
+    profile.learn_state = {
+        **(profile.learn_state or {}),
+        "onboarding_defaults": {"topics": built.topics},
+    }
     profile.onboarding_completed = True
 
 
