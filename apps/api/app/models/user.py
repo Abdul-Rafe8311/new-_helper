@@ -93,8 +93,8 @@ class ProfileChange(UUIDPrimaryKey, Timestamps, Base):
     # explore_rate | explore_graduated
     kind: Mapped[str] = mapped_column(String(32), nullable=False)
     key: Mapped[str | None] = mapped_column(String(200))
-    before: Mapped[Any] = mapped_column(JSONB)
-    after: Mapped[Any] = mapped_column(JSONB)
+    before: Mapped[Any] = mapped_column(JSONB, nullable=True)
+    after: Mapped[Any] = mapped_column(JSONB, nullable=True)
     # signed size of the change; for the interest vector, 1 - cosine(old, new)
     delta: Mapped[float | None] = mapped_column(Float)
     reason: Mapped[str] = mapped_column(Text, nullable=False)
