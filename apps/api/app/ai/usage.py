@@ -1,5 +1,8 @@
 """LLM spend persisted in llm_usage, and the daily budget guard."""
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select
@@ -7,6 +10,27 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.ai.llm import LLMCall
 from app.models.ai import LLMUsage
+
+# Calls made inside `track_usage()` are also collected for the caller, so one unit of work (an
+# edition) can report its own cost even while others run concurrently: each asyncio task has its
+# own context.
+_scope: ContextVar[list[LLMCall] | None] = ContextVar("llm_usage_scope", default=None)
+
+
+@contextmanager
+def track_usage() -> Iterator[list[LLMCall]]:
+    calls: list[LLMCall] = []
+    token = _scope.set(calls)
+    try:
+        yield calls
+    finally:
+        _scope.reset(token)
+
+
+def note_usage(call: LLMCall) -> None:
+    """Called by every recorder; adds the call to the active `track_usage()` scope, if any."""
+    if (calls := _scope.get()) is not None:
+        calls.append(call)
 
 
 def start_of_utc_day(now: datetime | None = None) -> datetime:
@@ -30,6 +54,7 @@ class DBUsageRecorder:
         self._sessionmaker = sessionmaker
 
     async def record(self, call: LLMCall) -> None:
+        note_usage(call)
         async with self._sessionmaker() as session:
             session.add(
                 LLMUsage(

@@ -9,8 +9,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.ai.embedder import Embedder, FastEmbedEmbedder, article_embedding_text
-from app.ai.llm import AnthropicProvider, LLMProvider
-from app.ai.usage import BudgetGuard, DBUsageRecorder
+from app.ai.factory import build_llm
+from app.ai.llm import LLMProvider
+from app.ai.usage import BudgetGuard
 from app.core.config import Settings
 from app.db.session import get_sessionmaker
 from app.enrich.clusters import cluster_recent
@@ -91,19 +92,6 @@ async def run_enrich(
         report.llm_calls = summarised.llm_calls
     report.llm_cost_usd = round(await guard.spent() - spent_before, 6)
     return report
-
-
-def build_llm(
-    settings: Settings, sessionmaker: async_sessionmaker[AsyncSession]
-) -> LLMProvider | None:
-    """None when no API key is set: summaries are then extractive."""
-    key = settings.anthropic_api_key.get_secret_value()
-    if not key:
-        log.warning("anthropic_key_missing", effect="extractive summaries only")
-        return None
-    from anthropic import AsyncAnthropic
-
-    return AnthropicProvider(AsyncAnthropic(api_key=key), DBUsageRecorder(sessionmaker))
 
 
 async def enrich(settings: Settings) -> None:
