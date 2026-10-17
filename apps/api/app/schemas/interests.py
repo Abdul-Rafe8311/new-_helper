@@ -2,7 +2,8 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 
-from app.core.taxonomy import TOPIC_SLUGS
+from app.core.catalogue import CATALOGUE_SLUGS
+from app.sources.registry import load_registry
 
 
 class TopicWeight(BaseModel):
@@ -27,6 +28,8 @@ class InterestsOut(BaseModel):
     topics: list[TopicWeight]
     entities: list[LearnedEntity]
     blocked: list[BlockedTopic]
+    # registry sources the reader has switched off
+    blocked_sources: list[str] = []
     # true until the reader has produced any learning or edit, so the page can explain itself
     is_new: bool
 
@@ -37,7 +40,7 @@ class TopicsIn(BaseModel):
     @field_validator("topics")
     @classmethod
     def known_topics(cls, value: dict[str, float]) -> dict[str, float]:
-        if unknown := sorted(set(value) - TOPIC_SLUGS):
+        if unknown := sorted(set(value) - CATALOGUE_SLUGS):
             raise ValueError(f"unknown topics: {', '.join(unknown)}")
         return value
 
@@ -52,8 +55,19 @@ class BlockedIn(BaseModel):
     @field_validator("topic")
     @classmethod
     def known_topic(cls, value: str) -> str:
-        if value not in TOPIC_SLUGS:
+        if value not in CATALOGUE_SLUGS:
             raise ValueError(f"unknown topic: {value}")
+        return value
+
+
+class BlockedSourceIn(BaseModel):
+    source: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)]
+
+    @field_validator("source")
+    @classmethod
+    def known_source(cls, value: str) -> str:
+        if value not in {s.name for s in load_registry()}:
+            raise ValueError(f"unknown source: {value}")
         return value
 
 

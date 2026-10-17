@@ -3,7 +3,14 @@
 from fastapi import APIRouter
 
 from app.api.deps import CurrentUser, SessionDep
-from app.schemas.interests import BlockedIn, InterestsOut, PinIn, TimelineOut, TopicsIn
+from app.schemas.interests import (
+    BlockedIn,
+    BlockedSourceIn,
+    InterestsOut,
+    PinIn,
+    TimelineOut,
+    TopicsIn,
+)
 from app.services import interests as service
 
 router = APIRouter(prefix="/me/interests", tags=["interests"])
@@ -39,6 +46,20 @@ async def post_blocked(body: BlockedIn, user: CurrentUser, session: SessionDep) 
 @router.delete("/blocked/{topic}")
 async def delete_blocked(topic: str, user: CurrentUser, session: SessionDep) -> InterestsOut:
     return await service.unblock_topic(session, user.profile, topic)
+
+
+@router.post("/blocked-sources")
+async def post_blocked_source(
+    body: BlockedSourceIn, user: CurrentUser, session: SessionDep
+) -> InterestsOut:
+    return await service.block_source(session, user.profile, body.source)
+
+
+@router.delete("/blocked-sources/{source}")
+async def delete_blocked_source(
+    source: str, user: CurrentUser, session: SessionDep
+) -> InterestsOut:
+    return await service.unblock_source(session, user.profile, source)
 
 
 @router.post("/reset")
