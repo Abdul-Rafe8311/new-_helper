@@ -4,21 +4,21 @@
 # topics: taxonomy slugs (app/core/taxonomy.py). quality: 0..1 prior, default 0.5.
 sources:
   # World
-  - {name: BBC News World, kind: rss, url: "https://feeds.bbci.co.uk/news/world/rss.xml", topics: [world], quality: 0.8}
-  - {name: The Guardian World, kind: rss, url: "https://www.theguardian.com/world/rss", topics: [world], quality: 0.8}
+  - {name: BBC News World, kind: rss, url: "https://feeds.bbci.co.uk/news/world/rss.xml", topics: [world], quality: 0.8, high_value: true}
+  - {name: The Guardian World, kind: rss, url: "https://www.theguardian.com/world/rss", topics: [world], quality: 0.8, high_value: true}
   - {name: NPR News, kind: rss, url: "https://feeds.npr.org/1001/rss.xml", topics: [world, us-politics], quality: 0.7}
   - {name: DW News, kind: rss, url: "https://rss.dw.com/rdf/rss-en-all", topics: [world, europe], quality: 0.7}
   # Pakistan and South Asia
-  - {name: Dawn, kind: rss, url: "https://www.dawn.com/feeds/home", topics: [pakistan], quality: 0.8}
+  - {name: Dawn, kind: rss, url: "https://www.dawn.com/feeds/home", topics: [pakistan], quality: 0.8, high_value: true}
   - {name: The Express Tribune, kind: rss, url: "https://tribune.com.pk/feed/home", topics: [pakistan], quality: 0.6}
   - {name: Geo News, kind: rss, url: "https://www.geo.tv/rss/1/1", topics: [pakistan], quality: 0.6}
   - {name: Business Recorder, kind: rss, url: "https://www.brecorder.com/feeds/latest-news", topics: [pakistan, economy, markets], quality: 0.6}
-  - {name: BBC News Asia, kind: rss, url: "https://feeds.bbci.co.uk/news/world/asia/rss.xml", topics: [south-asia, world], quality: 0.8}
+  - {name: BBC News Asia, kind: rss, url: "https://feeds.bbci.co.uk/news/world/asia/rss.xml", topics: [south-asia, world], quality: 0.8, high_value: true}
   # US
   - {name: NPR Politics, kind: rss, url: "https://feeds.npr.org/1014/rss.xml", topics: [us-politics], quality: 0.7}
   - {name: Politico, kind: rss, url: "https://rss.politico.com/politics-news.xml", topics: [us-politics], quality: 0.7}
   # Business and markets
-  - {name: BBC Business, kind: rss, url: "https://feeds.bbci.co.uk/news/business/rss.xml", topics: [business, economy], quality: 0.8}
+  - {name: BBC Business, kind: rss, url: "https://feeds.bbci.co.uk/news/business/rss.xml", topics: [business, economy], quality: 0.8, high_value: true}
   - {name: CNBC Top News, kind: rss, url: "https://www.cnbc.com/id/100003114/device/rss/rss.html", topics: [business, markets]}
   - {name: MarketWatch Top Stories, kind: rss, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories", topics: [markets, personal-finance]}
   - {name: CoinDesk, kind: rss, url: "https://www.coindesk.com/arc/outboundfeeds/rss", topics: [crypto]}
@@ -28,7 +28,7 @@ sources:
   - {name: TechCrunch, kind: rss, url: "https://techcrunch.com/feed/", topics: [tech, startups]}
   - {name: Krebs on Security, kind: rss, url: "https://krebsonsecurity.com/feed/", topics: [cybersecurity], quality: 0.7}
   # AI
-  - {name: MIT Technology Review AI, kind: rss, url: "https://www.technologyreview.com/topic/artificial-intelligence/feed", topics: [ai], quality: 0.8}
+  - {name: MIT Technology Review AI, kind: rss, url: "https://www.technologyreview.com/topic/artificial-intelligence/feed", topics: [ai], quality: 0.8, high_value: true}
   - {name: The Decoder, kind: rss, url: "https://the-decoder.com/feed/", topics: [ai]}
   - {name: Hugging Face Blog, kind: rss, url: "https://huggingface.co/blog/feed.xml", topics: [ai, software]}
   # Startups
@@ -36,15 +36,15 @@ sources:
   # Science
   - {name: ScienceDaily, kind: rss, url: "https://www.sciencedaily.com/rss/all.xml", topics: [science]}
   - {name: New Scientist, kind: rss, url: "https://www.newscientist.com/feed/", topics: [science], quality: 0.7}
-  - {name: Quanta Magazine, kind: rss, url: "https://www.quantamagazine.org/feed/", topics: [science], quality: 0.8}
+  - {name: Quanta Magazine, kind: rss, url: "https://www.quantamagazine.org/feed/", topics: [science], quality: 0.8, high_value: true}
   # Health
-  - {name: BBC Health, kind: rss, url: "https://feeds.bbci.co.uk/news/health/rss.xml", topics: [health], quality: 0.8}
+  - {name: BBC Health, kind: rss, url: "https://feeds.bbci.co.uk/news/health/rss.xml", topics: [health], quality: 0.8, high_value: true}
   - {name: STAT News, kind: rss, url: "https://www.statnews.com/feed/", topics: [health], quality: 0.7}
   # Climate
-  - {name: The Guardian Environment, kind: rss, url: "https://www.theguardian.com/uk/environment/rss", topics: [climate], quality: 0.8}
+  - {name: The Guardian Environment, kind: rss, url: "https://www.theguardian.com/uk/environment/rss", topics: [climate], quality: 0.8, high_value: true}
   - {name: Carbon Brief, kind: rss, url: "https://www.carbonbrief.org/feed", topics: [climate, energy], quality: 0.7}
   # Cricket
-  - {name: ESPNcricinfo, kind: rss, url: "https://www.cricinfo.com/rss/content/story/feeds/0.xml", topics: [cricket], quality: 0.8}
+  - {name: ESPNcricinfo, kind: rss, url: "https://www.cricinfo.com/rss/content/story/feeds/0.xml", topics: [cricket], quality: 0.8, high_value: true}
   - {name: BBC Sport Cricket, kind: rss, url: "https://feeds.bbci.co.uk/sport/cricket/rss.xml", topics: [cricket], quality: 0.7}
   # Football
   - {name: BBC Sport Football, kind: rss, url: "https://feeds.bbci.co.uk/sport/football/rss.xml", topics: [football], quality: 0.7}
@@ -63,3 +63,10 @@ sources:
   # Gaming
   - {name: Polygon, kind: rss, url: "https://www.polygon.com/feed/", topics: [gaming]}
   - {name: Rock Paper Shotgun, kind: rss, url: "https://www.rockpapershotgun.com/feed", topics: [gaming]}
+
+  # Query-driven sources: one row each so articles and failures are attributed
+  - {name: Google News, kind: google_news, url: "https://news.google.com/rss/search", topics: [world], quality: 0.6}
+  - {name: Hacker News, kind: hackernews, url: "https://hn.algolia.com/api/v1/search", topics: [tech, startups], quality: 0.6}
+  - {name: arXiv cs.AI, kind: arxiv, url: "https://export.arxiv.org/api/query?search_query=cat:cs.AI", topics: [ai, science], quality: 0.7}
+  - {name: arXiv cs.CL, kind: arxiv, url: "https://export.arxiv.org/api/query?search_query=cat:cs.CL", topics: [ai, science], quality: 0.7}
+  - {name: arXiv cs.LG, kind: arxiv, url: "https://export.arxiv.org/api/query?search_query=cat:cs.LG", topics: [ai, science], quality: 0.7}
