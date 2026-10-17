@@ -32,6 +32,16 @@ export type SavedItem = Schemas["SavedItem"];
 export type Story = Schemas["StoryOut"];
 export type StoryImage = Schemas["StoryImage"];
 export type StorySource = Schemas["StorySource"];
+export type Interests = {
+  topics: { slug: string; label: string; weight: number }[];
+  entities: { id: string; kind: string; name: string; pinned: boolean }[];
+  blocked: { topic: string; label: string }[];
+  /** True until the paper has learned or been told anything. */
+  is_new: boolean;
+};
+export type Timeline = {
+  days: { date: string; entries: { id: string; at: string; kind: string; text: string }[] }[];
+};
 export type StepBody = NameStep | BeatsStep | WordsStep | TasteStep | ReadingStep;
 
 /** Every API failure, carrying the `{"error": {"code", "message"}}` body. */
@@ -102,6 +112,16 @@ export function createApiClient({ baseUrl = "/api", headers = {}, fetch: fetchIm
     profile: {
       get: () => request<Profile>("GET", "/me/profile"),
       update: (changes: ProfileUpdate) => request<Profile>("PUT", "/me/profile", changes),
+    },
+    interests: {
+      get: () => request<Interests>("GET", "/me/interests"),
+      timeline: () => request<Timeline>("GET", "/me/interests/timeline"),
+      setTopics: (topics: Record<string, number>) => request<Interests>("PUT", "/me/interests/topics", { topics }),
+      pin: (id: string, pinned: boolean) => request<Interests>("POST", `/me/interests/entities/${id}/pin`, { pinned }),
+      removeEntity: (id: string) => request<Interests>("DELETE", `/me/interests/entities/${id}`),
+      block: (topic: string) => request<Interests>("POST", "/me/interests/blocked", { topic }),
+      unblock: (topic: string) => request<Interests>("DELETE", `/me/interests/blocked/${encodeURIComponent(topic)}`),
+      reset: () => request<Interests>("POST", "/me/interests/reset"),
     },
     editions: {
       today: () => request<Edition>("GET", "/editions/today"),
