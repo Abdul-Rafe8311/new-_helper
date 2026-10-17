@@ -20,7 +20,6 @@ permissions:
 env:
   # workflow_run sees the CI-tested commit; a manual run deploys the selected ref.
   SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
-  IMAGE: ghcr.io/${{ github.repository_owner }}/newshelper-api
 
 jobs:
   gate:
@@ -31,10 +30,14 @@ jobs:
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.event == 'push')
     outputs:
-      sha: ${{ steps.sha.outputs.sha }}
+      sha: ${{ steps.meta.outputs.sha }}
+      image: ${{ steps.meta.outputs.image }}
     steps:
-      - id: sha
-        run: echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+      - id: meta
+        run: |
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          # GHCR repository names must be lowercase.
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/newshelper-api" >> "$GITHUB_OUTPUT"
 
   image:
     name: API · build and push image
@@ -63,8 +66,8 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: |
-            ${{ env.IMAGE }}:${{ needs.gate.outputs.sha }}
-            ${{ env.IMAGE }}:latest
+            ${{ needs.gate.outputs.image }}:${{ needs.gate.outputs.sha }}
+            ${{ needs.gate.outputs.image }}:latest
           build-args: GIT_SHA=${{ needs.gate.outputs.sha }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
@@ -74,6 +77,7 @@ jobs:
       - id: ref
         run: echo "ref=${IMAGE}:${SHA_TAG}" >> "$GITHUB_OUTPUT"
         env:
+          IMAGE: ${{ needs.gate.outputs.image }}
           SHA_TAG: ${{ needs.gate.outputs.sha }}
 
   api:
