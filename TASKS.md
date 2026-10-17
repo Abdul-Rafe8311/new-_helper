@@ -17,4 +17,3 @@
 
 ## Deferred / notes
 
-- T0: GitHub token lacks the `workflow` scope; run `gh auth refresh -h github.com -s workflow` before T1 pushes workflow files.
