@@ -47,6 +47,7 @@ class EventType(StrEnum):
     ONBOARDING_LIKE = "onboarding_like"
     ONBOARDING_SKIP = "onboarding_skip"
     ASK = "ask"
+    MARK_READ = "mark_read"
 
 
 class RunStatus(StrEnum):
