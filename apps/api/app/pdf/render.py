@@ -5,6 +5,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from weasyprint import CSS, HTML, Document
+from weasyprint.text.fonts import FontConfiguration
 
 from app.pdf.layout import MAX_SQUEEZE, PagePlan, plan_pages
 from app.pdf.qr import qr_data_uri
@@ -47,9 +48,22 @@ def render_html(
     )
 
 
+# Registering the bundled fonts and parsing the stylesheet is a large part of a render, and a render
+# runs several times per edition (front-page fitting), so both are done once per process.
+_fonts = FontConfiguration()
+_stylesheet: CSS | None = None
+
+
+def _stylesheets(snapshot: EditionSnapshot) -> list[CSS]:
+    global _stylesheet
+    if _stylesheet is None:
+        _stylesheet = CSS(filename=str(STATIC_DIR / "newspaper.css"), font_config=_fonts)
+    return [_stylesheet, CSS(string=page_css(snapshot), font_config=_fonts)]
+
+
 def _document(html: str, snapshot: EditionSnapshot) -> Document:
     return HTML(string=html, base_url=str(STATIC_DIR) + "/").render(
-        stylesheets=[CSS(string=page_css(snapshot))]
+        stylesheets=_stylesheets(snapshot), font_config=_fonts
     )
 
 
