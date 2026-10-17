@@ -41,7 +41,7 @@ export function Masthead({ displayName, email, pdfDate, listen = false }: Masthe
             variant="outline"
             disabled
             aria-label="Listen (coming soon)"
-            className="size-10 rounded-full p-0 font-semibold sm:w-auto sm:px-3 lg:px-4"
+            className="size-9 rounded-full p-0 font-semibold sm:size-10 sm:w-auto sm:px-3 lg:px-4"
           >
             <Headphones aria-hidden="true" />
             <span className="hidden lg:inline">Listen (coming soon)</span>

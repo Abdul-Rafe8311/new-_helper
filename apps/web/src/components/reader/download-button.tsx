@@ -53,7 +53,7 @@ export function DownloadButton({ defaultDate }: { defaultDate: string }) {
         disabled={disabled}
         aria-busy={phase === "loading"}
         onClick={() => void download()}
-        className="press h-10 rounded-full px-3.5 font-semibold sm:px-5"
+        className="press h-10 rounded-full px-3 font-semibold sm:px-5"
       >
         {phase === "loading" ? <Loader2 aria-hidden="true" className="animate-spin" /> : <Download aria-hidden="true" />}
         <span className="hidden sm:inline">{phase === "loading" ? "Preparing…" : "Download newspaper"}</span>
