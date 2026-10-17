@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routers import auth, taxonomy
+from app.api.routers import auth, editions, events, internal, me, taxonomy
 from app.core.config import Settings, get_settings
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
@@ -14,6 +14,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings)
     app = FastAPI(title=f"{settings.app_name} API", version=settings.version)
+
+    app.dependency_overrides[get_settings] = lambda: settings
 
     register_error_handlers(app)
     app.add_middleware(RequestIDMiddleware)
@@ -31,8 +33,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def health() -> dict[str, str]:
         return {"status": "ok", "version": settings.version, "git_sha": settings.git_sha}
 
-    app.include_router(auth.router)
-    app.include_router(taxonomy.router)
+    for module in (auth, me, editions, events, internal, taxonomy):
+        app.include_router(module.router)
     return app
 
 
