@@ -65,7 +65,7 @@ jobs:
       DATABASE_URL: postgresql+asyncpg://newshelper:newshelper@localhost:5432/newshelper_test
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0 # no floating major tag upstream
         with:
           version: "0.13.1"
           python-version: "3.12"
@@ -91,7 +91,7 @@ jobs:
         run: uv run pytest -rs
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: api-coverage
           path: apps/api/coverage.xml
