@@ -5,10 +5,10 @@ import type { StoryImage } from "@/lib/api";
 
 /** Rotation, drift and hover growth for each layer; the growth is capped so layers never collide. */
 const LAYERS = [
-  { r: "-3deg", x: "0%", y: "0%", grow: 1.06, w: "78%" },
-  { r: "5deg", x: "18%", y: "-6%", grow: 1.1, w: "56%" },
-  { r: "-6deg", x: "-14%", y: "26%", grow: 1.1, w: "52%" },
-  { r: "4deg", x: "20%", y: "30%", grow: 1.12, w: "46%" },
+  { r: "-3deg", x: "0%", y: "0%", grow: 1.06, w: "62%", left: "5%", top: "14%" },
+  { r: "5deg", x: "3%", y: "-3%", grow: 1.1, w: "44%", left: "54%", top: "0%" },
+  { r: "-6deg", x: "-3%", y: "3%", grow: 1.1, w: "40%", left: "24%", top: "64%" },
+  { r: "4deg", x: "3%", y: "3%", grow: 1.12, w: "36%", left: "62%", top: "55%" },
 ] as const;
 
 /**
@@ -33,9 +33,9 @@ export function PhotoStack({ images }: { images: StoryImage[] }) {
         return (
           <div
             key={image.url}
-            className="photo-stack__photo absolute top-[10%] left-[8%] aspect-[4/3] overflow-hidden rounded-2xl bg-paper-2 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.35)]"
+            className="photo-stack__photo absolute aspect-[4/3] overflow-hidden rounded-2xl bg-paper-2 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.35)]"
             style={
-              { "--r": layer.r, "--x": layer.x, "--y": layer.y, "--grow": layer.grow, width: layer.w, zIndex: shown.length - i } as CSSProperties
+              { "--r": layer.r, "--x": layer.x, "--y": layer.y, "--grow": layer.grow, width: layer.w, left: layer.left, top: layer.top, zIndex: shown.length - i } as CSSProperties
             }
           >
             <Image

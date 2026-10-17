@@ -9,7 +9,7 @@ export function ShellRoot({ children }: { children: ReactNode }) {
   const { accent } = useChrome();
   return (
     <div
-      className="relative flex min-h-screen flex-col bg-canvas text-ink"
+      className="relative flex min-h-screen flex-col bg-canvas font-sans text-ink"
       style={{ "--cat": accent } as CSSProperties}
     >
       {children}

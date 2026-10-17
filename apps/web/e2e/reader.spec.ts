@@ -245,7 +245,9 @@ test("the layout adapts without horizontal overflow", async ({ page, isMobile })
     const nav = page.getByRole("navigation", { name: "Categories" });
     if (width >= 1280) {
       // sidebar 240px; content starts near 272px; the lead row is 7+5 columns, then thirds
-      expect((await nav.boundingBox())?.width).toBeCloseTo(240 - 0, -1);
+      // the 240px column (the pills leave a 16px gutter before the content)
+      expect((await nav.boundingBox())?.width).toBeGreaterThanOrEqual(220);
+      expect((await nav.boundingBox())?.width).toBeLessThanOrEqual(240);
       expect(first!.x).toBeGreaterThan(250);
       expect(first!.width).toBeGreaterThan(second!.width);
       expect(Math.abs(third!.y - first!.y)).toBeGreaterThan(200); // the third card starts row two

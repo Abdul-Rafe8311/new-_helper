@@ -96,7 +96,7 @@ export function SideNav(props: SideNavProps) {
   const { menuOpen, setMenuOpen } = useChrome();
   return (
     <>
-      <aside className="sticky top-6 hidden max-h-[calc(100vh-3rem)] w-60 shrink-0 self-start overflow-y-auto pb-8 lg:block">
+      <aside className="sticky top-6 hidden max-h-[calc(100vh-3rem)] w-60 shrink-0 self-start overflow-y-auto pr-4 pb-8 lg:block">
         <NavList {...props} />
       </aside>
       <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
