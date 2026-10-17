@@ -4,6 +4,8 @@ import { Archive, ArrowRight, Bookmark, Download, FileText, Newspaper, ThumbsDow
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
+import { PixelScan } from "@/components/ui/pixel-scan";
+
 import { SAMPLE_ARCHIVE_DATES, SAMPLE_DATE, SAMPLE_SECTION_COLORS, SAMPLE_STORIES } from "./sample";
 
 const VIEWS = [
@@ -197,6 +199,7 @@ export function ReadYourWay() {
           <div className="lp-phone">
             <div className="lp-phone__screen">
               <span className="lp-notch" aria-hidden="true" />
+              <PixelScan className="lp-scan" trigger={active} label={VIEWS[active].label.toUpperCase()} cell={5} />
               {VIEWS.map(({ id, label }, i) => (
                 <div
                   key={id}
