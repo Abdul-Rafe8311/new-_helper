@@ -5,7 +5,8 @@ Run by the scheduled GitHub Actions workflow against the prod database:
     python -m app.pipeline --stage all|ingest|enrich|learn|compose|render|seed|healthcheck
                            [--user-email EMAIL]
 
-Only healthcheck and seed exist so far; later tasks register the daily stages in STAGE_FNS.
+Implemented so far: healthcheck, seed and ingest; later tasks register the other daily stages
+in STAGE_FNS.
 """
 
 import argparse
@@ -22,7 +23,10 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
-from app.db.session import get_engine
+from app.db.session import get_engine, get_sessionmaker
+from app.ingest.fetchers.apify import ApifyActorRunner
+from app.ingest.http import PoliteClient
+from app.ingest.service import IngestService
 from app.scripts.seed import run_seed
 
 log = structlog.get_logger(__name__)
@@ -93,7 +97,23 @@ async def seed(ctx: StageContext) -> None:
     await run_seed(ctx.settings)
 
 
-STAGE_FNS: dict[str, StageFn] = {"healthcheck": healthcheck, "seed": seed}
+async def ingest(ctx: StageContext) -> None:
+    """Fetch every active source and today's reader queries, extract and store new articles."""
+    settings = ctx.settings
+    runner = (
+        ApifyActorRunner(settings.apify_token.get_secret_value())
+        if settings.apify_enabled
+        else None
+    )
+    async with PoliteClient(settings.user_agent) as http:
+        service = IngestService.from_settings(settings, get_sessionmaker(), http, runner)
+        stats = await service.run()
+    summary = stats.as_dict()
+    summary.pop("timings")
+    log.info("ingest_done", **summary)
+
+
+STAGE_FNS: dict[str, StageFn] = {"healthcheck": healthcheck, "seed": seed, "ingest": ingest}
 
 
 async def run_stage(stage: str, ctx: StageContext, fns: dict[str, StageFn] = STAGE_FNS) -> None:

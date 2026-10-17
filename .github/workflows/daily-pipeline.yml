@@ -47,6 +47,8 @@ jobs:
         env:
           ENV: prod
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Optional: Apify fallbacks switch on only when this secret exists.
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
           STAGE: ${{ inputs.stage || 'all' }}
           USER_EMAIL: ${{ inputs.user_email }}
         run: uv run python -m app.pipeline --stage "$STAGE" --user-email "$USER_EMAIL"
