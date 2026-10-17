@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -64,15 +64,10 @@ export function SignupForm() {
         error={errors.password?.message}
         {...register("password")}
       />
-      <Button type="submit" variant="accent" className="w-full" disabled={isSubmitting}>
+      <Button type="submit" className="su-cta" disabled={isSubmitting}>
         {isSubmitting ? "Setting the presses…" : "Start my paper"}
+        <ArrowRight aria-hidden="true" />
       </Button>
-      <p className="text-center font-sans text-sm text-muted">
-        Already a reader?{" "}
-        <Link href="/login" className="text-accent underline-offset-4 hover:underline">
-          Sign in
-        </Link>
-      </p>
     </form>
   );
 }
