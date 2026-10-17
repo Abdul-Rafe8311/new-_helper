@@ -81,14 +81,19 @@ async def seed_demo_user(session: AsyncSession, settings: Settings) -> bool:
     return True
 
 
-async def main() -> None:
-    settings = get_settings()
-    configure_logging(settings)
+async def run_seed(settings: Settings) -> None:
+    """Load the source registry and create the demo reader (used by the pipeline's seed stage)."""
     specs = load_registry()
     async with get_sessionmaker()() as session:
         sources = await seed_sources(session, specs)
         created = await seed_demo_user(session, settings)
     log.info("seed_done", sources=sources, demo_user_created=created)
+
+
+async def main() -> None:
+    settings = get_settings()
+    configure_logging(settings)
+    await run_seed(settings)
 
 
 if __name__ == "__main__":
