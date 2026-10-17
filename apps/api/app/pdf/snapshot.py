@@ -111,7 +111,7 @@ def _clean(text: object) -> str:
     return " ".join(str(text or "").split())
 
 
-def _facts(raw: object) -> list[str]:
+def fact_texts(raw: object) -> list[str]:
     if not isinstance(raw, list):
         return []
     facts = []
@@ -131,7 +131,7 @@ def _story(item: Mapping[str, Any]) -> Story:
         slot=item["slot"],
         headline=_clean(item.get("headline") or article.get("headline") or article.get("title")),
         summary=_clean(item.get("summary") or article.get("summary") or article.get("excerpt")),
-        key_facts=_facts(article.get("key_facts")),
+        key_facts=fact_texts(article.get("key_facts")),
         why_text=_clean(item.get("why_text")) or None,
         score=float(item.get("score") or 0.0),
         url=article["url"],
