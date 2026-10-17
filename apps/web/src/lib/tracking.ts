@@ -7,7 +7,15 @@
  * Both are plain classes with injected I/O so they can be tested without a browser.
  */
 
-export type EventType = "impression" | "dwell" | "skip" | "more_like" | "less_like" | "save" | "mark_read";
+export type EventType =
+  | "impression"
+  | "dwell"
+  | "skip"
+  | "more_like"
+  | "less_like"
+  | "save"
+  | "mark_read"
+  | "quiz_answer";
 
 export type TrackedEvent = {
   type: EventType;

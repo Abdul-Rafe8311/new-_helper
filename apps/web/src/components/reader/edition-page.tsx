@@ -1,11 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 
+import { quizEnabled } from "@/lib/config";
 import { loadEdition } from "@/lib/server/editions";
 import { getSession } from "@/lib/server/session";
 
 import { EditionPending } from "./edition-pending";
 import { EditionWorkspace } from "./edition-workspace";
 import { PageFrame } from "./page-frame";
+import { previousDay, questionsOf, recallFrom } from "./quiz/model";
 import { SideNav } from "./side-nav";
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -34,8 +36,14 @@ export async function EditionPage({ date, basePath }: { date: "today" | string; 
       </PageFrame>
     );
   }
+  // The quiz belongs to today's paper only: answering an old one must not backfill the streak.
+  const withQuiz = date === "today" && quizEnabled();
+  // A hiccup fetching yesterday's paper must not cost the reader today's.
+  const yesterday = withQuiz ? await loadEdition(previousDay(edition.date)).catch(() => null) : null;
   return (
     <EditionWorkspace
+      quiz={withQuiz ? questionsOf(edition) : []}
+      recall={withQuiz ? recallFrom(edition.date, yesterday) : null}
       edition={edition}
       timeZone={session.user.timezone}
       now={new Date().toISOString()}

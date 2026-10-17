@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { quizEnabled } from "@/lib/config";
 import type { Session } from "@/lib/server/session";
 
 import { AmbientBackground } from "./ambient-background";
@@ -34,6 +35,7 @@ export function ReaderChrome({ session, children }: { session: Session; children
             displayName={session.user.display_name}
             email={session.user.email}
             pdfDate={localDate(session.user.timezone)}
+            listen={quizEnabled()}
           />
           {children}
         </ShellRoot>
