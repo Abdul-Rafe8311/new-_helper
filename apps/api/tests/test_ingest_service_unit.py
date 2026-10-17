@@ -77,3 +77,43 @@ def test_interleave_round_robins_domains() -> None:
         "https://a.test/2",
         "https://a.test/3",
     ]
+
+
+def _src(kind: SourceKind, url: str, **kw: object) -> Source:
+    return Source(
+        id=uuid.uuid4(), name=url, kind=kind, url=url, active=kw.pop("active", True), **kw
+    )  # type: ignore[arg-type]
+
+
+def test_build_jobs_maps_source_kinds_to_fetchers() -> None:
+    from app.core.config import Settings
+    from app.ingest.fetchers.google_news import PAKISTAN, US
+    from app.ingest.service import build_jobs
+
+    sources = [
+        _src(SourceKind.RSS, "https://a.test/feed"),
+        _src(SourceKind.RSS, "https://dead.test/feed", active=False),
+        _src(SourceKind.HACKERNEWS, "https://hn.algolia.com/api/v1/search"),
+        _src(SourceKind.ARXIV, "https://export.arxiv.org/api/query?search_query=cat:cs.AI"),
+        _src(SourceKind.GOOGLE_NEWS, "https://news.google.com/rss/search"),
+        _src(SourceKind.REDDIT, "https://www.reddit.com"),
+    ]
+    queries = [("PSL", US), ("PSL", PAKISTAN)]
+
+    off = build_jobs(sources, queries, http=None, resolver=None, settings=Settings(env="test"))  # type: ignore[arg-type]
+    assert sorted(j.fetcher.label for j in off) == [
+        "arxiv:cs.AI",
+        "google_news:PK:PSL",
+        "google_news:US:PSL",
+        "hackernews",
+        "https://a.test/feed",
+    ]
+
+    on = build_jobs(
+        sources,
+        [],
+        http=None,  # type: ignore[arg-type]
+        resolver=None,  # type: ignore[arg-type]
+        settings=Settings(env="test", reddit_enabled=True, reddit_subreddits=["worldnews"]),
+    )
+    assert "reddit:r/worldnews" in [j.fetcher.label for j in on]
