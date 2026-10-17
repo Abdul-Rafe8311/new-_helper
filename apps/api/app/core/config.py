@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     llm_daily_budget_usd: float = 2.0
     embedding_model: str = "BAAI/bge-small-en-v1.5"
     embedding_dim: int = 384
+    fastembed_cache_dir: str = "~/.cache/fastembed"
 
     # Scraping
     user_agent: str = f"NewsHelperBot/0.1 (+{REPO_URL})"

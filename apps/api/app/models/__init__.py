@@ -1,6 +1,7 @@
 """SQLAlchemy models. Importing this package registers every table on Base.metadata."""
 
 from app.db.base import Base
+from app.models.ai import LLMUsage, TopicPrototype
 from app.models.content import Article, DecodedLink, Source
 from app.models.edition import Edition, EditionItem, PipelineRun, ReaderEvent
 from app.models.enums import Depth, EditionStatus, EventType, RunStatus, Slot, SourceKind
@@ -15,6 +16,7 @@ __all__ = [
     "EditionItem",
     "EditionStatus",
     "EventType",
+    "LLMUsage",
     "PipelineRun",
     "ReaderEvent",
     "ReaderProfile",
@@ -22,5 +24,6 @@ __all__ = [
     "Slot",
     "Source",
     "SourceKind",
+    "TopicPrototype",
     "User",
 ]
