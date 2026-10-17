@@ -48,9 +48,12 @@ async def engine() -> AsyncIterator[AsyncEngine]:
     eng = build_engine(TEST_DATABASE_URL, search_path=search_path)
     async with eng.begin() as conn:
         if TEST_DB_SCHEMA:
-            await conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{TEST_DB_SCHEMA}"'))
+            # Start clean and skip the existence check: it would see tables that are visible
+            # through "public" on the search path and wrongly skip creating our own copies.
+            await conn.execute(text(f'DROP SCHEMA IF EXISTS "{TEST_DB_SCHEMA}" CASCADE'))
+            await conn.execute(text(f'CREATE SCHEMA "{TEST_DB_SCHEMA}"'))
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector SCHEMA public"))
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(lambda c: Base.metadata.create_all(c, checkfirst=not TEST_DB_SCHEMA))
     yield eng
     if TEST_DB_SCHEMA:
         async with eng.begin() as conn:
