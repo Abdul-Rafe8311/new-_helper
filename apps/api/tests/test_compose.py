@@ -246,3 +246,17 @@ def test_fallback_folds_single_story_sections_and_follows_depth() -> None:
     assert out.copy[singles[0].scored.candidate.id][1] == "One."
     deep = fallback_composition(ComposeInput(profile(depth=Depth.DEEP), singles, DAY), "t")
     assert deep.copy[singles[0].scored.candidate.id][1] == "One. Two. a."
+
+
+def test_quiz_explanation_and_story_are_kept_when_the_model_gives_them() -> None:
+    data = make_input()
+    raw = good_plan(data)
+    ids = list(short_ids(data.selections))
+    raw["quiz"][0]["explanation"] = "  Model 0 launched this week.  "
+    raw["quiz"][0]["story_id"] = ids[0]
+    raw["quiz"][1]["story_id"] = "zz9"  # not a story in this paper: the link is dropped, not fatal
+    out = validate_plan(plan_of(raw), short_ids(data.selections))
+    assert out.quiz[0]["explanation"] == "Model 0 launched this week."
+    assert out.quiz[0]["article_id"] == str(data.selections[0].scored.candidate.id)
+    assert "explanation" not in out.quiz[1]
+    assert "article_id" not in out.quiz[1]

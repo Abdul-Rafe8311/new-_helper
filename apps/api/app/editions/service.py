@@ -317,6 +317,13 @@ class EditionService:
         quote = dict(composition.quote) if composition.quote else None
         if quote:
             quote["item_id"] = str(item_ids[uuid.UUID(quote["article_id"])])
+        quiz: list[dict[str, Any]] = []
+        for q in composition.quiz:
+            entry = {k: v for k, v in q.items() if k != "article_id"}
+            # the story each question is about, so an answer can be logged against it
+            story = item_ids.get(uuid.UUID(q["article_id"])) if "article_id" in q else None
+            entry["item_id"] = str(story) if story else None
+            quiz.append(entry)
         edition.title = composition.title_line
         edition.editor_note = composition.editor_note
         edition.layout = {
@@ -326,7 +333,7 @@ class EditionService:
             "sections": layout_sections,
             "three_things": composition.three_things,
             "quote": quote,
-            "quiz": composition.quiz,
+            "quiz": quiz,
             "masthead": {
                 "paper_name": paper_name,
                 "city": city,
