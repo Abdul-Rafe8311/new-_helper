@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError, api, type Taxonomy } from "@/lib/api";
 
 import { FINALE, canAdvance, progress, reducer, stepPayload, type Draft } from "./machine";
+import { BeatsStep } from "./beats-step";
 import { NameStep } from "./name-step";
 
 type Props = {
@@ -19,7 +20,7 @@ type Props = {
 
 const NEXT_LABEL: Record<number, string> = { 5: "Print my first edition" };
 
-export function OnboardingFlow({ initial, taxonomy: _taxonomy, today }: Props) {
+export function OnboardingFlow({ initial, taxonomy, today }: Props) {
   const [draft, dispatch] = useReducer(reducer, initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +83,7 @@ export function OnboardingFlow({ initial, taxonomy: _taxonomy, today }: Props) {
             transition={{ duration: reduceMotion ? 0 : 0.22 }}
           >
             {draft.step === 1 ? <NameStep draft={draft} dispatch={dispatch} today={today} /> : null}
+            {draft.step === 2 ? <BeatsStep draft={draft} dispatch={dispatch} taxonomy={taxonomy} /> : null}
           </motion.div>
         </AnimatePresence>
 
