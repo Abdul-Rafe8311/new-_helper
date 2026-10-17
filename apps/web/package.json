@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "gen:api": "uv run --directory ../api python -m app.scripts.export_openapi ../web/node_modules/.cache/openapi.json && openapi-typescript node_modules/.cache/openapi.json -o src/lib/api-schema.ts"
+    "gen:api": "uv run --directory ../api python -m app.scripts.export_openapi ../web/node_modules/.cache/openapi.json && openapi-typescript node_modules/.cache/openapi.json -o src/lib/api-schema.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
