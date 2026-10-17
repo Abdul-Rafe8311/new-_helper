@@ -1,0 +1,53 @@
+name: Preview
+
+# Deploys the web app from a pull request to a Vercel preview and comments the URL.
+# Same-repo PRs only: fork PRs cannot read the Vercel secrets.
+on:
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/preview.yml"
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    name: Web · Vercel preview
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: apps/web/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+      - name: Install Vercel CLI
+        run: npm install --global vercel@64.5.0
+      - name: Pull project settings
+        run: vercel pull --yes --environment=preview
+      - name: Build
+        run: vercel build
+      - name: Deploy
+        id: deploy
+        run: echo "url=$(vercel deploy --prebuilt)" >> "$GITHUB_OUTPUT"
+      - name: Comment the preview URL
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.deploy.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          gh pr comment "$PR" --edit-last --create-if-none --body "Preview deployed to ${URL} (commit \`${SHA::7}\`)."

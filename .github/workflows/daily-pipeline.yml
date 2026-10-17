@@ -1,0 +1,52 @@
+name: Daily pipeline
+
+# 05:30 Pakistan time (UTC+5) every day, or on demand from the Actions tab.
+on:
+  schedule:
+    - cron: "30 0 * * *"
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Pipeline stage to run
+        type: choice
+        default: all
+        options: [all, ingest, enrich, learn, compose, render, seed, healthcheck]
+      user_email:
+        description: Limit per-reader stages to this reader (optional)
+        type: string
+        required: false
+
+concurrency:
+  group: daily-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    name: Pipeline · ${{ inputs.stage || 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: production
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0 # no floating major tag upstream
+        with:
+          version: "0.13.1"
+          python-version: "3.12"
+          working-directory: apps/api
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+      - name: Install
+        run: uv sync --frozen --no-dev
+      - name: Run stage
+        env:
+          ENV: prod
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          STAGE: ${{ inputs.stage || 'all' }}
+          USER_EMAIL: ${{ inputs.user_email }}
+        run: uv run python -m app.pipeline --stage "$STAGE" --user-email "$USER_EMAIL"
