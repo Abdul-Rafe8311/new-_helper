@@ -141,3 +141,30 @@ async def test_global_concurrency_is_capped() -> None:
     async with _client(global_limit=3, per_domain_limit=2) as http:
         await asyncio.gather(*(http.get(f"https://d{i}.test/x") for i in range(12)))
     assert peak == 3
+
+
+@respx.mock
+async def test_slow_robots_lookup_does_not_block_other_origins() -> None:
+    release = asyncio.Event()
+
+    async def slow_robots(request: httpx.Request) -> httpx.Response:
+        await release.wait()
+        return httpx.Response(404)
+
+    respx.get("https://slow.test/robots.txt").mock(side_effect=slow_robots)
+    respx.get("https://fast.test/robots.txt").mock(return_value=httpx.Response(404))
+    async with _client() as http:
+        slow = asyncio.create_task(http.robots_allows("https://slow.test/a"))
+        await asyncio.sleep(0)
+        assert await asyncio.wait_for(http.robots_allows("https://fast.test/a"), timeout=1)
+        assert not slow.done()
+        release.set()
+        assert await slow
+
+
+@respx.mock
+async def test_concurrent_callers_share_one_robots_request() -> None:
+    robots = respx.get("https://a.test/robots.txt").mock(return_value=httpx.Response(404))
+    async with _client() as http:
+        await asyncio.gather(*(http.robots_allows(f"https://a.test/{i}") for i in range(5)))
+    assert robots.call_count == 1

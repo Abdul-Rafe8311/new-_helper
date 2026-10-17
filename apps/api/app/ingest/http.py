@@ -64,8 +64,8 @@ class PoliteClient:
         self._per_domain: defaultdict[str, asyncio.Semaphore] = defaultdict(
             lambda: asyncio.Semaphore(per_domain_limit)
         )
-        self._robots: dict[str, RobotFileParser | None] = {}
-        self._robots_lock = asyncio.Lock()
+        # One in-flight/finished lookup per origin: a slow site never blocks other origins.
+        self._robots: dict[str, asyncio.Task[RobotFileParser | None]] = {}
         self._wait = wait if wait is not None else wait_exponential(multiplier=0.5, max=8)
 
     async def __aenter__(self) -> Self:
@@ -119,10 +119,9 @@ class PoliteClient:
     async def robots_allows(self, url: str) -> bool:
         parts = urlsplit(url)
         origin = f"{parts.scheme}://{parts.netloc}"
-        async with self._robots_lock:
-            if origin not in self._robots:
-                self._robots[origin] = await self._load_robots(origin)
-        parser = self._robots[origin]
+        if origin not in self._robots:
+            self._robots[origin] = asyncio.ensure_future(self._load_robots(origin))
+        parser = await self._robots[origin]
         return True if parser is None else parser.can_fetch(self.user_agent, url)
 
     async def _load_robots(self, origin: str) -> RobotFileParser | None:
