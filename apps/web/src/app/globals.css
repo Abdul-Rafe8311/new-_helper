@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Dark mode follows the `dark` class next-themes puts on <html>, or any `.dark` wrapper. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Design tokens. Light = the morning broadsheet, dark = the "night edition".
+ * `.light` / `.dark` can also scope a subtree (the styleguide shows both side by side).
+ */
+:root,
+.light {
+  --paper: #f7f3ea;
+  --paper-2: #efe8da;
+  --ink: #1a1714;
+  --muted: #625b51;
+  --rule: #d6ccbb;
+  --accent: #a4161a;
+  --accent-ink: #fffaf2;
+  --ring: #a4161a;
+  --destructive: #b42318;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #1c1b19;
+  --paper-2: #262421;
+  --ink: #e8e2d7;
+  --muted: #a69e91;
+  --rule: #3b3833;
+  --accent: #e2645f;
+  --accent-ink: #1c1b19;
+  --ring: #e2645f;
+  --destructive: #f07167;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+
+  /* shadcn/ui semantic names, mapped onto the paper tokens */
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --color-primary: var(--ink);
+  --color-primary-foreground: var(--paper);
+  --color-border: var(--rule);
+  --color-input: var(--rule);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-serif: var(--font-source-serif), Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--rule);
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-serif);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-ink);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Small-caps section label, e.g. "WORLD" above a column. */
+@utility kicker {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Thin vertical rule between newspaper columns. */
+@utility column-rules {
+  column-rule: 1px solid var(--rule);
+}
+
+/* Fine halftone dots, used for image placeholders. */
+@utility halftone {
+  background-color: var(--paper-2);
+  background-image: radial-gradient(var(--rule) 1px, transparent 1.2px);
+  background-size: 7px 7px;
 }
