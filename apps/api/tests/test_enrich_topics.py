@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.embedder import FakeEmbedder
-from app.core.taxonomy import TOPICS
+from app.core.catalogue import CATALOGUE
 from app.enrich.topics import ensure_prototypes, load_prototypes, tag_topics
 
 E = FakeEmbedder()
@@ -45,8 +45,8 @@ def test_nothing_clears_the_threshold() -> None:
 
 @pytest.mark.integration
 async def test_prototypes_are_stored_once_and_reloaded(db: AsyncSession) -> None:
-    assert await ensure_prototypes(db, E) == len(TOPICS)
+    assert await ensure_prototypes(db, E) == len(CATALOGUE)
     assert await ensure_prototypes(db, E) == 0  # unchanged descriptions are not re-embedded
     stored = await load_prototypes(db)
-    assert set(stored) == {t.slug for t in TOPICS}
+    assert set(stored) == {t.slug for t in CATALOGUE}
     assert len(stored["ai"]) == 384
