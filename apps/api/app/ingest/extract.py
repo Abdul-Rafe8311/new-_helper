@@ -114,7 +114,7 @@ class ArticleExtractor:
         """Download the page (robots.txt respected) and extract it. None when nothing usable."""
         response = await self._http.get(url, respect_robots=True)
         if response.status_code >= 400:
-            log.info("extract_http_error", status=response.status_code)
+            log.debug("extract_http_error", status=response.status_code)
             html = ""
         else:
             html = response.text

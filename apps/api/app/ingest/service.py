@@ -413,7 +413,7 @@ class IngestService:
                 User, User.id == ReaderProfile.user_id
             )
         )
-        return [ReaderInterests(list(k), dict(e), tz) for k, e, tz in rows.tuples()]
+        return [ReaderInterests(list(k), dict(e), tz) for k, e, tz in rows.all()]
 
     # ---- run bookkeeping ----
 
