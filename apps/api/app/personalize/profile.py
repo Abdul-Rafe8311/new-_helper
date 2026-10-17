@@ -32,4 +32,6 @@ def profile_view(user: User, profile: ReaderProfile) -> ProfileView:
         if profile.interest_vector is not None
         else None,
         context_notes=profile.context_notes,
+        explore_rate=profile.explore_rate,
+        learned_entities={k: list(v) for k, v in (profile.learned_entities or {}).items()},
     )
