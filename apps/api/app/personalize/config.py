@@ -115,6 +115,8 @@ class LearningConfig:
     explore_floor: float = 0.05
     # events older than this are never replayed
     lookback_days: int = 30
+    # a slider the reader moved by hand is the strongest evidence there is; logged with this weight
+    manual_edit_weight: float = 1.0
     # signals that trigger an incremental run right after an event batch
     strong_events: tuple[str, ...] = ("more_like", "less_like", "save")
     settled_memory: int = 300
