@@ -12,7 +12,7 @@ describe("Home page", () => {
     render(<Home />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 1, name: "Your morning, on one page" })).toBeInTheDocument();
-    expect(screen.getByText("Sample edition")).toBeInTheDocument();
+    expect(screen.getByText("Sample edition", { exact: true })).toBeInTheDocument();
     const how = screen.getByRole("region", { name: "How it works" });
     expect(within(how).getAllByRole("listitem")).toHaveLength(3);
     expect(screen.getByRole("link", { name: "Start my paper" })).toHaveAttribute("href", "/signup");

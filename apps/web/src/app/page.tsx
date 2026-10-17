@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CurrentYear } from "@/components/landing/current-year";
+import { DevicePreview } from "@/components/landing/device-preview";
 import { LandingShell } from "@/components/landing/landing-shell";
 import { SAMPLE_SECTIONS, SAMPLE_STORIES } from "@/components/landing/sample-edition";
 import { LeadCard, SupportCard } from "@/components/landing/story-cards";
@@ -40,6 +41,7 @@ export default function Home() {
             <p className="mt-3 max-w-xl text-[#d9d3c0]">
               NewsHelper gathers the day&apos;s stories from across the web and composes one personal paper.
             </p>
+            <DevicePreview />
             <ul aria-label="Topics in the sample edition" className="mt-5 flex flex-wrap gap-2">
               {SAMPLE_SECTIONS.map((s) => (
                 <li key={s.slug}>
