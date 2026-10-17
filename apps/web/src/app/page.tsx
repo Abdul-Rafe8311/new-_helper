@@ -1,9 +1,11 @@
 import Link from "next/link";
 
-import { DemoButton } from "@/components/auth/demo-button";
-import { Rule } from "@/components/paper";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { Button } from "@/components/ui/button";
+import { CurrentYear } from "@/components/landing/current-year";
+import { LandingShell } from "@/components/landing/landing-shell";
+import { SAMPLE_SECTIONS, SAMPLE_STORIES } from "@/components/landing/sample-edition";
+import { LeadCard, SupportCard } from "@/components/landing/story-cards";
+
+const REPO_URL = "https://github.com/Abdul-Rafe8311/new-_helper";
 
 const STEPS = [
   {
@@ -20,60 +22,79 @@ const STEPS = [
   },
 ] as const;
 
+const FOCUS = "outline-none focus-visible:ring-[3px] focus-visible:ring-[#FEE951]/70";
+
 export default function Home() {
+  const [lead, ...rest] = SAMPLE_STORIES;
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-16 sm:px-6">
-      <div className="flex items-center justify-between py-3 font-sans text-[0.7rem] uppercase tracking-[0.12em] text-muted">
-        <span>Vol. 1 · Personal edition</span>
-        <div className="flex items-center gap-2">
-          <Link href="/login" className="hover:text-ink">
+    <div className="landing flex-1 bg-gradient-to-b from-[#1d1d1b] to-[#2b2c22] text-[#f4edda] [font-family:var(--font-inter),system-ui,sans-serif]">
+      <LandingShell>
+        <main className="pb-16">
+          <section id="sample-edition" aria-labelledby="landing-title" className="scroll-mt-24 pt-8 sm:pt-12">
+            <h1
+              id="landing-title"
+              className="font-[family-name:var(--font-figtree)] text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
+            >
+              Your morning, on one page
+            </h1>
+            <p className="mt-3 max-w-xl text-[#d9d3c0]">
+              NewsHelper gathers the day&apos;s stories from across the web and composes one personal paper.
+            </p>
+            <ul aria-label="Topics in the sample edition" className="mt-5 flex flex-wrap gap-2">
+              {SAMPLE_SECTIONS.map((s) => (
+                <li key={s.slug}>
+                  <a
+                    href={`#story-${s.slug}`}
+                    className={`inline-flex min-h-11 items-center rounded-full border border-[#a8b89a]/40 bg-[#a8b89a]/10 px-4 text-sm font-semibold text-[#e5e8d8] hover:bg-[#a8b89a]/20 ${FOCUS}`}
+                  >
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-xs font-bold tracking-[0.14em] text-[#a8b89a] uppercase">Sample edition</p>
+            <div className="mt-2 grid gap-4 sm:grid-cols-3">
+              <div className="sm:col-span-3">
+                <LeadCard story={lead} />
+              </div>
+              {rest.map((story) => (
+                <SupportCard key={story.id} story={story} />
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="how-it-works" className="mt-14 rounded-2xl border border-white/10 bg-[#6b7048]/20 p-6 sm:p-8">
+            <h2 id="how-it-works" className="font-[family-name:var(--font-figtree)] text-2xl font-extrabold">
+              How it works
+            </h2>
+            <ol className="mt-5 grid gap-6 md:grid-cols-3">
+              {STEPS.map((step, i) => (
+                <li key={step.title} className="flex gap-4">
+                  <span aria-hidden="true" className="font-[family-name:var(--font-figtree)] text-4xl leading-none font-black text-[#a8b89a]">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <h3 className="font-[family-name:var(--font-figtree)] text-lg font-bold">{step.title}</h3>
+                    <p className="mt-1 text-sm text-[#d9d3c0]">{step.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </main>
+        <footer className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-white/10 py-6 text-sm text-[#d9d3c0]">
+          <a href={REPO_URL} className={`inline-flex min-h-11 items-center underline-offset-4 hover:underline ${FOCUS}`}>
+            GitHub
+          </a>
+          <a href={`${REPO_URL}#readme`} className={`inline-flex min-h-11 items-center underline-offset-4 hover:underline ${FOCUS}`}>
+            README
+          </a>
+          <Link href="/login" className={`inline-flex min-h-11 items-center underline-offset-4 hover:underline ${FOCUS}`}>
             Sign in
           </Link>
-          <ThemeToggle />
-        </div>
-      </div>
-      <Rule />
-      <header className="py-8 text-center sm:py-12">
-        <h1 className="font-display text-6xl font-black leading-none tracking-tight sm:text-8xl">NewsHelper</h1>
-        <p className="mt-4 font-serif text-xl italic text-muted sm:text-2xl">Your morning, on one page</p>
-      </header>
-      <Rule variant="double" />
-
-      <section className="grid gap-8 py-10 md:grid-cols-[3fr_2fr] md:gap-0">
-        <div className="md:border-r md:border-rule md:pr-8">
-          <p className="kicker text-accent">Today&apos;s lead</p>
-          <h2 className="mt-2 font-display text-3xl font-black leading-tight sm:text-4xl">
-            A newspaper that learns what you care about.
-          </h2>
-          <p className="mt-4 font-serif text-lg leading-relaxed">
-            NewsHelper gathers the day&apos;s stories from across the web and composes one personal
-            paper, in proper newspaper style. Click through to the originals, skip what you don&apos;t
-            want, keep every edition in your archive.
-          </p>
-          <div className="mt-6 flex flex-wrap items-start gap-3">
-            <Button asChild variant="accent" size="lg">
-              <Link href="/signup">Start my paper</Link>
-            </Button>
-            <DemoButton />
-          </div>
-        </div>
-        <aside aria-labelledby="how-it-works" className="md:pl-8">
-          <h2 id="how-it-works" className="kicker border-b-[3px] border-ink pb-1.5">
-            How it works
-          </h2>
-          <ol className="mt-4 space-y-5">
-            {STEPS.map((step, i) => (
-              <li key={step.title} className="flex gap-4">
-                <span className="font-display text-3xl font-black leading-none text-accent">{i + 1}</span>
-                <div>
-                  <h3 className="font-display text-lg font-bold leading-snug">{step.title}</h3>
-                  <p className="mt-1 font-serif text-[0.95rem] leading-relaxed text-muted">{step.body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </aside>
-      </section>
-    </main>
+          <span className="ml-auto">© <CurrentYear /> NewsHelper</span>
+        </footer>
+      </LandingShell>
+    </div>
   );
 }
