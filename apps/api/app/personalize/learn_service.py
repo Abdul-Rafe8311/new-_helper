@@ -22,6 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.models import (
     Article,
     EditionItem,
+    EventType,
     ProfileChange,
     ReaderEvent,
     ReaderProfile,
@@ -48,6 +49,10 @@ LEARNING_EVENT_TYPES = frozenset(
         "onboarding_skip",
     }
 )
+
+# `mark_read` (Task 10) is only a database enum value once its migration has run; asking Postgres
+# for a value its enum lacks is an error, so query the intersection with the model's enum.
+QUERYABLE_EVENT_TYPES = [t for t in EventType if t.value in LEARNING_EVENT_TYPES]
 
 
 def state_from_profile(profile: ReaderProfile) -> LearnerState:
@@ -118,7 +123,7 @@ async def _load_events(
             ReaderEvent.user_id == user_id,
             ReaderEvent.created_at > since,
             ReaderEvent.article_id.is_not(None),
-            ReaderEvent.type.in_(sorted(LEARNING_EVENT_TYPES)),
+            ReaderEvent.type.in_(QUERYABLE_EVENT_TYPES),
         )
         .order_by(ReaderEvent.created_at)
     )
