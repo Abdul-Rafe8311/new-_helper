@@ -12,6 +12,7 @@ import re
 from collections.abc import AsyncIterator
 
 import pytest
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -77,12 +78,18 @@ async def db(engine: AsyncEngine) -> AsyncIterator[AsyncSession]:
 
 
 @pytest.fixture
-async def client(db: AsyncSession) -> AsyncIterator[AsyncClient]:
-    api = create_app(TEST_SETTINGS)
+def api(db: AsyncSession) -> FastAPI:
+    """The app wired to the test session; tests override other dependencies on it."""
+    app = create_app(TEST_SETTINGS)
 
     async def _session() -> AsyncIterator[AsyncSession]:
         yield db
 
-    api.dependency_overrides[get_session] = _session
+    app.dependency_overrides[get_session] = _session
+    return app
+
+
+@pytest.fixture
+async def client(api: FastAPI) -> AsyncIterator[AsyncClient]:
     async with AsyncClient(transport=ASGITransport(app=api), base_url="http://test") as c:
         yield c
