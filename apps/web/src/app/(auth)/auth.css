@@ -1,0 +1,184 @@
+/*
+ * Sign-in and sign-up shell. Everything is prefixed .su-; the card re-declares the paper tokens
+ * (both the raw ones and the Tailwind theme aliases) so it stays cream in light and dark themes.
+ */
+.su-stage {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  background: #101010;
+  overflow: hidden;
+  padding: 24px;
+}
+.su-art {
+  display: none;
+  position: absolute;
+  inset: 0 0 0 42%;
+  pointer-events: none;
+}
+@media (min-width: 900px) {
+  .su-art {
+    display: block;
+  }
+}
+.su-art__tile {
+  position: absolute;
+  display: block;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #f0eeeb;
+  box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.5);
+  opacity: 0.92;
+}
+.su-art__tile .lp-portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.su-card {
+  --paper: #f8f4ec;
+  --paper-2: #efe8da;
+  --ink: #1a1714;
+  --muted: #625b51;
+  --rule: #d9cfbd;
+  --accent: #1a1714;
+  --accent-ink: #f8f4ec;
+  --ring: #1a1714;
+  --destructive: #b42318;
+  --color-paper: #f8f4ec;
+  --color-paper-2: #efe8da;
+  --color-ink: #1a1714;
+  --color-muted: #625b51;
+  --color-rule: #d9cfbd;
+  --color-accent: #1a1714;
+  --color-background: #f8f4ec;
+  --color-foreground: #1a1714;
+  --color-border: #d9cfbd;
+  --color-input: #d9cfbd;
+  --color-ring: #1a1714;
+  --color-destructive: #b42318;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  border-radius: 28px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.6);
+  color-scheme: light;
+}
+@media (min-width: 900px) {
+  .su-card {
+    margin: 0 0 0 6vw;
+  }
+}
+.su-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 16px 28px;
+  border-bottom: 1px solid var(--rule);
+}
+.su-brand {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.su-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: var(--ink);
+}
+.su-close svg {
+  width: 20px;
+  height: 20px;
+}
+.su-close:hover {
+  background: var(--paper-2);
+}
+.su-card__body {
+  padding: 36px 28px 36px;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+@media (min-width: 480px) {
+  .su-card__body {
+    padding: 44px 44px 44px;
+  }
+}
+.su-title {
+  text-align: center;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(28px, 6vw, 36px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.su-sub {
+  margin: 12px 0 32px;
+  text-align: center;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--muted);
+}
+.su-sub a {
+  margin-left: 4px;
+  color: var(--ink);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+.su-sub a:hover {
+  text-decoration: underline;
+}
+.su-card label {
+  font-size: 14px;
+  font-weight: 500;
+}
+.su-card input {
+  height: 48px;
+  border-radius: 14px;
+  border-color: var(--rule);
+  background: #fff;
+  padding: 0 16px;
+  font-size: 15px;
+}
+.su-card input:focus-visible {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(26, 23, 20, 0.15);
+}
+.su-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 52px;
+  margin-top: 8px;
+  padding: 0 24px 0 28px;
+  border-radius: 999px;
+  background: #1a1714;
+  color: #f8f4ec;
+  font-size: 15px;
+  font-weight: 600;
+}
+.su-cta:hover {
+  background: #000;
+}
+.su-cta svg {
+  width: 20px;
+  height: 20px;
+}
+.su-cta:focus-visible {
+  outline: 2px solid #1a1714;
+  outline-offset: 3px;
+}
