@@ -14,7 +14,7 @@ export function Chip({ selected = false, size = "md", className, children, ...pr
       type="button"
       aria-pressed={selected}
       className={cn(
-        "inline-flex items-center justify-center rounded-sm border font-sans transition-colors outline-none",
+        "inline-flex items-center justify-center rounded-full border font-sans font-medium transition-colors outline-none",
         "focus-visible:ring-[3px] focus-visible:ring-ring/50",
         size === "lg" ? "min-h-11 px-4 text-[0.95rem]" : "min-h-9 px-3 text-sm",
         selected
@@ -42,7 +42,7 @@ export function RemovableChip({
   return (
     <span
       className={cn(
-        "inline-flex min-h-9 items-center gap-1 rounded-sm border py-1 pr-1 pl-3 font-sans text-sm",
+        "inline-flex min-h-9 items-center gap-1 rounded-full border py-1 pr-1 pl-3 font-sans text-sm",
         tone === "heard" ? "border-ink bg-paper-2 text-ink" : "border-destructive/60 text-destructive",
       )}
     >
@@ -51,7 +51,7 @@ export function RemovableChip({
         type="button"
         onClick={onRemove}
         aria-label={`Remove ${label}`}
-        className="inline-flex size-7 items-center justify-center rounded-sm text-lg leading-none outline-none hover:bg-ink/10 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        className="inline-flex size-7 items-center justify-center rounded-full text-lg leading-none outline-none hover:bg-ink/10 focus-visible:ring-[3px] focus-visible:ring-ring/50"
       >
         <span aria-hidden="true">×</span>
       </button>

@@ -229,3 +229,43 @@
     scroll-behavior: auto;
   }
 }
+
+/*
+ * Shared surfaces and rhythm. Roles for type: Fraunces = the wordmark, a reader's own paper name and
+ * article headlines; Inter = every page title, control and label; Source Serif = ledes and prose.
+ * Radii: controls and chips are pills, fields 12px, cards 16px, panels 24px.
+ */
+:root {
+  --radius-field: 0.75rem;
+  --radius-card: 1rem;
+  --radius-panel: 1.5rem;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 12px 32px -16px rgb(0 0 0 / 0.18);
+  --brand: #2f5fd0;
+}
+.dark {
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -16px rgb(0 0 0 / 0.6);
+}
+/* Outside the reader there is no category, so the wordmark's stop and glow use the brand blue. */
+.brand-scope {
+  --cat: var(--brand);
+  --glow: var(--brand);
+}
+@utility page-title {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+@utility lede {
+  font-family: var(--font-serif);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--muted);
+}
+@utility card {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
