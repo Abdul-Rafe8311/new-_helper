@@ -72,3 +72,7 @@ markers = ["integration: needs a real Postgres + pgvector (TEST_DATABASE_URL)"]
 branch = true
 source = ["app"]
 concurrency = ["greenlet", "thread"]
+
+[[tool.mypy.overrides]]
+module = ["feedparser", "trafilatura", "trafilatura.*", "newspaper", "newspaper.*", "googlenewsdecoder", "py3langid", "py3langid.*"]
+ignore_missing_imports = true
