@@ -142,7 +142,7 @@
       "score": 0.95,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/financial-times/lead",
+        "url": "https://www.ft.com/news/lead-2026-10-16",
         "title": "Central banks edge towards a synchronised pause as inflation cools faster than forecast",
         "source_name": "Financial Times",
         "author": "Priya Natarajan",
@@ -174,7 +174,7 @@
       "score": 0.93,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/dawn/f1",
+        "url": "https://www.dawn.com/news/f1-2026-10-16",
         "title": "Floods recede in Sindh, but the harder work of rebuilding is only beginning",
         "source_name": "Dawn",
         "author": null,
@@ -204,7 +204,7 @@
       "score": 0.91,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/mit-technology-review/f2",
+        "url": "https://www.technologyreview.com/news/f2-2026-10-16",
         "title": "A quiet breakthrough in battery chemistry could cut electric-car prices by a fifth",
         "source_name": "MIT Technology Review",
         "author": null,
@@ -235,7 +235,7 @@
       "score": 0.89,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/reuters/b1",
+        "url": "https://www.reuters.com/news/b1-2026-10-16",
         "title": "UN climate envoy urges richer nations to double adaptation finance",
         "source_name": "Reuters",
         "author": null,
@@ -261,7 +261,7 @@
       "score": 0.87,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/bloomberg/b2",
+        "url": "https://www.bloomberg.com/news/b2-2026-10-16",
         "title": "Oil steadies near $78 as Gulf supply fears ease",
         "source_name": "Bloomberg",
         "author": null,
@@ -287,7 +287,7 @@
       "score": 0.85,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/bbc-news/b3",
+        "url": "https://www.bbc.com/news/b3-2026-10-16",
         "title": "Heathrow to trial AI-assisted baggage screening next month",
         "source_name": "BBC News",
         "author": null,
@@ -313,7 +313,7 @@
       "score": 0.83,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/dawn/p1",
+        "url": "https://www.dawn.com/news/p1-2026-10-16",
         "title": "Karachi's new bus rapid transit line opens to riders, to mixed reviews",
         "source_name": "Dawn",
         "author": null,
@@ -342,7 +342,7 @@
       "score": 0.81,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/business-recorder/p2",
+        "url": "https://www.brecorder.com/news/p2-2026-10-16",
         "title": "State Bank holds policy rate at 11% and flags food prices",
         "source_name": "Business Recorder",
         "author": null,
@@ -371,7 +371,7 @@
       "score": 0.79,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/the-express-tribune/p3",
+        "url": "https://www.tribune.com.pk/news/p3-2026-10-16",
         "title": "Islamabad's tech parks court foreign start-ups with tax breaks",
         "source_name": "The Express Tribune",
         "author": null,
@@ -398,7 +398,7 @@
       "score": 0.77,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/geo-news/p4",
+        "url": "https://www.geo.tv/news/p4-2026-10-16",
         "title": "Lahore smog levels fall after rain",
         "source_name": "Geo News",
         "author": null,
@@ -424,7 +424,7 @@
       "score": 0.75,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/dawn/p5",
+        "url": "https://www.dawn.com/news/p5-2026-10-16",
         "title": "Rupee gains marginally against the dollar",
         "source_name": "Dawn",
         "author": null,
@@ -450,7 +450,7 @@
       "score": 0.73,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/ars-technica/t1",
+        "url": "https://www.arstechnica.com/news/t1-2026-10-16",
         "title": "Open-weight models close the gap with the frontier, and enterprises are noticing",
         "source_name": "Ars Technica",
         "author": "Benj Edwards",
@@ -481,7 +481,7 @@
       "score": 0.71,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/the-verge/t2",
+        "url": "https://www.theverge.com/news/t2-2026-10-16",
         "title": "Why your phone's battery health matters less than you think",
         "source_name": "The Verge",
         "author": null,
@@ -509,7 +509,7 @@
       "score": 0.69,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/techcrunch/t3",
+        "url": "https://www.techcrunch.com/news/t3-2026-10-16",
         "title": "Start-up raises $40m to automate customer-support calls in Urdu",
         "source_name": "TechCrunch",
         "author": null,
@@ -536,7 +536,7 @@
       "score": 0.67,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/reuters/t4",
+        "url": "https://www.reuters.com/news/t4-2026-10-16",
         "title": "Chip makers brace for new export rules",
         "source_name": "Reuters",
         "author": null,
@@ -562,7 +562,7 @@
       "score": 0.65,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/hacker-news/t5",
+        "url": "https://www.news.ycombinator.com/news/t5-2026-10-16",
         "title": "Linux kernel adds support for the next-generation Wi-Fi standard",
         "source_name": "Hacker News",
         "author": null,
@@ -588,7 +588,7 @@
       "score": 0.63,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/nature-news/s1",
+        "url": "https://www.nature.com/news/s1-2026-10-16",
         "title": "Webb telescope spots the faintest galaxy yet, only 290 million years after the Big Bang",
         "source_name": "Nature News",
         "author": null,
@@ -618,7 +618,7 @@
       "score": 0.61,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/science-daily/s2",
+        "url": "https://www.sciencedaily.com/news/s2-2026-10-16",
         "title": "Gut bacteria may explain why some people respond better to flu vaccines",
         "source_name": "Science Daily",
         "author": null,
@@ -645,7 +645,7 @@
       "score": 0.59,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/bbc-news/s3",
+        "url": "https://www.bbc.com/news/s3-2026-10-16",
         "title": "Deep-sea mining pause extended by regulators",
         "source_name": "BBC News",
         "author": null,
@@ -671,7 +671,7 @@
       "score": 0.57,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/espncricinfo/c1",
+        "url": "https://www.espncricinfo.com/news/c1-2026-10-16",
         "title": "Babar's century anchors Pakistan to a commanding lead in Multan",
         "source_name": "ESPNcricinfo",
         "author": null,
@@ -701,7 +701,7 @@
       "score": 0.55,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/autosport/c2",
+        "url": "https://www.autosport.com/news/c2-2026-10-16",
         "title": "Verstappen takes pole in Austin after late red flag",
         "source_name": "Autosport",
         "author": null,
@@ -727,7 +727,7 @@
       "score": 0.53,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/bbc-sport/c3",
+        "url": "https://www.bbc.com/news/c3-2026-10-16",
         "title": "Arsenal extend lead with 2-0 win at Villa",
         "source_name": "BBC Sport",
         "author": null,
@@ -753,7 +753,7 @@
       "score": 0.51,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/espncricinfo/c4",
+        "url": "https://www.espncricinfo.com/news/c4-2026-10-16",
         "title": "Pakistan women book World Cup semi-final berth",
         "source_name": "ESPNcricinfo",
         "author": null,
@@ -779,7 +779,7 @@
       "score": 0.49,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/the-guardian/k1",
+        "url": "https://www.theguardian.com/news/k1-2026-10-16",
         "title": "The return of the long-playing record, and what it says about how we listen",
         "source_name": "The Guardian",
         "author": null,
@@ -809,7 +809,7 @@
       "score": 0.47,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/the-guardian/k2",
+        "url": "https://www.theguardian.com/news/k2-2026-10-16",
         "title": "Booker shortlist features first Pakistani-born writer in a decade",
         "source_name": "The Guardian",
         "author": null,
@@ -835,7 +835,7 @@
       "score": 0.45,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/bbc-future/x1",
+        "url": "https://www.bbc.com/news/x1-2026-10-16",
         "title": "How Japan quietly became the world's top recycler of plastic bottles",
         "source_name": "BBC Future",
         "author": null,
@@ -865,7 +865,7 @@
       "score": 0.43,
       "score_breakdown": {},
       "article": {
-        "url": "https://example.com/quanta-magazine/x2",
+        "url": "https://www.quantamagazine.org/news/x2-2026-10-16",
         "title": "The mathematician who proved a 60-year-old conjecture on her kitchen table",
         "source_name": "Quanta Magazine",
         "author": null,
