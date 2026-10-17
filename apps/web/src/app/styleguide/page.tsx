@@ -118,7 +118,7 @@ export default function StyleguidePage() {
         <h1 className="font-display text-3xl font-bold">NewsHelper styleguide</h1>
         <p className="font-sans text-sm text-muted">Every paper component, in the morning (light) and night (dark) editions.</p>
       </div>
-      <div className="grid xl:grid-cols-2">
+      <div className="grid 2xl:grid-cols-2">
         <Edition theme="light" />
         <Edition theme="dark" />
       </div>
