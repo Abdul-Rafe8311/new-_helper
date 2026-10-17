@@ -63,6 +63,14 @@ async def test_valid_output_is_parsed_cached_and_costed() -> None:
     assert call.cost_usd == pytest.approx((100 + 100 + 30) / 1_000_000)
 
 
+async def test_max_tokens_defaults_and_can_be_raised() -> None:
+    client = FakeClient(message({"headline": "h", "n": 1}), message({"headline": "h", "n": 1}))
+    provider = AnthropicProvider(client)
+    await provider.complete_json("s", "p", Out, "claude-haiku-5-5")
+    await provider.complete_json("s", "p", Out, "claude-haiku-5-5", max_tokens=8000)
+    assert [r["max_tokens"] for r in client.requests] == [4096, 8000]
+
+
 async def test_invalid_output_is_retried_once_with_the_error_appended() -> None:
     client = FakeClient(message({"headline": "h"}), message({"headline": "h", "n": 1}, "tu_2"))
     rec = ListRecorder()

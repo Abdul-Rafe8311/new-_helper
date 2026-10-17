@@ -65,7 +65,14 @@ class UsageRecorder(Protocol):
 
 class LLMProvider(Protocol):
     async def complete_json[T: BaseModel](
-        self, system: str, prompt: str, schema: type[T], model: str, *, purpose: str = "generic"
+        self,
+        system: str,
+        prompt: str,
+        schema: type[T],
+        model: str,
+        *,
+        purpose: str = "generic",
+        max_tokens: int | None = None,
     ) -> T:
         """Return the model's answer validated as `schema`."""
 
@@ -80,11 +87,16 @@ class AnthropicProvider:
         self._recorder = recorder
 
     async def _create(
-        self, system: str, messages: list[dict[str, Any]], schema: type[BaseModel], model: str
+        self,
+        system: str,
+        messages: list[dict[str, Any]],
+        schema: type[BaseModel],
+        model: str,
+        max_tokens: int,
     ) -> Any:
         return await self._client.messages.create(
             model=model,
-            max_tokens=MAX_OUTPUT_TOKENS,
+            max_tokens=max_tokens,
             # static system prompt first, marked cacheable
             system=[
                 {
@@ -120,12 +132,21 @@ class AnthropicProvider:
         )
 
     async def complete_json[T: BaseModel](
-        self, system: str, prompt: str, schema: type[T], model: str, *, purpose: str = "generic"
+        self,
+        system: str,
+        prompt: str,
+        schema: type[T],
+        model: str,
+        *,
+        purpose: str = "generic",
+        max_tokens: int | None = None,
     ) -> T:
         messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
         error: ValidationError | None = None
         for attempt in range(2):
-            response = await self._create(system, messages, schema, model)
+            response = await self._create(
+                system, messages, schema, model, max_tokens or MAX_OUTPUT_TOKENS
+            )
             await self._record(response, model, purpose)
             block = next((b for b in response.content if b.type == "tool_use"), None)
             if block is None:
@@ -174,7 +195,14 @@ class FakeLLM:
         self.calls: list[dict[str, str]] = []
 
     async def complete_json[T: BaseModel](
-        self, system: str, prompt: str, schema: type[T], model: str, *, purpose: str = "generic"
+        self,
+        system: str,
+        prompt: str,
+        schema: type[T],
+        model: str,
+        *,
+        purpose: str = "generic",
+        max_tokens: int | None = None,
     ) -> T:
         self.calls.append({"system": system, "prompt": prompt, "model": model, "purpose": purpose})
         if self._responder is not None:
