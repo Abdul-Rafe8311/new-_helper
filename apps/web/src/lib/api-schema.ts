@@ -162,6 +162,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/editions/{edition_date}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Pdf
+         * @description Stream the reader's PDF for a day (typesetting it first if it is missing or out of date).
+         */
+        get: operations["download_pdf_editions__edition_date__pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events": {
         parameters: {
             query?: never;
@@ -1136,6 +1156,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EditionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_pdf_editions__edition_date__pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                edition_date: string;
+            };
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The newspaper PDF */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": unknown;
                 };
             };
             /** @description Validation Error */
