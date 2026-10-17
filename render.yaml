@@ -1,0 +1,37 @@
+# Render Blueprint for the NewsHelper API.
+# The service runs the image that CI/CD pushes to GHCR; GitHub Actions triggers each deploy
+# through the service's deploy hook, so Render never auto-deploys on its own.
+services:
+  - type: web
+    name: newshelper-api
+    runtime: image
+    image:
+      # Bootstrap tag; deploy.yml overrides it per release with the sha-tagged image (imgURL).
+      url: ghcr.io/abdul-rafe8311/newshelper-api:latest
+    plan: starter # 512 MB
+    region: frankfurt
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: ENV
+        value: prod
+      - key: LOG_LEVEL
+        value: INFO
+      - key: WEB_URL
+        value: https://new-helper.vercel.app
+      - key: STORAGE_BACKEND
+        value: supabase
+      - key: SUPABASE_BUCKET
+        value: editions
+      - key: DEMO_EMAIL
+        value: demo@newshelper.app
+      - key: DATABASE_URL # Supabase pooler, postgresql+asyncpg://
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
