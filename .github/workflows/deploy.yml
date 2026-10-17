@@ -167,6 +167,8 @@ jobs:
         run: npm install --global vercel@64.5.0
       - name: Pull project settings
         run: vercel pull --yes --environment=production
+      - name: Show the pulled API_URL (public value, temporary diagnostic)
+        run: grep -h '^API_URL' .vercel/.env.production.local apps/web/.vercel/.env.production.local 2>/dev/null | cat -A | head -c 200 || echo "API_URL not in pulled env"
       - name: Build
         run: vercel build --prod
       - name: Deploy
