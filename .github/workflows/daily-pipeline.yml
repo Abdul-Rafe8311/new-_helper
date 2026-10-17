@@ -43,10 +43,18 @@ jobs:
           cache-dependency-glob: apps/api/uv.lock
       - name: Install
         run: uv sync --frozen --no-dev
+      - name: Cache the fastembed model
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/fastembed
+          key: fastembed-bge-small-en-v1.5
       - name: Run stage
         env:
           ENV: prod
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_DAILY_BUDGET_USD: ${{ vars.LLM_DAILY_BUDGET_USD || '2.0' }}
+          FASTEMBED_CACHE_DIR: ~/.cache/fastembed
           STAGE: ${{ inputs.stage || 'all' }}
           USER_EMAIL: ${{ inputs.user_email }}
         run: uv run python -m app.pipeline --stage "$STAGE" --user-email "$USER_EMAIL"
