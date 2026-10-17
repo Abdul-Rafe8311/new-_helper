@@ -5,8 +5,8 @@ Run by the scheduled GitHub Actions workflow against the prod database:
     python -m app.pipeline --stage all|ingest|enrich|learn|compose|render|seed|healthcheck
                            [--user-email EMAIL]
 
-Implemented so far: healthcheck, seed, ingest, enrich, compose and render; later tasks register
-the other daily stages in STAGE_FNS.
+Implemented so far: healthcheck, seed, ingest, enrich, learn, compose and render; later tasks
+register the other daily stages in STAGE_FNS.
 """
 
 import argparse
@@ -119,6 +119,12 @@ async def enrich(ctx: StageContext) -> None:
     await run(ctx.settings)
 
 
+async def learn(ctx: StageContext) -> None:
+    from app.personalize.stage import learn as run  # lazy: keeps the learner off other stages
+
+    await run(ctx.settings, ctx.user_email)
+
+
 async def compose(ctx: StageContext) -> None:
     from app.editions.stage import compose as run  # lazy: keeps AI imports off other stages
 
@@ -140,6 +146,7 @@ STAGE_FNS: dict[str, StageFn] = {
     "seed": seed,
     "ingest": ingest,
     "enrich": enrich,
+    "learn": learn,
     "compose": compose,
     "render": render,
 }

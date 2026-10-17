@@ -94,7 +94,10 @@ class _Picks:
 
 
 def explore_count(n: int, cfg: SelectionConfig, profile: ProfileView) -> int:
-    return round(n * cfg.explore_share) if profile.surprise_me else 0
+    if not profile.surprise_me:
+        return 0
+    share = profile.explore_rate if profile.explore_rate is not None else cfg.explore_share
+    return round(n * share)
 
 
 def select_items(
