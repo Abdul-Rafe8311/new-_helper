@@ -83,6 +83,15 @@ export type Chip =
   | { kind: "blocked_topic"; value: string }
   | { kind: "blocked_keyword"; value: string };
 
+export function isValidTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-GB", { timeZone });
+    return timeZone.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export function defaultPaperName(displayName: string): string {
   const first = displayName.trim().split(/\s+/)[0] || "Reader";
   return `The ${first} Morning`;
@@ -219,7 +228,7 @@ export function reducer(draft: Draft, action: Action): Draft {
 export function canAdvance(draft: Draft): boolean {
   switch (draft.step) {
     case 1:
-      return draft.paperName.trim().length > 0 && draft.timezone.length > 0;
+      return draft.paperName.trim().length > 0 && isValidTimeZone(draft.timezone);
     case 2:
       return draft.topics.length >= MIN_TOPICS;
     default:

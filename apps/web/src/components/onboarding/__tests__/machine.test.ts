@@ -45,6 +45,8 @@ describe("moving between steps", () => {
     expect(reducer(base, { type: "next" }).step).toBe(2);
     const blank = run(base, { type: "set_name", paperName: "   " });
     expect(reducer(blank, { type: "next" }).step).toBe(1);
+    const lost = run(base, { type: "set_timezone", timezone: "Mars/Base" });
+    expect(reducer(lost, { type: "next" }).step).toBe(1);
   });
 
   it("needs three topics before leaving the beats step", () => {
