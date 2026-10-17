@@ -169,7 +169,8 @@ async def test_a_source_can_be_switched_off_and_on(api: AsyncClient, db: AsyncSe
 
     on = (await api.delete("/me/interests/blocked-sources/Dawn")).json()
     assert on["blocked_sources"] == []
-    assert (await api.delete("/me/interests/blocked-sources/Dawn")).status_code == 404
+    again = await api.delete("/me/interests/blocked-sources/Dawn")
+    assert again.status_code == 404
     entries = (await api.get("/me/interests/timeline")).json()["days"][0]["entries"]
     assert [e["text"] for e in entries] == ["You switched Dawn back on", "You switched off Dawn"]
 
