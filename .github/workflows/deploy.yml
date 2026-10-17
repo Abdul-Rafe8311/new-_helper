@@ -179,7 +179,7 @@ jobs:
       - name: Build
         run: vercel build --prod
       - name: Deploy
-        run: vercel deploy --prebuilt --prod
+        run: vercel deploy --prebuilt --prod --archive=tgz
 
   smoke:
     name: Smoke test
