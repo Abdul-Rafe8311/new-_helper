@@ -1,5 +1,6 @@
 """Daily editions, the archive and the PDF download."""
 
+import uuid
 from datetime import UTC, date, datetime
 from typing import Annotated
 
@@ -13,6 +14,7 @@ from app.editions.service import local_date
 from app.models import Edition, EditionStatus, EventType, ReaderEvent
 from app.pdf.service import PDF_CONTENT_TYPE, pdf_filename, read_pdf, render_edition
 from app.schemas.editions import EditionOut, EditionSummary, SavedItem
+from app.schemas.stories import StoryOut
 from app.services import editions as read
 from app.storage import Storage, StorageError, default_storage
 
@@ -120,3 +122,12 @@ saved_router = APIRouter(tags=["editions"], dependencies=[Depends(current_user)]
 async def list_saved(user: CurrentUser, session: SessionDep) -> list[SavedItem]:
     """Stories the reader saved, from any edition."""
     return await read.list_saved(session, user.id)
+
+
+story_router = APIRouter(prefix="/stories", tags=["editions"], dependencies=[Depends(current_user)])
+
+
+@story_router.get("/{edition_item_id}", response_model=StoryOut)
+async def get_story(edition_item_id: uuid.UUID, user: CurrentUser, session: SessionDep) -> StoryOut:
+    """One story from the reader's paper, with the pictures and outlets of the same story."""
+    return await read.get_story(session, user.id, edition_item_id)

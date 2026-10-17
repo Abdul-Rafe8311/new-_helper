@@ -15,6 +15,7 @@ from app.core.ratelimit import SlidingWindowLimiter
 from app.db.session import get_session
 from app.main import create_app
 from app.models import (
+    Article,
     Edition,
     EditionItem,
     EditionStatus,
@@ -323,3 +324,53 @@ async def test_the_archive_pages_back_through_time(api: AsyncClient, db: AsyncSe
     last = (await api.get("/editions", params={"before": second[-1]["date"]})).json()
     assert [e["date"] for e in last] == [str(DAY - timedelta(days=4))]
     assert (await api.get("/editions", params={"limit": 0})).status_code == 422
+
+
+async def test_a_story_comes_with_the_pictures_and_outlets_of_its_cluster(
+    api: AsyncClient, db: AsyncSession
+) -> None:
+    user = await sign_in(api, db)
+    (item, *_) = await seed_edition(db, user, urls=("https://a.example/one",))
+    anchor = datetime.now(UTC)
+    article = await db.get(Article, item.article_id)
+    assert article is not None
+    article.cluster_id, article.published_at = 7, anchor
+    article.image_url, article.author = "https://img.example/main.jpg", "Sara Khan"
+    dawn = await make_source(db, name="Dawn")
+    for n, (outlet, image) in enumerate([(dawn, "https://img.example/dawn.jpg"), (dawn, None)]):
+        await make_article(
+            db,
+            url=f"https://dawn.example/{n}",
+            source_id=outlet.id,
+            cluster_id=7,
+            image_url=image,
+            published_at=anchor - timedelta(hours=n + 1),
+        )
+    await make_article(
+        db, url="https://old.example/x", cluster_id=7, published_at=anchor - timedelta(days=30)
+    )
+    await make_article(db, url="https://other.example/y", cluster_id=8, published_at=anchor)
+
+    story = (await api.get(f"/stories/{item.id}")).json()
+    assert story["item"]["id"] == str(item.id)
+    assert story["edition_date"] == DAY.isoformat()
+    assert story["author"] == "Sara Khan"
+    assert [i["url"] for i in story["images"]] == [
+        "https://img.example/main.jpg",
+        "https://img.example/dawn.jpg",
+    ]
+    assert story["images"][1]["credit"] == "Dawn"
+    # the primary link goes through the logging redirect; one card per outlet, no strays
+    assert [(s["name"], s["primary"]) for s in story["sources"]] == [
+        ("The Wire", True),
+        ("Dawn", False),
+    ]
+    assert story["sources"][0]["url"] == f"/r/{item.id}"
+
+
+async def test_stories_of_other_readers_are_hidden(api: AsyncClient, db: AsyncSession) -> None:
+    other = await make_user(db, email="other@example.com")
+    foreign, *_ = await seed_edition(db, other)
+    await sign_in(api, db)
+    assert (await api.get(f"/stories/{foreign.id}")).status_code == 404
+    assert (await api.get("/stories/not-a-uuid")).status_code == 422

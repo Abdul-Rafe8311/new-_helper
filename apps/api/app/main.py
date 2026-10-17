@@ -45,6 +45,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     for module in (auth, me, onboarding, editions, events, redirect, internal, taxonomy):
         app.include_router(module.router)
     app.include_router(editions.saved_router)
+    app.include_router(editions.story_router)
     return app
 
 

@@ -2,7 +2,7 @@
 
 import uuid
 from collections.abc import Sequence
-from datetime import date
+from datetime import date, timedelta
 from typing import Literal
 
 from sqlalchemy import select
@@ -12,6 +12,7 @@ from app.core.errors import AppError
 from app.models import Article, Edition, EditionItem, EditionStatus, EventType, ReaderEvent, Source
 from app.pdf.snapshot import fact_texts
 from app.schemas.editions import EditionItemOut, EditionOut, EditionSummary, ItemState, SavedItem
+from app.schemas.stories import StoryImage, StoryOut, StorySource
 
 ARCHIVE_PAGE = 20
 ARCHIVE_MAX_PAGE = 60
@@ -188,3 +189,81 @@ async def list_saved(session: AsyncSession, user_id: uuid.UUID) -> list[SavedIte
         for item, article, source, day in rows
     }
     return [by_id[i] for i in saved_ids if i in by_id]
+
+
+MAX_STORY_IMAGES = 4
+MAX_STORY_SOURCES = 6
+CLUSTER_WINDOW = timedelta(days=4)
+
+
+async def get_story(session: AsyncSession, user_id: uuid.UUID, item_id: uuid.UUID) -> StoryOut:
+    """One edition item with the pictures and outlets of the same story (its article's cluster)."""
+    row = (
+        await session.execute(
+            select(EditionItem, Article, Source.name, Edition)
+            .join(Edition, Edition.id == EditionItem.edition_id)
+            .join(Article, Article.id == EditionItem.article_id)
+            .outerjoin(Source, Source.id == Article.source_id)
+            .where(EditionItem.id == item_id, Edition.user_id == user_id)
+        )
+    ).first()
+    if row is None:
+        raise AppError(404, "not_found", "That story is not in your paper")
+    item, article, source_name, edition = row
+    states = await item_states(session, user_id, [item.id])
+
+    images = (
+        [StoryImage(url=article.image_url, credit=source_name or "Unknown source")]
+        if article.image_url
+        else []
+    )
+    sources = [
+        StorySource(
+            name=source_name or "Unknown source",
+            title=article.title,
+            url=f"/r/{item.id}",
+            published_at=article.published_at,
+            primary=True,
+        )
+    ]
+    if article.cluster_id is not None:
+        query = (
+            select(Article, Source.name)
+            .outerjoin(Source, Source.id == Article.source_id)
+            .where(Article.cluster_id == article.cluster_id, Article.id != article.id)
+            .order_by(Article.published_at.desc().nulls_last())
+        )
+        anchor = article.published_at or article.fetched_at
+        if anchor is not None:
+            query = query.where(
+                Article.published_at.between(anchor - CLUSTER_WINDOW, anchor + CLUSTER_WINDOW)
+            )
+        seen_outlets = {source_name}
+        for other, other_source in (await session.execute(query.limit(30))).all():
+            outlet = other_source or "Unknown source"
+            if (
+                other.image_url
+                and len(images) < MAX_STORY_IMAGES
+                and all(i.url != other.image_url for i in images)
+            ):
+                images.append(StoryImage(url=other.image_url, credit=outlet))
+            if outlet not in seen_outlets and len(sources) < MAX_STORY_SOURCES:
+                seen_outlets.add(outlet)
+                sources.append(
+                    StorySource(
+                        name=outlet,
+                        title=other.title,
+                        url=other.url,
+                        published_at=other.published_at,
+                        primary=False,
+                    )
+                )
+    return StoryOut(
+        item=_item_out(item, article, source_name, states.get(item.id)),
+        edition_id=edition.id,
+        edition_date=edition.edition_date,
+        edition_number=edition.number,
+        author=article.author,
+        images=images,
+        sources=sources,
+    )
