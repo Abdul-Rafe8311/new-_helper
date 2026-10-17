@@ -1,0 +1,6 @@
+name: NewsHelper CodeQL config
+
+paths-ignore:
+  # Alembic revision files: module globals (revision, down_revision, ...) are read by
+  # Alembic via reflection, so "unused global variable" findings there are false positives.
+  - apps/api/migrations/versions
