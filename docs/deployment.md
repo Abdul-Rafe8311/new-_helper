@@ -17,6 +17,7 @@ Deploys run in the GitHub Environment `production`, so they appear in the repo's
 | Secret | Used by | Notes |
 | --- | --- | --- |
 | `DATABASE_URL` | deploy (migrations), daily pipeline | Supabase pooler, `postgresql+asyncpg://` |
+| `ANTHROPIC_API_KEY` | daily pipeline (`enrich`) | Without it summaries are extractive (first two sentences). Optional repo variable `LLM_DAILY_BUDGET_USD` (default 2.0) caps daily spend. |
 | `JWT_SECRET` | Render env (same value) | `openssl rand -hex 32` |
 | `CRON_SECRET` | Render env (same value) | `openssl rand -hex 32` |
 | `RENDER_DEPLOY_HOOK_URL` | deploy | Render service -> Settings -> Deploy Hook. Contains a key; never log it |
