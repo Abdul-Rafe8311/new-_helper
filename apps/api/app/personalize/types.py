@@ -29,6 +29,10 @@ class ProfileView:
     surprise_me: bool
     interest_vector: list[float] | None
     context_notes: str | None
+    # learned share of the paper for explore picks; None means the selection default
+    explore_rate: float | None = None
+    # entities the loop promoted (also listed in `entities`)
+    learned_entities: dict[str, list[str]] = field(default_factory=dict)
 
     @property
     def terms(self) -> list[str]:

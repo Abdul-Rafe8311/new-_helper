@@ -65,3 +65,59 @@ def item_count(reading_minutes: int) -> int:
 
 DEFAULT_SCORING = ScoringConfig()
 DEFAULT_SELECTION = SelectionConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class SignalWeights:
+    """What each reader action is worth, as evidence about the story's topics and sources."""
+
+    open: float = 1.0
+    dwell: float = 0.8  # scaled by dwell time against the expected reading time
+    more_like: float = 1.5
+    save: float = 1.2
+    quiz_correct: float = 0.3
+    impression_only: float = -0.05  # shown, never opened
+    skip: float = -0.6
+    less_like: float = -1.5
+    # onboarding taste-test answers count for less than behaviour in the paper
+    onboarding_scale: float = 0.5
+
+
+@dataclass(frozen=True, slots=True)
+class LearningConfig:
+    signals: SignalWeights = SignalWeights()
+    half_life_days: float = 14.0
+    dwell_min_seconds: float = 30.0
+    default_reading_seconds: float = 90.0
+    reading_words_per_minute: float = 230.0
+    reading_seconds_range: tuple[float, float] = (30.0, 300.0)
+    # an article counts as liked/disliked once its net signal reaches +/- this
+    positive_threshold: float = 0.3
+    negative_threshold: float = -0.3
+    # topics: EMA step, and how much evidence (signal mass) it takes to trust a batch
+    topic_alpha: float = 0.3
+    topic_confidence_mass: float = 1.0
+    # nightly multiplier for topics that got no signal at all
+    topic_idle_decay: float = 0.995
+    # Rocchio: v' = normalise(a v + b mean(pos) - c mean(neg))
+    rocchio_alpha: float = 0.8
+    rocchio_beta: float = 0.25
+    rocchio_gamma: float = 0.1
+    entity_promote_after: int = 3
+    block_topic_after_less_likes: int = 3
+    # affinity = (pos - neg) / (pos + neg + prior): a source needs a few actions to move far
+    affinity_prior: float = 2.0
+    # explore
+    explore_graduate_weight: float = 0.4
+    explore_ignored_min_shown: int = 3
+    explore_engaged_min_share: float = 0.2
+    explore_decay: float = 0.8
+    explore_floor: float = 0.05
+    # events older than this are never replayed
+    lookback_days: int = 30
+    # signals that trigger an incremental run right after an event batch
+    strong_events: tuple[str, ...] = ("more_like", "less_like", "save")
+    settled_memory: int = 300
+
+
+DEFAULT_LEARNING = LearningConfig()
