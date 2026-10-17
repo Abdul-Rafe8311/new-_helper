@@ -16,11 +16,10 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
-import app.models  # noqa: F401  (registers tables)
 from app.core.config import Settings
-from app.db.base import Base
 from app.db.session import build_engine, get_session
 from app.main import create_app
+from app.models import Base  # importing app.models registers every table
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 TEST_DB_SCHEMA = os.environ.get("TEST_DB_SCHEMA")
