@@ -92,3 +92,28 @@ Names and purpose only. Copy `.env.example` to `.env`; never commit it.
 | `API_URL` | Where the web app rewrites `/api/*` to |
 | `QUIZ_ENABLED` | Web flag that shows or hides the quiz |
 | `RENDER_DEPLOY_HOOK_URL`, `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | GitHub Actions secrets for deploys |
+
+## CI/CD
+
+Every pull request runs `CI` (API, Docker and web jobs, filtered by changed paths and gated by one `CI OK` check), `CodeQL`, and a Conventional Commits check on the PR title. `main` is protected, and changes land through a PR merged with a merge commit. After CI passes on `main`, the `Deploy` workflow builds the API image, runs migrations, deploys to Render, deploys the web app to Vercel, and runs a smoke test. Pull requests that touch the web app get a Vercel preview. A scheduled `Daily pipeline` workflow runs the pipeline stages every day. See [docs/deployment.md](docs/deployment.md).
+
+[![CI](https://github.com/Abdul-Rafe8311/new-_helper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Abdul-Rafe8311/new-_helper/actions/workflows/ci.yml)
+
+## Cost per edition
+
+Not measured yet. The composer records LLM calls and cost on each edition's stats, but no figures are stored in the repo. It makes one smart-model call per reader per day ([docs/composer.md](docs/composer.md)), and `LLM_DAILY_BUDGET_USD` caps daily spend.
+
+## Known limits
+
+- Photo downloads and Supabase storage were verified in production only for the PDF path.
+- The quiz explanations need a newly composed edition. Older editions show the right answer without an explanation.
+- Audio ("Listen"), "Ask your paper" and the Sunday edition are not built yet.
+- The learning result comes from simulated readers, not real ones. The weights are untuned against real reading.
+
+## Roadmap
+
+Future work, not built yet:
+
+- Audio briefing of the edition.
+- "Ask your paper": questions answered from the day's edition.
+- A Sunday edition.
