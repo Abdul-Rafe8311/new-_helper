@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     user_agent: str = f"NewsHelperBot/0.1 (+{REPO_URL})"
     allowed_languages: list[str] = Field(default_factory=lambda: ["en"])
     reddit_enabled: bool = False
+    reddit_subreddits: list[str] = Field(
+        default_factory=lambda: ["worldnews", "technology", "science"]
+    )
     apify_token: SecretStr = SecretStr("")
     apify_gnews_actor: str = "hiver/google-news-scraper"
     apify_extract_actor: str = "apify/website-content-crawler"
