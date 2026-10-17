@@ -6,7 +6,7 @@ from typing import Annotated
 import httpx
 from fastapi import Cookie, Depends, Header
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
 from app.ai.factory import build_llm
@@ -43,6 +43,16 @@ async def current_user(
 
 
 CurrentUser = Annotated[User, Depends(current_user)]
+
+
+def get_background_sessionmaker() -> async_sessionmaker[AsyncSession]:
+    """Sessions for work that outlives the request; tests override it to share their session."""
+    return get_sessionmaker()
+
+
+BackgroundSessionmakerDep = Annotated[
+    async_sessionmaker[AsyncSession], Depends(get_background_sessionmaker)
+]
 
 
 async def require_cron_secret(

@@ -10,6 +10,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.deps import get_background_sessionmaker
 from app.api.routers.events import events_limiter
 from app.core.ratelimit import SlidingWindowLimiter
 from app.db.session import get_session
@@ -25,6 +26,7 @@ from app.models import (
     User,
 )
 from tests.conftest import TEST_SETTINGS
+from tests.editions_helpers import sessionmaker_for
 from tests.factories import DEFAULT_PASSWORD, make_article, make_source, make_user
 
 pytestmark = pytest.mark.integration
@@ -40,6 +42,7 @@ async def api(db: AsyncSession) -> AsyncIterator[AsyncClient]:
         yield db
 
     app.dependency_overrides[get_session] = _session
+    app.dependency_overrides[get_background_sessionmaker] = lambda: sessionmaker_for(db)
     app.dependency_overrides[events_limiter] = lambda: SlidingWindowLimiter(100, 60)
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
         yield c
