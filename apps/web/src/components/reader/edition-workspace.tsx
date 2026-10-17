@@ -12,6 +12,9 @@ import { EditionHeader } from "./edition-header";
 import { sectionFromParam, sectionsOf, visibleItems, type ItemStates } from "./model";
 import { categoryColor, FRONT_COLOR } from "./palette";
 import { PageFrame } from "./page-frame";
+import { QuizSection } from "./quiz/quiz-section";
+import { RecallCard } from "./quiz/recall-card";
+import type { QuizQuestion, Recall } from "./quiz/model";
 import { SideNav, type NavCategory } from "./side-nav";
 import { StoryGrid } from "./story-grid";
 import { UndoToast } from "./toast";
@@ -24,10 +27,13 @@ type Props = {
   now: string;
   /** Where this edition lives: /today, /paper/[date] or /archive/[date]. */
   basePath: string;
+  /** Today's quiz and a question from yesterday's paper; both empty when the quiz is off. */
+  quiz?: QuizQuestion[];
+  recall?: Recall | null;
 };
 
 /** One finished edition: the section is the `?section=` in the URL, so refresh and Back just work. */
-export function EditionWorkspace({ edition, timeZone, now, basePath }: Props) {
+export function EditionWorkspace({ edition, timeZone, now, basePath, quiz = [], recall = null }: Props) {
   const sections = useMemo(() => sectionsOf(edition), [edition]);
   const section = sectionFromParam(sections, useSearchParams().get("section"));
   const nowDate = useMemo(() => new Date(now), [now]);
@@ -51,6 +57,7 @@ export function EditionWorkspace({ edition, timeZone, now, basePath }: Props) {
         note={section ? null : edition.editor_note}
         topics={{ base: basePath, categories, activeSlug: slug }}
       />
+      {recall && !section ? <RecallCard recall={recall} /> : null}
       {core.items.length === 0 ? (
         <div className="py-16 text-center">
           <p className="font-sans text-xl font-bold">You&apos;ve seen everything here.</p>
@@ -63,6 +70,7 @@ export function EditionWorkspace({ edition, timeZone, now, basePath }: Props) {
       ) : (
         <StoryGrid items={core.items} core={core} now={nowDate} />
       )}
+      <QuizSection questions={quiz} />
       <UndoToast toast={core.toast.toast} onDismiss={core.toast.dismiss} />
     </PageFrame>
   );
