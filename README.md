@@ -1,66 +1,34 @@
 # NewsHelper
 
-[![CI](https://github.com/Abdul-Rafe8311/new-_helper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Abdul-Rafe8311/new-_helper/actions/workflows/ci.yml) [![CodeQL](https://github.com/Abdul-Rafe8311/new-_helper/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Abdul-Rafe8311/new-_helper/actions/workflows/codeql.yml)
+[![CI](https://github.com/Abdul-Rafe8311/new-_helper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Abdul-Rafe8311/new-_helper/actions/workflows/ci.yml)
 
-**Your morning, on one page.** NewsHelper learns what you care about, gathers articles from across the web every day, and composes one personal morning newspaper. Read it on the web, click through to the originals, skip what you don't want, download the same edition as a newspaper-style PDF, and browse past editions. The more you read, the better your paper gets.
+A personalised morning newspaper that gathers the day's stories, writes one edition for each reader, and learns from what they read.
 
-Built for the Eynvision hackathon.
+## Try the demo
 
-## Quickstart
+**<https://new-helper-nine.vercel.app>**
 
-> Placeholder: full setup lands with the docs task.
+The demo account is seeded. Use the demo button on the sign-in page to get in without signing up.
 
-```bash
-git clone https://github.com/Abdul-Rafe8311/new-_helper.git && cd new-_helper
-cp .env.example .env   # set DATABASE_URL to your Supabase session pooler URL
-make install
-make migrate && make seed
-make dev        # API on :8000, web on :3000
-```
+<!-- TODO: add a screenshot of /today (docs/screenshots/today.png). Only the /interests screenshots exist so far. -->
+> TODO: screenshot of `/today` is not in the repo yet.
 
-## Repository layout
+Sample edition as a PDF: [docs/samples/newshelper-sample-edition.pdf](docs/samples/newshelper-sample-edition.pdf)
 
-| Path | What lives there |
+## How it meets the brief
+
+| Requirement | Feature in the repo |
 | --- | --- |
-| `apps/api` | FastAPI backend and daily pipeline (Python 3.12, uv) |
-| `apps/web` | Next.js web app (TypeScript, Tailwind, pnpm) |
-| `docs` | Architecture decisions and docs |
+| 1. Onboarding that captures interests | `/onboarding` is a step flow: name, beats (topics), free-text words parsed by Claude into keywords, reading time and depth, and a taste test on real articles. Answers autosave. |
+| 2. Daily PDF in newspaper style, personalised in content and presentation | The daily pipeline composes one edition per reader and typesets it with WeasyPrint. Content is chosen from the reader's profile. Presentation follows it too: section order follows topic weights, and the reading depth (brief, balanced, deep) changes summary length and the number of briefs. |
+| 3. Web reader, PDF download and archive | `/today` and `/paper/[date]` show the edition, `/archive` lists past editions, `/saved` keeps saved stories, and each edition has a PDF download. |
+| 4. Learning from behaviour | Opens, reading time, saves, skips, "more like this" and "less like this" are logged as events. The `learn` stage turns them into profile changes. `/interests` shows what was learned and lets the reader edit it. |
+| 5. Creative extras | Recall quiz with a streak counter and a "Still remember?" card on `/today`. Audio ("Listen"): Not yet built. "Ask your paper": Not yet built. Sunday edition: Not yet built. |
 
-## Development
+## How it learns
 
-### Prerequisites
+Each reader action becomes a small, logged change to their interest profile, with older signals fading over time. The next edition is ranked against the updated profile, and `/interests` shows every change.
 
-- Python 3.12 and [uv](https://docs.astral.sh/uv/)
-- Node.js LTS and pnpm (version pinned in `apps/web/package.json`)
-- A Supabase project (Postgres + pgvector); there is no local Docker database
-- Copy `.env.example` to `.env` and set `DATABASE_URL` to the Supabase session pooler URL
+![Precision@10 over a week of simulated reading](docs/learning-curve.png)
 
-### Make targets
-
-| Target | What it does |
-| --- | --- |
-| `make install` | Install API (uv) and web (pnpm) dependencies |
-| `make dev` | API on :8000 and web on :3000 together |
-| `make api` / `make web` | Run one app |
-| `make migrate` | Apply Alembic migrations to `DATABASE_URL` |
-| `make seed` | Create the demo reader and load `app/sources/registry.yaml` (idempotent) |
-| `make test` | pytest + vitest |
-| `make lint` | ruff, ruff format check, mypy, eslint, tsc |
-| `make format` | Auto-fix lint and formatting |
-
-### Database tests
-
-DB tests need `TEST_DATABASE_URL` and are skipped without it. CI points it at a `pgvector/pgvector:pg16` service container. Every test runs in a transaction that is rolled back. To run them against a shared database (e.g. Supabase), also set `TEST_DB_SCHEMA=test_<name>`: tables are created in that schema and it is dropped afterwards. The tests refuse to run in a Supabase `public` schema.
-
-### Pre-commit hooks
-
-Hooks run ruff (lint + format), whitespace/YAML checks and gitleaks before every commit. Install them once after cloning:
-
-```bash
-uvx pre-commit install            # needs uv; or: pipx run pre-commit install
-uvx pre-commit run --all-files    # optional: check the whole repo now
-```
-
-### CI
-
-Every PR runs `CI` (path-filtered API, Docker and web jobs, gated by a single `CI OK` check), `CodeQL` and a Conventional Commits check on the PR title. `main` is protected: changes land through a PR with `CI OK` green, merged with a merge commit.
+Precision@10 rose from 0.52 on day 1 to 0.88 on day 7, on simulated readers (5 synthetic readers, with a control group). Details are in [docs/learning.md](docs/learning.md).
