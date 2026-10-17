@@ -10,7 +10,7 @@
  */
 import { createServer } from "node:http";
 
-import { handleReader, runNightly, seed } from "./mock-reader.mjs";
+import { handleCatalogue, handleReader, runNightly, seed } from "./mock-reader.mjs";
 
 const PORT = Number(process.env.MOCK_API_PORT ?? 3199);
 const SESSION_COOKIE = "dp_session";
@@ -156,6 +156,8 @@ async function handle(req, res) {
   if (path === "/taxonomy") {
     return send(res, 200, { groups: ["News", "Money", "Tech", "Science", "Life", "Sport", "Culture"], topics: TOPICS });
   }
+
+  if (handleCatalogue({ res, path, send })) return;
 
   const id = cookieOf(req);
   // test-only: read what the app saved

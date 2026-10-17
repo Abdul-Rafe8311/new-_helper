@@ -153,7 +153,41 @@ function archive(before, limit) {
 // --- interests: a stand-in for apps/api/app/services/interests.py and the learner -------------------
 
 const TOPIC_OF = { "The Agent Economy": "ai", "Pavilion End": "cricket", Markets: "markets", Science: "science", "Outside your bubble": "food" };
-const LABELS = { ai: "Artificial Intelligence", cricket: "Cricket", markets: "Markets", science: "Science", food: "Food" };
+const LABELS = {
+  ai: "Artificial Intelligence",
+  cricket: "Cricket",
+  markets: "Markets",
+  science: "Science",
+  food: "Food",
+  climate: "Climate & Environment",
+  tennis: "Tennis",
+  renewables: "Renewables",
+  semiconductors: "Chips & Hardware",
+};
+const CATALOGUE_SECTIONS = ["Technology", "Science", "World", "Pakistan", "Business and Markets", "Sport", "Culture", "Health", "Climate", "Entertainment"];
+const CATALOGUE_TOPICS = [
+  ["ai", "Technology"],
+  ["semiconductors", "Technology"],
+  ["science", "Science"],
+  ["markets", "Business and Markets"],
+  ["cricket", "Sport"],
+  ["tennis", "Sport"],
+  ["food", "Culture"],
+  ["climate", "Climate"],
+  ["renewables", "Climate"],
+].map(([slug, section]) => ({ slug, label: LABELS[slug], section, description: `${LABELS[slug]} news and analysis.` }));
+const CATALOGUE_SOURCES = [
+  { name: "Dawn", section: "Pakistan", topics: ["pakistan"] },
+  { name: "BBC Business", section: "Business and Markets", topics: ["business"] },
+  { name: "Carbon Brief", section: "Climate", topics: ["climate"] },
+];
+
+/** The public catalogue endpoints, a stand-in for apps/api/app/api/routers/catalogue.py. */
+export function handleCatalogue({ res, path, send }) {
+  if (path === "/catalogue/topics") return send(res, 200, { sections: CATALOGUE_SECTIONS, topics: CATALOGUE_TOPICS, default_weight: 0.8 }), true;
+  if (path === "/catalogue/sources") return send(res, 200, { sections: CATALOGUE_SECTIONS, sources: CATALOGUE_SOURCES }), true;
+  return false;
+}
 
 function interests(s) {
   return (s.interests ??= {
@@ -163,6 +197,7 @@ function interests(s) {
       { id: "ent-qalandars", kind: "teams", name: "Lahore Qalandars", pinned: true },
     ],
     blocked: [],
+    blockedSources: [],
     log: [{ day: isoDay(1), text: "Raised Cricket: 4 recent reads of Cricket stories" }],
   });
 }
@@ -175,6 +210,7 @@ const interestsOut = (s) => {
       .map(([slug, weight]) => ({ slug, label: LABELS[slug] ?? slug, weight })),
     entities: i.entities,
     blocked: i.blocked.map((topic) => ({ topic, label: LABELS[topic] ?? topic })),
+    blocked_sources: i.blockedSources,
     is_new: false,
   };
 };
@@ -229,7 +265,12 @@ function handleInterests({ req, res, path, session: s, send, error, readJson }) 
   if (path === "/me/interests/topics" && req.method === "PUT") {
     return readJson(req).then((body) => {
       for (const [slug, weight] of Object.entries(body.topics ?? {})) {
-        if (i.topics[slug] !== weight) i.log.push({ day: isoDay(), text: `You set ${LABELS[slug] ?? slug} to ${Math.round(weight * 100)}%` });
+        const before = i.topics[slug] ?? 0;
+        const name = LABELS[slug] ?? slug;
+        if (before !== weight) {
+          const text = before <= 0 && weight > 0 ? `You added ${name} at ${Math.round(weight * 100)}%` : weight <= 0 ? `You removed ${name}` : `You set ${name} to ${Math.round(weight * 100)}%`;
+          i.log.push({ day: isoDay(), text });
+        }
         i.topics[slug] = weight;
       }
       send(res, 200, interestsOut(s));
@@ -258,6 +299,22 @@ function handleInterests({ req, res, path, session: s, send, error, readJson }) 
   const unblock = /^\/me\/interests\/blocked\/([\w-]+)$/.exec(path);
   if (unblock && req.method === "DELETE") {
     i.blocked = i.blocked.filter((t) => t !== unblock[1]);
+    return send(res, 200, interestsOut(s)), true;
+  }
+  if (path === "/me/interests/blocked-sources" && req.method === "POST") {
+    return readJson(req).then((body) => {
+      if (!i.blockedSources.includes(body.source)) {
+        i.blockedSources.push(body.source);
+        i.log.push({ day: isoDay(), text: `You switched off ${body.source}` });
+      }
+      send(res, 200, interestsOut(s));
+    }), true;
+  }
+  const sourceOn = /^\/me\/interests\/blocked-sources\/(.+)$/.exec(path);
+  if (sourceOn && req.method === "DELETE") {
+    const name = decodeURIComponent(sourceOn[1]);
+    i.blockedSources = i.blockedSources.filter((n) => n !== name);
+    i.log.push({ day: isoDay(), text: `You switched ${name} back on` });
     return send(res, 200, interestsOut(s)), true;
   }
   if (path === "/me/interests/reset" && req.method === "POST") {
