@@ -3,7 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_URL = "https://github.com/Abdul-Rafe8311/new-_helper"
@@ -59,6 +59,20 @@ class Settings(BaseSettings):
 
     # Audio
     elevenlabs_api_key: SecretStr = SecretStr("")
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_asyncpg_driver(cls, value: str) -> str:
+        """Accept the URL as copied from Supabase (postgres://, postgresql://, +psycopg)."""
+        for prefix in (
+            "postgres://",
+            "postgresql://",
+            "postgresql+psycopg://",
+            "postgresql+psycopg2://",
+        ):
+            if value.startswith(prefix):
+                return "postgresql+asyncpg://" + value[len(prefix) :]
+        return value
 
     @property
     def apify_enabled(self) -> bool:
