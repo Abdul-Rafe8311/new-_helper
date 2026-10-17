@@ -34,6 +34,12 @@ const card = (page: Page, headline: string) => cards(page).filter({ hasText: hea
 const LEAD = "Agents are now negotiating their own contracts";
 const SECOND = "Inside the startup selling AI interns by the hour";
 
+/** Server-rendered cards exist before React attaches to them; wait until it has, or early keys and clicks are lost. */
+const hydrated = (page: Page) =>
+  page.waitForFunction(() =>
+    Object.keys(document.querySelector("[data-story]") ?? {}).some((key) => key.startsWith("__reactFiber")),
+  );
+
 const noHorizontalScroll = async (page: Page) =>
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
@@ -62,6 +68,7 @@ test("read, open a story, save, skip, download the paper, then browse the archiv
 
   // save: a separate button on the card, persisted by the API and shown again after a reload
   await page.goto("/today");
+  await hydrated(page);
   await card(page, LEAD).getByRole("button", { name: "Save" }).click();
   await expect(card(page, LEAD).getByRole("button", { name: "Saved" })).toHaveAttribute("aria-pressed", "true");
   await expect.poll(async () => (await mockState(page, id)).events.map((e) => e.type)).toContain("save");
@@ -153,6 +160,7 @@ test("cards lift on hover with a fine pointer, and stay still with reduced motio
   await page.goto("/today");
   const surface = card(page, SECOND).locator(".story-card__surface");
   await expect(surface).toBeVisible();
+  await hydrated(page);
   const transform = () => surface.evaluate((el) => getComputedStyle(el).transform);
   expect(await transform()).toBe("none");
   await surface.hover();
@@ -171,6 +179,7 @@ test("keyboard shortcuts drive the feed", async ({ page, isMobile }) => {
   const id = await signIn(page);
   await page.goto("/today");
   await expect(cards(page)).toHaveCount(14);
+  await hydrated(page);
 
   await page.keyboard.press("j");
   await expect(cards(page).nth(0)).toHaveAttribute("data-focused", "true");
