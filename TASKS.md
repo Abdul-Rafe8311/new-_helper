@@ -31,3 +31,4 @@
 - T3: the proxy only checks that the cookie exists; a stale cookie is caught by `/auth/me` in the layout and redirected to `/login`.
 - T4: the first deploy run builds the GHCR image; its package must then be made public (UI-only setting) for Render to pull it.
 - T4: pipeline stages ingest/enrich/learn/compose/render are not implemented yet; `--stage all` skips them.
+- T4: Render's `WEB_URL` env var should equal the live web URL (https://new-helper-nine.vercel.app).

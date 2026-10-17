@@ -28,7 +28,7 @@ Deploys run in the GitHub Environment `production`, so they appear in the repo's
 | Variable | Value |
 | --- | --- |
 | `API_URL` | `https://newshelper-api.onrender.com` |
-| `WEB_URL` | `https://new-helper.vercel.app` |
+| `WEB_URL` | `https://new-helper-nine.vercel.app` |
 
 ## Render (service `newshelper-api`, see `render.yaml`)
 
@@ -36,7 +36,7 @@ Image-backed web service, health check `/health`, auto-deploy off. Env vars: `EN
 
 ## Vercel (project `new-helper`, root directory `apps/web`)
 
-`API_URL` (the Render URL) for Production and Preview; `next.config.ts` reads it at build time for the `/api/*` rewrite.
+`API_URL` (the Render URL) for Production and Preview; `next.config.ts` reads it at build time for the `/api/*` rewrite. Vercel never gives "Sensitive" env vars to the CLI, so the deploy and preview workflows overwrite `API_URL` in the pulled env with the `API_URL` repo variable.
 
 ## Deploy manually
 
