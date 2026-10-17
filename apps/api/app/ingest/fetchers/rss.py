@@ -23,6 +23,18 @@ def entry_image(entry: Any) -> str | None:
     return None
 
 
+FULL_TEXT_WORDS = 200  # feed bodies shorter than this are teasers, not articles
+
+
+def entry_full_text(entry: Any) -> str | None:
+    """The article body when the feed ships it (content:encoded), so no page fetch is needed."""
+    for content in entry.get("content") or []:
+        text = strip_html(content.get("value"))
+        if text and len(text.split()) >= FULL_TEXT_WORDS:
+            return text
+    return None
+
+
 def parse_entries(content: bytes, origin: str) -> list[RawItem]:
     parsed = feedparser.parse(content)
     if parsed.bozo and not parsed.entries:
@@ -42,6 +54,7 @@ def parse_entries(content: bytes, origin: str) -> list[RawItem]:
                 summary=strip_html(entry.get("summary")),
                 author=entry.get("author"),
                 image_url=entry_image(entry),
+                content_text=entry_full_text(entry),
                 origin=origin,
             )
         )

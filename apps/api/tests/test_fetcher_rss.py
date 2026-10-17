@@ -73,3 +73,17 @@ async def test_garbage_body_raises_fetch_error() -> None:
     async with _http() as http:
         with pytest.raises(FetchError):
             await RssFetcher(http, URL, "x").fetch()
+
+
+@respx.mock
+async def test_feed_body_is_used_as_content_only_when_it_is_the_full_article() -> None:
+    respx.get(URL).mock(
+        return_value=httpx.Response(200, content=(FIXTURES / "feed_full_content.xml").read_bytes())
+    )
+    async with _http() as http:
+        result = await RssFetcher(http, URL, "Full Content Wire").fetch()
+    full, teaser = result.items
+    assert full.content_text is not None
+    assert len(full.content_text.split()) >= 200
+    assert "<p>" not in full.content_text
+    assert teaser.content_text is None

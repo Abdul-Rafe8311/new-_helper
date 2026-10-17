@@ -23,7 +23,8 @@ log = structlog.get_logger(__name__)
 
 SEARCH_URL = "https://news.google.com/rss/search"
 FALLBACK_FAILURE_RATE = 0.3
-DECODE_CONCURRENCY = 4
+DECODE_CONCURRENCY = 8
+MAX_ITEMS_PER_QUERY = 25  # newest first; decoding is the slow part, so cap before it
 
 
 @dataclass(frozen=True)
@@ -63,8 +64,10 @@ class GoogleNewsDecoder:
             except Exception as exc:  # the library raises broadly on rate limits and bad pages
                 log.info("gnews_decode_error", error=type(exc).__name__)
                 return None
-        decoded = result.get("decoded_url") if isinstance(result, dict) else None
-        return str(decoded) if result.get("status") and decoded else None
+        if not isinstance(result, dict) or not result.get("success"):
+            return None
+        decoded = result.get("decoded_url")
+        return str(decoded) if decoded else None
 
     async def decode(self, urls: Sequence[str]) -> dict[str, str | None]:
         results = await asyncio.gather(*(self._one(u) for u in urls))
@@ -108,11 +111,13 @@ class GoogleNewsFetcher:
         resolver: LinkResolver,
         query: str,
         locale: Locale = US,
+        max_items: int = MAX_ITEMS_PER_QUERY,
     ) -> None:
         self._http = http
         self._resolver = resolver
         self._query = query
         self._locale = locale
+        self._max_items = max_items
         self.label = f"google_news:{locale.gl}:{query}"
 
     async def fetch(self) -> FetchResult:
@@ -131,7 +136,7 @@ class GoogleNewsFetcher:
         if parsed.bozo and not parsed.entries:
             raise FetchError(f"unparseable Google News feed: {parsed.bozo_exception}")
         candidates = [self._to_item(entry) for entry in parsed.entries]
-        items = [i for i in candidates if i is not None]
+        items = [i for i in candidates if i is not None][: self._max_items]
         decoded = await self._resolver.resolve([i.url for i in items])
         resolved = [replace(i, url=publisher) for i in items if (publisher := decoded.get(i.url))]
         return FetchResult(items=resolved, skipped=len(items) - len(resolved))

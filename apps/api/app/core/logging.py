@@ -32,3 +32,6 @@ def configure_logging(settings: Settings) -> None:
         cache_logger_on_first_use=True,
     )
     logging.basicConfig(level=level, stream=sys.stdout, format="%(message)s", force=True)
+    # One INFO line per HTTP request drowns the pipeline logs.
+    for noisy in ("httpx", "httpcore"):
+        logging.getLogger(noisy).setLevel(max(level, logging.WARNING))

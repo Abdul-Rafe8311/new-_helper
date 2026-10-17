@@ -1,5 +1,6 @@
 """Plain data carried through the ingestion stage."""
 
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -34,14 +35,28 @@ class Extracted:
 
 @dataclass
 class IngestStats:
-    fetched: int = 0
-    new: int = 0
-    duplicates: int = 0
-    dropped: int = 0
-    failed: int = 0
-    sources_failed: int = 0
+    fetched: int = 0  # raw items returned by fetchers
+    new: int = 0  # articles inserted
+    duplicates: int = 0  # known URL/content hash or repeated in the batch
+    dropped: int = 0  # stale / short / wrong language / robots / undecodable links
+    failed: int = 0  # extraction errors
+    sources_failed: int = 0  # fetch jobs that raised
     sources_deactivated: int = 0
+    drop_reasons: Counter[str] = field(default_factory=Counter)
     timings: dict[str, float] = field(default_factory=dict)
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "fetched": self.fetched,
+            "new": self.new,
+            "duplicates": self.duplicates,
+            "dropped": self.dropped,
+            "failed": self.failed,
+            "sources_failed": self.sources_failed,
+            "sources_deactivated": self.sources_deactivated,
+            "drop_reasons": {str(k): v for k, v in self.drop_reasons.items()},
+            "timings": self.timings,
+        }
 
 
 @dataclass

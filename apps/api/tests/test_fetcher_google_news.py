@@ -6,9 +6,11 @@ import pytest
 import respx
 from tenacity import wait_none
 
+from app.ingest.fetchers import google_news
 from app.ingest.fetchers.base import FetchError
 from app.ingest.fetchers.google_news import (
     PAKISTAN,
+    GoogleNewsDecoder,
     GoogleNewsFetcher,
     LinkResolver,
 )
@@ -128,3 +130,27 @@ async def test_http_error_raises_fetch_error() -> None:
         fetcher = GoogleNewsFetcher(http, LinkResolver(MemoryCache(), FakeDecoder({})), "q")
         with pytest.raises(FetchError, match="403"):
             await fetcher.fetch()
+
+
+async def test_decoder_reads_the_librarys_success_flag(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def fake(url: str, **kwargs: object) -> dict[str, object]:
+        if url == L1:
+            return {"success": True, "decoded_url": "https://dawn.com/a"}
+        if url == L2:
+            return {"success": False, "message": "rate limited"}
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(google_news, "gnews_decoder_async", fake)
+    out = await GoogleNewsDecoder().decode([L1, L2, L3])
+    assert out == {L1: "https://dawn.com/a", L2: None, L3: None}
+
+
+@respx.mock
+async def test_only_the_newest_items_are_decoded() -> None:
+    _feed_route()
+    decoder = FakeDecoder({L1: "https://dawn.com/a", L2: "https://thenews.com.pk/b"})
+    async with _http() as http:
+        fetcher = GoogleNewsFetcher(http, LinkResolver(MemoryCache(), decoder), "q", max_items=2)
+        result = await fetcher.fetch()
+    assert decoder.calls == [[L1, L2]]
+    assert len(result.items) == 2
