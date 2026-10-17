@@ -10,7 +10,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_edition_generator
-from app.models import Edition, EditionStatus, ReaderProfile, TopicPrototype
+from app.models import Edition, EditionStatus, ReaderProfile, TopicPrototype, User
 from app.onboarding.completion import default_paper_name
 from app.onboarding.generator import STAGES, SessionFactory, StubEditionGenerator
 from tests.test_onboarding_api import (
@@ -95,7 +95,11 @@ async def test_complete_builds_the_profile_and_starts_the_edition(
     assert {"AI agents", "PSL", "Test cricket"} <= set(profile["keywords"])
     assert profile["context_notes"] == "Runs an agency"
 
-    stored = await db.scalar(select(ReaderProfile.interest_vector))
+    stored = await db.scalar(
+        select(ReaderProfile.interest_vector)
+        .join(User, User.id == ReaderProfile.user_id)
+        .where(User.email == "reader@example.com")
+    )
     assert stored is not None
     assert len(stored) == 384
 
