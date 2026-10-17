@@ -18,7 +18,7 @@ services:
       - key: LOG_LEVEL
         value: INFO
       - key: WEB_URL
-        value: https://new-helper.vercel.app
+        value: https://new-helper-nine.vercel.app
       - key: STORAGE_BACKEND
         value: supabase
       - key: SUPABASE_BUCKET
