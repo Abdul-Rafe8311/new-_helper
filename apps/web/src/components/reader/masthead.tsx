@@ -22,7 +22,7 @@ type MastheadProps = {
 export function Masthead({ displayName, email, pdfDate, listen = false }: MastheadProps) {
   const { menuOpen, setMenuOpen } = useChrome();
   return (
-    <header className="relative z-20 mx-auto flex h-16 w-full max-w-[1680px] items-center gap-3 px-4 sm:h-20 lg:h-[88px] lg:px-8">
+    <header className="relative z-20 mx-auto flex h-16 w-full max-w-[1680px] items-center gap-2 px-4 sm:h-20 sm:gap-3 lg:h-[88px] lg:px-8">
       <Button
         variant="ghost"
         size="icon"
@@ -33,17 +33,17 @@ export function Masthead({ displayName, email, pdfDate, listen = false }: Masthe
       >
         <Menu aria-hidden="true" />
       </Button>
-      <Link href="/today" className="font-display text-2xl font-black tracking-tight text-ink sm:text-3xl">
+      <Link href="/today" className="font-display text-lg font-black tracking-tight text-ink min-[400px]:text-2xl sm:text-3xl">
         NewsHelper<span aria-hidden="true" className="text-cat">.</span>
       </Link>
-      <div className="ml-auto flex items-center gap-1.5 sm:gap-3">
+      <div className="ml-auto flex items-center gap-1 sm:gap-3">
         <DownloadButton defaultDate={pdfDate} />
         {listen ? (
           <Button
             variant="outline"
             disabled
             aria-label="Listen (coming soon)"
-            className="h-10 rounded-full px-3 font-semibold sm:px-4"
+            className="size-10 rounded-full p-0 font-semibold sm:w-auto sm:px-3 lg:px-4"
           >
             <Headphones aria-hidden="true" />
             <span className="hidden lg:inline">Listen (coming soon)</span>
