@@ -10,7 +10,7 @@
  */
 import { createServer } from "node:http";
 
-import { handleReader, seed } from "./mock-reader.mjs";
+import { handleReader, runNightly, seed } from "./mock-reader.mjs";
 
 const PORT = Number(process.env.MOCK_API_PORT ?? 3199);
 const SESSION_COOKIE = "dp_session";
@@ -169,6 +169,11 @@ async function handle(req, res) {
   const s = sessionFor(id);
   if (path === "/__seed" && req.method === "POST") {
     seed(s, await readJson(req));
+    return send(res, 204);
+  }
+  // test-only: run the nightly learn stage for this reader
+  if (path === "/__learn" && req.method === "POST") {
+    runNightly(s);
     return send(res, 204);
   }
   if (handleReader({ req, res, path, url, session: s, send, error, readJson })) return;
