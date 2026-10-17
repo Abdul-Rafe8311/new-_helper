@@ -22,7 +22,8 @@ class Fetcher(Protocol):
 
     label: str
 
-    async def fetch(self) -> FetchResult: ...
+    async def fetch(self) -> FetchResult:
+        """Fetch this unit of work; raise FetchError when the source itself is broken."""
 
 
 def strip_html(text: str | None) -> str | None:

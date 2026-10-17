@@ -28,7 +28,8 @@ Backend = Callable[[str, str], Extracted | None]
 
 
 class FallbackExtractor(Protocol):
-    async def extract(self, url: str) -> Extracted | None: ...
+    async def extract(self, url: str) -> Extracted | None:
+        """Return the page text and metadata, or None when nothing usable was found."""
 
 
 def word_count(text: str) -> int:

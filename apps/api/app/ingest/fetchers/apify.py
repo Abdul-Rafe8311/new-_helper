@@ -27,7 +27,8 @@ _INPUT_URL_KEYS = ("inputUrl", "googleUrl", "originalUrl", "input", "sourceLink"
 
 
 class ActorRunner(Protocol):
-    async def run_actor(self, actor_id: str, run_input: dict[str, Any]) -> list[dict[str, Any]]: ...
+    async def run_actor(self, actor_id: str, run_input: dict[str, Any]) -> list[dict[str, Any]]:
+        """Run the actor to completion and return its dataset items."""
 
 
 class ApifyActorRunner:

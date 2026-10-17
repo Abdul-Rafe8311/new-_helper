@@ -41,13 +41,14 @@ PAKISTAN = Locale("en-PK", "PK", "PK:en")
 class LinkDecoder(Protocol):
     async def decode(self, urls: Sequence[str]) -> dict[str, str | None]:
         """Map each Google News link to its publisher URL, or None when it cannot be decoded."""
-        ...
 
 
 class LinkCache(Protocol):
-    async def get_many(self, urls: Sequence[str]) -> dict[str, str]: ...
+    async def get_many(self, urls: Sequence[str]) -> dict[str, str]:
+        """Return the already-decoded publisher URL for each known Google News link."""
 
-    async def put_many(self, mapping: dict[str, str]) -> None: ...
+    async def put_many(self, mapping: dict[str, str]) -> None:
+        """Remember newly decoded links."""
 
 
 class GoogleNewsDecoder:
