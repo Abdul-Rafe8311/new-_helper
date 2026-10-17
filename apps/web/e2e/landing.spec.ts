@@ -59,9 +59,9 @@ test("landing: preview chips select a view and hide the others", async ({ page }
   await expect(pdf).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#lp-panel-pdf")).toHaveAttribute("data-active", "true");
   await expect(page.locator("#lp-panel-web")).toHaveAttribute("aria-hidden", "true");
-  await expect(page.getByRole("heading", { name: "Past editions" })).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Archive", level: 3 })).toBeHidden();
   await page.getByRole("button", { name: "Archive" }).click();
-  await expect(page.getByRole("heading", { name: "Past editions" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Archive", level: 3 })).toBeVisible();
   await expect(page.locator("#lp-panel-pdf [href], #lp-panel-pdf button")).toHaveCount(0);
 });
 
@@ -126,7 +126,15 @@ test.describe("reduced motion", () => {
     await page.goto("/");
     await expect(page.locator(".lp-cast")).toHaveCSS("animation-name", "none");
     await expect(page.locator(".lp-ryw__pin")).toHaveCSS("position", "static");
-    const wp = await page.locator(".lp-word").first().evaluate((el) => getComputedStyle(el).color);
-    expect(wp).toMatch(/245|0\.9607/);
+    const [word, text] = await page.evaluate(() => [
+      getComputedStyle(document.querySelector(".lp-word")!).color,
+      getComputedStyle(document.querySelector(".lp")!).color,
+    ]);
+    // one may print as rgb(...) and the other as color(srgb ...): compare the channels
+    const channels = (css: string) => {
+      const n = (css.match(/[\d.]+/g) ?? []).map(Number);
+      return css.startsWith("rgb") ? n.slice(0, 3).map((v) => v / 255) : n.slice(-3);
+    };
+    channels(word).forEach((value, i) => expect(value).toBeCloseTo(channels(text)[i], 2));
   });
 });
