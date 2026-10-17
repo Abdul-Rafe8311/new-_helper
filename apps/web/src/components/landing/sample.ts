@@ -1,84 +1,70 @@
 /**
  * A clearly labelled sample edition for the signed-out landing page. Nothing here is real news:
- * the headlines are written for NewsHelper, and there are no images (cards fall back to a flat
- * section colour). `hoursAgo` is fixed so the static page never shows a stale clock.
+ * the headlines are written for NewsHelper and there are no photographs (previews use flat
+ * section-coloured tiles). Counts below are counts of this fixture, nothing more.
  */
 export type SampleStory = {
   id: string;
   section: string;
   headline: string;
   summary: string;
-  sources: number;
-  hoursAgo: number;
-  /** Fictional outlet name, for the device preview only. */
   source: string;
+  sources: number;
   readMins: number;
 };
 
-export type SampleSection = { slug: string; label: string; color: string };
+export const SAMPLE_DATE = "Saturday 17 October 2026";
 
-export const SAMPLE_SECTIONS: readonly SampleSection[] = [
-  { slug: "technology", label: "Technology", color: "#5d7a74" },
-  { slug: "science", label: "Science", color: "#7d8f5a" },
-  { slug: "economics", label: "Economics", color: "#6b7048" },
-  { slug: "culture", label: "Culture", color: "#8b6b78" },
-] as const;
+/** Earlier days of the sample archive. The fixture has no stories for them, so no counts are shown. */
+export const SAMPLE_ARCHIVE_DATES: readonly string[] = [
+  "Friday 16 October 2026",
+  "Thursday 15 October 2026",
+  "Wednesday 14 October 2026",
+  "Tuesday 13 October 2026",
+];
+
+export const SAMPLE_SECTION_COLORS: Readonly<Record<string, string>> = {
+  Technology: "#3fb5a8",
+  Science: "#a7cc52",
+  Business: "#f2b544",
+  Music: "#b79ced",
+};
 
 export const SAMPLE_STORIES: readonly SampleStory[] = [
   {
     id: "lead",
-    source: "Harbour Post",
-    readMins: 4,
-    section: "technology",
+    section: "Technology",
     headline: "Small on-device models start to change how phones read the news",
     summary: "Summaries that never leave your handset are becoming a standard feature, and readers notice the difference.",
+    source: "Harbour Post",
     sources: 7,
-    hoursAgo: 3,
+    readMins: 4,
   },
   {
     id: "science",
-    source: "Fieldnotes Weekly",
-    readMins: 6,
-    section: "science",
+    section: "Science",
     headline: "A new deep-sea survey maps hundreds of species no one had catalogued",
     summary: "Researchers combined sonar and sampling to chart a corner of the ocean floor in unusual detail.",
+    source: "Fieldnotes Weekly",
     sources: 4,
-    hoursAgo: 5,
+    readMins: 6,
   },
   {
-    id: "economics",
-    source: "Ledger & Loaf",
-    readMins: 3,
-    section: "economics",
+    id: "business",
+    section: "Business",
     headline: "Regional bakeries report a steady rise in flour costs",
     summary: "Small producers say prices have crept up for three quarters in a row.",
+    source: "Ledger & Loaf",
     sources: 3,
-    hoursAgo: 8,
+    readMins: 3,
   },
   {
-    id: "culture",
+    id: "music",
+    section: "Music",
+    headline: "Independent venues pair old classics with live bands",
+    summary: "Sold-out evening shows are pulling younger audiences back into the room.",
     source: "The Evening Reel",
-    readMins: 5,
-    section: "culture",
-    headline: "Independent cinemas pair old classics with live music",
-    summary: "Sold-out evening screenings are pulling younger audiences back into the stalls.",
     sources: 2,
-    hoursAgo: 12,
+    readMins: 5,
   },
-];
-
-export function sectionOf(slug: string): SampleSection {
-  return SAMPLE_SECTIONS.find((s) => s.slug === slug) ?? SAMPLE_SECTIONS[0];
-}
-
-/** Two key facts for the story shown in the device preview's detail panel. */
-export const SAMPLE_KEY_FACTS: readonly string[] = [
-  "Seven outlets covered the story within three hours.",
-  "Summaries run on the phone, so reading stays private.",
-];
-
-/** The phone preview's home screen: two sections, three small tiles each (titles are sample text). */
-export const SAMPLE_PHONE_ROWS: readonly { section: string; tiles: readonly string[] }[] = [
-  { section: "technology", tiles: ["On-device models", "Quiet chips", "Offline maps"] },
-  { section: "science", tiles: ["Deep-sea survey", "Soil carbon", "Night-sky atlas"] },
 ];
