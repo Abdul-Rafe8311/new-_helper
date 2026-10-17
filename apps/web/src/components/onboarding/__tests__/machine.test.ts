@@ -73,8 +73,16 @@ describe("moving between steps", () => {
     expect(reducer(at4, { type: "goto", step: 0 }).step).toBe(4);
   });
 
-  it("words, taste and reading can always be passed", () => {
-    for (const step of [3, 4, 5]) expect(reducer({ ...base, step }, { type: "next" }).step).toBe(step + 1);
+  it("taste and reading can always be passed", () => {
+    for (const step of [4, 5]) expect(reducer({ ...base, step }, { type: "next" }).step).toBe(step + 1);
+  });
+
+  it("lets the words step be skipped, but not left unread", () => {
+    const empty = { ...base, step: 3 };
+    expect(reducer(empty, { type: "next" }).step).toBe(4);
+    const typed = run(empty, { type: "set_text", text: "I like chess" });
+    expect(reducer(typed, { type: "next" }).step).toBe(3);
+    expect(reducer(run(typed, { type: "set_parsed", parsed: PARSED }), { type: "next" }).step).toBe(4);
   });
 });
 

@@ -231,8 +231,11 @@ export function canAdvance(draft: Draft): boolean {
       return draft.paperName.trim().length > 0 && isValidTimeZone(draft.timezone);
     case 2:
       return draft.topics.length >= MIN_TOPICS;
+    case 3:
+      // words are optional, but once typed they should be read so the chips can be checked
+      return draft.text.trim() === "" || draft.parsed !== null;
     default:
-      // words, taste and reading all have sensible defaults, and the finale is the end
+      // taste and reading have sensible defaults, and the finale is the end
       return draft.step < FINALE;
   }
 }
