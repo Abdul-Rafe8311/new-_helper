@@ -90,6 +90,7 @@ async def test_generates_a_ready_edition_with_items_layout_and_stats(db: AsyncSe
     assert stats["llm_cost_usd"] == pytest.approx(0.0123, abs=1e-6)
     assert stats["composed_by"] == "llm"
     assert stats["regenerations"] == 0
+    assert stats["stage"] == "done"
 
 
 @pytest.mark.integration

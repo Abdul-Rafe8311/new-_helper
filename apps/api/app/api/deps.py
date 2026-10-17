@@ -3,19 +3,23 @@
 import hmac
 from typing import Annotated
 
+import httpx
 from fastapi import Cookie, Depends, Header
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.ai.factory import build_llm
 from app.ai.llm import LLMProvider
 from app.ai.usage import BudgetGuard
 from app.core.config import Settings, get_settings
 from app.core.errors import AppError
 from app.core.security import SESSION_COOKIE, decode_session_token
 from app.db.session import get_session, get_sessionmaker
+from app.editions.service import EditionService
+from app.editions.weather import WeatherService
 from app.models import User
-from app.onboarding.generator import EditionGenerator, StubEditionGenerator
+from app.onboarding.generator import ComposerEditionGenerator, EditionGenerator
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
@@ -55,8 +59,6 @@ _llm_cache: dict[str, LLMProvider] = {}
 
 async def get_llm(settings: SettingsDep) -> LLMProvider:
     """The real Anthropic provider; tests override this dependency with a FakeLLM."""
-    from app.ai.factory import build_llm
-
     key = settings.anthropic_api_key.get_secret_value()
     sessionmaker = get_sessionmaker()
     if not key:
@@ -73,9 +75,30 @@ async def get_llm(settings: SettingsDep) -> LLMProvider:
 LLMDep = Annotated[LLMProvider, Depends(get_llm)]
 
 
-def get_edition_generator() -> EditionGenerator:
-    """Task 8 swaps the stub for the real ranker and composer."""
-    return StubEditionGenerator(get_sessionmaker())
+_services: dict[str, EditionService] = {}
+
+
+def get_edition_service(settings: SettingsDep) -> EditionService:
+    """One service per process: it owns the Anthropic client and the weather HTTP client."""
+    if "service" not in _services:
+        sessionmaker = get_sessionmaker()
+        _services["service"] = EditionService(
+            sessionmaker,
+            build_llm(settings, sessionmaker),
+            settings.llm_smart_model,
+            weather=WeatherService(
+                httpx.AsyncClient(timeout=10.0, headers={"User-Agent": settings.user_agent})
+            ),
+            guard=BudgetGuard(sessionmaker, settings.llm_daily_budget_usd),
+        )
+    return _services["service"]
+
+
+EditionServiceDep = Annotated[EditionService, Depends(get_edition_service)]
+
+
+def get_edition_generator(service: EditionServiceDep) -> EditionGenerator:
+    return ComposerEditionGenerator(service)
 
 
 EditionGeneratorDep = Annotated[EditionGenerator, Depends(get_edition_generator)]

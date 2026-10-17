@@ -42,6 +42,8 @@ from app.personalize.select import Selection, select_items, topic_label
 
 log = structlog.get_logger(__name__)
 
+# progress shown to the reader while a paper is being built (onboarding's printing-press finale)
+STAGES = ("gathering", "choosing", "writing", "typesetting")
 MAX_REGENERATIONS_PER_DAY = 3
 STALE_PENDING = timedelta(minutes=15)  # a pending edition this old lost its worker
 LAYOUT_VERSION = 1
@@ -199,6 +201,7 @@ class EditionService:
             stats["llm_calls"] = len(calls)
             stats["llm_cost_usd"] = round(sum(c.cost_usd for c in calls), 6)
             stats["regenerations"] = regenerations
+            stats["stage"] = "done"
             stats["seconds"] = round((self._clock() - started).total_seconds(), 2)
             edition.stats = stats
             edition.status = EditionStatus.READY
@@ -216,6 +219,11 @@ class EditionService:
                 }
                 await session.commit()
 
+    @staticmethod
+    async def _stage(session: AsyncSession, edition: Edition, stage: str) -> None:
+        edition.stats = {**edition.stats, "stage": stage}
+        await session.commit()
+
     async def _fill(self, session: AsyncSession, edition: Edition) -> dict[str, Any]:
         user = await session.scalar(
             select(User).options(selectinload(User.profile)).where(User.id == edition.user_id)
@@ -225,13 +233,16 @@ class EditionService:
         profile = profile_view(user, user.profile)
         now = self._clock()
 
+        await self._stage(session, edition, STAGES[0])
         candidates = await retrieve_candidates(session, profile, edition.edition_date, now=now)
         seen = await previously_seen(session, user.id)
+        await self._stage(session, edition, STAGES[1])
         scored = score_all(candidates, profile, now, self._scoring, seen)
         selections = select_items(scored, profile, self._selection)
         if not selections:
             raise NoArticlesError(f"no eligible articles among {len(candidates)} candidates")
 
+        await self._stage(session, edition, STAGES[2])
         weather = (
             await self._weather.for_city(session, user.city, edition.edition_date)
             if self._weather
@@ -243,6 +254,7 @@ class EditionService:
             self._model,
             self._guard,
         )
+        await self._stage(session, edition, STAGES[3])
         await self._persist(
             session,
             edition,
@@ -267,6 +279,8 @@ class EditionService:
         weather: Weather | None,
     ) -> None:
         by_article = {s.scored.candidate.id: s for s in selections}
+        # two builds of one edition (e.g. a stale-pending retry) take turns instead of interleaving
+        await session.refresh(edition, with_for_update=True)
         await session.execute(delete(EditionItem).where(EditionItem.edition_id == edition.id))
         item_ids: dict[uuid.UUID, uuid.UUID] = {}
         layout_sections: list[dict[str, Any]] = []

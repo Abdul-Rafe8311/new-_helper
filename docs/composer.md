@@ -59,6 +59,14 @@ retrieve  ->  score  ->  select  ->  compose (1 LLM call)  ->  persist
 - Stats: items, sources, topics, top topics, explore items, LLM calls and cost (tracked per edition
   with a context variable, so concurrent builds do not mix), and whether the LLM or template composed it.
 
+## Onboarding hook
+
+`POST /onboarding/complete` opens today's edition and runs `ComposerEditionGenerator`
+(`app/onboarding/generator.py`) in the background, which calls `EditionService.run`. While it
+builds, `stats.stage` moves through `gathering` (retrieve), `choosing` (score and select),
+`writing` (the LLM call) and `typesetting` (persist), then `done`; the finale animation polls
+`GET /onboarding/status` for it. The same stages are written for regenerations and the daily stage.
+
 ## API
 
 | Route | |

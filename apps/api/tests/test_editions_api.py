@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.llm import FakeLLM
-from app.api.routers.editions import get_edition_service
+from app.api.deps import get_edition_service
 from app.db.session import get_session
 from app.editions.service import MAX_REGENERATIONS_PER_DAY, EditionService, local_date
 from app.main import create_app
