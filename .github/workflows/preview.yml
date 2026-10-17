@@ -38,6 +38,14 @@ jobs:
         run: npm install --global vercel@64.5.0
       - name: Pull project settings
         run: vercel pull --yes --environment=preview
+      - name: Point the /api rewrite at the API
+        # Sensitive Vercel env vars pull as "[SENSITIVE]"; take API_URL from the repo variable.
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          test -n "$API_URL" || { echo "::error::repository variable API_URL is not set"; exit 1; }
+          sed -i '/^API_URL=/d' .vercel/.env.preview.local
+          echo "API_URL=${API_URL%/}" >> .vercel/.env.preview.local
       - name: Build
         run: vercel build
       - name: Deploy
