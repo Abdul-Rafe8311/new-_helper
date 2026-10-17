@@ -10,6 +10,9 @@ export type SampleStory = {
   summary: string;
   sources: number;
   hoursAgo: number;
+  /** Fictional outlet name, for the device preview only. */
+  source: string;
+  readMins: number;
 };
 
 export type SampleSection = { slug: string; label: string; color: string };
@@ -24,6 +27,8 @@ export const SAMPLE_SECTIONS: readonly SampleSection[] = [
 export const SAMPLE_STORIES: readonly SampleStory[] = [
   {
     id: "lead",
+    source: "Harbour Post",
+    readMins: 4,
     section: "technology",
     headline: "Small on-device models start to change how phones read the news",
     summary: "Summaries that never leave your handset are becoming a standard feature, and readers notice the difference.",
@@ -32,6 +37,8 @@ export const SAMPLE_STORIES: readonly SampleStory[] = [
   },
   {
     id: "science",
+    source: "Fieldnotes Weekly",
+    readMins: 6,
     section: "science",
     headline: "A new deep-sea survey maps hundreds of species no one had catalogued",
     summary: "Researchers combined sonar and sampling to chart a corner of the ocean floor in unusual detail.",
@@ -40,6 +47,8 @@ export const SAMPLE_STORIES: readonly SampleStory[] = [
   },
   {
     id: "economics",
+    source: "Ledger & Loaf",
+    readMins: 3,
     section: "economics",
     headline: "Regional bakeries report a steady rise in flour costs",
     summary: "Small producers say prices have crept up for three quarters in a row.",
@@ -48,6 +57,8 @@ export const SAMPLE_STORIES: readonly SampleStory[] = [
   },
   {
     id: "culture",
+    source: "The Evening Reel",
+    readMins: 5,
     section: "culture",
     headline: "Independent cinemas pair old classics with live music",
     summary: "Sold-out evening screenings are pulling younger audiences back into the stalls.",
@@ -59,3 +70,15 @@ export const SAMPLE_STORIES: readonly SampleStory[] = [
 export function sectionOf(slug: string): SampleSection {
   return SAMPLE_SECTIONS.find((s) => s.slug === slug) ?? SAMPLE_SECTIONS[0];
 }
+
+/** Two key facts for the story shown in the device preview's detail panel. */
+export const SAMPLE_KEY_FACTS: readonly string[] = [
+  "Seven outlets covered the story within three hours.",
+  "Summaries run on the phone, so reading stays private.",
+];
+
+/** The phone preview's home screen: two sections, three small tiles each (titles are sample text). */
+export const SAMPLE_PHONE_ROWS: readonly { section: string; tiles: readonly string[] }[] = [
+  { section: "technology", tiles: ["On-device models", "Quiet chips", "Offline maps"] },
+  { section: "science", tiles: ["Deep-sea survey", "Soil carbon", "Night-sky atlas"] },
+];
