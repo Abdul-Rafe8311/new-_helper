@@ -6,16 +6,25 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "alembic>=1.20.0",
+    "apify-client>=3.3.0",
     "asyncpg>=0.32.0",
     "email-validator>=2.3.0",
     "fastapi>=0.143.3",
+    "feedparser>=6.0.14",
+    "googlenewsdecoder>=0.2.1",
+    "httpx>=0.28.1",
+    "newspaper4k>=0.9.6",
     "pgvector>=0.5.1",
     "pwdlib[argon2]>=0.3.1",
+    "py3langid>=0.4.0",
     "pydantic-settings>=2.16.0",
     "pyjwt>=2.15.1",
     "pyyaml>=6.0.3",
+    "selectolax<1",
     "sqlalchemy[asyncio]>=2.1.5",
     "structlog>=26.1.0",
+    "tenacity>=9.2.1",
+    "trafilatura>=2.3.1",
     "uvicorn[standard]>=0.54.0",
 ]
 
@@ -26,6 +35,7 @@ dev = [
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
+    "respx>=0.23.1",
     "ruff>=0.17.1",
     "types-pyyaml>=6.0.12.20260906",
 ]
