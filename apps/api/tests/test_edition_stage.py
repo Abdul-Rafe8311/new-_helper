@@ -2,19 +2,26 @@ import asyncio
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.llm import FakeLLM
 from app.editions.service import EditionService
 from app.editions.stage import list_readers, run_bounded, run_compose
-from app.models import Edition, EditionStatus
+from app.models import Edition, EditionStatus, User
 from app.pipeline import STAGE_FNS
 from tests.editions_helpers import fake_editor, seed_articles, sessionmaker_for
 from tests.factories import make_user
 
 NOW = datetime(2026, 10, 17, 22, 0, tzinfo=UTC)  # already Oct 18 in Karachi, still Oct 17 in LA
 MODEL = "claude-sonnet-5-5"
+
+
+@pytest.fixture
+async def no_readers(db: AsyncSession) -> None:
+    """CI's database already holds the seeded demo reader; these tests count readers."""
+    await db.execute(delete(User))
+    await db.flush()
 
 
 def test_compose_is_registered_as_a_pipeline_stage() -> None:
@@ -49,7 +56,9 @@ async def onboarded(db: AsyncSession, email: str, tz: str, done: bool = True) ->
 
 
 @pytest.mark.integration
-async def test_only_onboarded_readers_are_listed_and_email_filters(db: AsyncSession) -> None:
+async def test_only_onboarded_readers_are_listed_and_email_filters(
+    db: AsyncSession, no_readers: None
+) -> None:
     await onboarded(db, "a@example.com", "Asia/Karachi")
     await onboarded(db, "b@example.com", "UTC")
     await onboarded(db, "new@example.com", "UTC", done=False)
@@ -61,7 +70,7 @@ async def test_only_onboarded_readers_are_listed_and_email_filters(db: AsyncSess
 
 @pytest.mark.integration
 async def test_compose_builds_one_paper_per_reader_dated_in_their_timezone(
-    db: AsyncSession,
+    db: AsyncSession, no_readers: None
 ) -> None:
     await seed_articles(db, "ai", "Agents", now=NOW)
     await onboarded(db, "karachi@example.com", "Asia/Karachi")
@@ -89,7 +98,7 @@ async def test_compose_builds_one_paper_per_reader_dated_in_their_timezone(
 
 @pytest.mark.integration
 async def test_a_failing_reader_is_counted_and_does_not_stop_the_others(
-    db: AsyncSession, monkeypatch: pytest.MonkeyPatch
+    db: AsyncSession, no_readers: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     await seed_articles(db, "ai", "Agents", now=NOW)
     await onboarded(db, "a@example.com", "UTC")
@@ -113,7 +122,7 @@ async def test_a_failing_reader_is_counted_and_does_not_stop_the_others(
 
 @pytest.mark.integration
 async def test_readers_without_articles_fail_and_template_papers_are_counted(
-    db: AsyncSession,
+    db: AsyncSession, no_readers: None
 ) -> None:
     await onboarded(db, "a@example.com", "UTC")
     sm = sessionmaker_for(db)

@@ -1,7 +1,7 @@
 """Weather for the masthead: Open-Meteo geocoding + forecast (no API key), cached per city/day."""
 
 from datetime import date
-from typing import Any
+from typing import Any, Protocol
 
 import httpx
 import structlog
@@ -55,6 +55,11 @@ def parse_forecast(city: str, payload: dict[str, Any]) -> Weather:
         temp_max_c=round(daily["temperature_2m_max"][0]),
         temp_min_c=round(daily["temperature_2m_min"][0]),
     )
+
+
+class WeatherProvider(Protocol):
+    async def for_city(self, session: AsyncSession, city: str | None, day: date) -> Weather | None:
+        """Today's weather for a city, or None when it is unknown or unavailable."""
 
 
 class WeatherService:

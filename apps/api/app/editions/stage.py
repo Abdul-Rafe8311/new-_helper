@@ -17,7 +17,7 @@ from app.core.config import Settings
 from app.db.session import get_sessionmaker
 from app.editions.service import EditionService, local_date
 from app.editions.weather import WeatherService
-from app.models import EditionStatus, PipelineRun, ReaderProfile, RunStatus, User
+from app.models import Edition, EditionStatus, PipelineRun, ReaderProfile, RunStatus, User
 
 log = structlog.get_logger(__name__)
 
@@ -83,28 +83,33 @@ async def run_compose(
         readers = await list_readers(session, user_email)
     report = ComposeReport(readers=len(readers))
 
-    async def compose_one(reader: Reader) -> None:
+    async def build_one(reader: Reader) -> Edition | None:
+        """The freshly built edition, or None when this reader already has today's paper."""
         day: date = local_date(reader.timezone, now)
+        async with sessionmaker() as session:
+            prepared = await service.prepare(session, reader.id, day)
+            if not prepared.needs_build:
+                return None
+            await service.build(session, prepared.edition.id)
+            await session.refresh(prepared.edition)
+            return prepared.edition
+
+    async def compose_one(reader: Reader) -> None:
         try:
-            async with sessionmaker() as session:
-                prepared = await service.prepare(session, reader.id, day)
-                if not prepared.needs_build:
-                    report.already_done += 1
-                    return
-                await service.build(session, prepared.edition.id)
-                await session.refresh(prepared.edition)
-                edition = prepared.edition
+            edition = await build_one(reader)
         except Exception:
             report.failed += 1
             raise
-        if edition.status is not EditionStatus.READY:
+        if edition is None:
+            report.already_done += 1
+        elif edition.status is not EditionStatus.READY:
             report.failed += 1
-            return
-        report.built += 1
-        report.items += int(edition.stats.get("items", 0))
-        report.llm_calls += int(edition.stats.get("llm_calls", 0))
-        report.llm_cost_usd += float(edition.stats.get("llm_cost_usd", 0.0))
-        report.fallback_layouts += edition.stats.get("composed_by") == "fallback"
+        else:
+            report.built += 1
+            report.items += int(edition.stats.get("items", 0))
+            report.llm_calls += int(edition.stats.get("llm_calls", 0))
+            report.llm_cost_usd += float(edition.stats.get("llm_cost_usd", 0.0))
+            report.fallback_layouts += edition.stats.get("composed_by") == "fallback"
 
     await run_bounded(readers, compose_one, concurrency)
     report.llm_cost_usd = round(report.llm_cost_usd, 6)

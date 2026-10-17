@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.ai.embedder import FakeEmbedder
 from app.ai.llm import FakeLLM, LLMCall
 from app.ai.usage import note_usage
-from app.editions.weather import Weather, WeatherService
+from app.editions.weather import Weather
 from app.models import Article, User
 from tests.factories import make_article, make_source, make_user
 
@@ -95,7 +95,7 @@ def fake_editor(cost: float = 0.01) -> FakeLLM:
     return FakeLLM(responder=plan_responder, cost_per_call=cost, recorder=ScopeRecorder())
 
 
-class StubWeather(WeatherService):
+class StubWeather:
     def __init__(self, weather: Weather | None) -> None:
         self._weather = weather
         self.asked: list[tuple[str | None, date]] = []

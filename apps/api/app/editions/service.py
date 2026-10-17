@@ -26,7 +26,7 @@ from app.ai.llm import LLMProvider
 from app.ai.usage import BudgetGuard, track_usage
 from app.core.errors import AppError
 from app.editions.compose import ComposeInput, Composition, compose_edition
-from app.editions.weather import Weather, WeatherService
+from app.editions.weather import Weather, WeatherProvider
 from app.models import Edition, EditionItem, EditionStatus, Slot, User
 from app.models.enums import Depth
 from app.personalize.config import (
@@ -85,7 +85,7 @@ class EditionService:
         llm: LLMProvider | None,
         smart_model: str,
         *,
-        weather: WeatherService | None = None,
+        weather: WeatherProvider | None = None,
         guard: BudgetGuard | None = None,
         scoring: ScoringConfig = DEFAULT_SCORING,
         selection: SelectionConfig = DEFAULT_SELECTION,
