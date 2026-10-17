@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
 const ITEM =
-  "flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 font-sans text-sm outline-none data-[highlighted]:bg-paper-2 [&_svg]:size-4 [&_svg]:text-muted";
+  "flex cursor-default items-center gap-2 rounded-lg px-2.5 py-2 font-sans text-sm outline-none data-[highlighted]:bg-ink/8 [&_svg]:size-4 [&_svg]:text-muted";
 
 export function initialsOf(name: string): string {
   const letters = name
@@ -40,7 +40,7 @@ export function AvatarMenu({ name, email }: { name: string; email: string }) {
         <DropdownMenu.Content
           align="end"
           sideOffset={6}
-          className="z-50 min-w-52 rounded-md border border-rule bg-paper p-1 text-ink shadow-lg"
+          className="z-50 min-w-56 rounded-xl border border-rule bg-surface p-1.5 text-ink shadow-[var(--shadow-card)]"
         >
           <DropdownMenu.Label className="px-2 py-1.5">
             <span className="block font-sans text-sm font-semibold">{name}</span>
