@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     supabase_service_key: SecretStr = SecretStr("")
     supabase_bucket: str = "editions"
 
+    # PDF edition
+    pdf_page_size: Literal["A4", "Letter"] = "A4"
+
     # Auth & internal
     jwt_secret: SecretStr = SecretStr("dev-insecure-jwt-secret-change-me-in-env")
     jwt_expiry_days: int = 7

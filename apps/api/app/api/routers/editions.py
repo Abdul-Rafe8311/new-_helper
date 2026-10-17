@@ -1,15 +1,29 @@
-"""Daily editions and the archive."""
+"""Daily editions, the archive and the PDF download."""
 
 from datetime import UTC, date, datetime
+from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi.responses import Response
+from sqlalchemy import select
 
-from app.api.deps import CurrentUser, EditionServiceDep, SessionDep, current_user
+from app.api.deps import CurrentUser, EditionServiceDep, SessionDep, SettingsDep, current_user
+from app.core.errors import AppError
 from app.editions.service import local_date
+from app.models import Edition, EditionStatus, EventType, ReaderEvent
+from app.pdf.service import PDF_CONTENT_TYPE, pdf_filename, read_pdf, render_edition
 from app.schemas.editions import EditionOut, EditionSummary
 from app.services import editions as read
+from app.storage import Storage, StorageError, default_storage
 
 router = APIRouter(prefix="/editions", tags=["editions"], dependencies=[Depends(current_user)])
+
+
+def get_storage_dep() -> Storage:
+    return default_storage()
+
+
+StorageDep = Annotated[Storage, Depends(get_storage_dep)]
 
 
 def _today(user: CurrentUser) -> date:
@@ -45,3 +59,49 @@ async def regenerate_today(
 @router.get("/{edition_date}", response_model=EditionOut)
 async def get_edition(edition_date: date, user: CurrentUser, session: SessionDep) -> EditionOut:
     return await read.get_edition_out(session, user.id, edition_date)
+
+
+@router.get(
+    "/{edition_date}/pdf",
+    response_class=Response,
+    responses={200: {"content": {PDF_CONTENT_TYPE: {}}, "description": "The newspaper PDF"}},
+)
+async def download_pdf(
+    edition_date: date,
+    user: CurrentUser,
+    session: SessionDep,
+    settings: SettingsDep,
+    storage: StorageDep,
+) -> Response:
+    """Stream the reader's PDF for a day (typesetting it first if it is missing or out of date)."""
+    edition = (
+        await session.execute(
+            select(Edition).where(Edition.user_id == user.id, Edition.edition_date == edition_date)
+        )
+    ).scalar_one_or_none()
+    if edition is None or edition.status is not EditionStatus.READY:
+        raise AppError(404, "not_found", "There is no finished edition for that date")
+    try:
+        result = await render_edition(session, storage, settings, edition)
+        data = await read_pdf(storage, result.path)
+    except StorageError as exc:
+        raise AppError(
+            503, "storage_unavailable", "The PDF could not be fetched right now"
+        ) from exc
+    if data is None:
+        raise AppError(503, "storage_unavailable", "The PDF could not be fetched right now")
+    session.add(
+        ReaderEvent(
+            user_id=user.id,
+            edition_id=edition.id,
+            type=EventType.PDF_DOWNLOAD,
+            meta={"bytes": len(data), "rendered_now": result.rendered},
+        )
+    )
+    await session.commit()
+    filename = pdf_filename(result.paper_name, edition_date)
+    return Response(
+        content=data,
+        media_type=PDF_CONTENT_TYPE,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

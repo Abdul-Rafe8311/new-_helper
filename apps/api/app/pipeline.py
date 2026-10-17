@@ -5,8 +5,8 @@ Run by the scheduled GitHub Actions workflow against the prod database:
     python -m app.pipeline --stage all|ingest|enrich|learn|compose|render|seed|healthcheck
                            [--user-email EMAIL]
 
-Implemented so far: healthcheck, seed, ingest, enrich and compose; later tasks register the
-other daily stages in STAGE_FNS.
+Implemented so far: healthcheck, seed, ingest, enrich, compose and render; later tasks register
+the other daily stages in STAGE_FNS.
 """
 
 import argparse
@@ -125,12 +125,23 @@ async def compose(ctx: StageContext) -> None:
     await run(ctx.settings, ctx.user_email)
 
 
+async def render(ctx: StageContext) -> None:
+    from app.pdf.stage import RenderFailedError
+    from app.pdf.stage import render as run  # lazy: keeps WeasyPrint off the other stages
+
+    try:
+        await run(ctx.settings, ctx.user_email)
+    except RenderFailedError as exc:
+        raise PipelineError(str(exc)) from exc
+
+
 STAGE_FNS: dict[str, StageFn] = {
     "healthcheck": healthcheck,
     "seed": seed,
     "ingest": ingest,
     "enrich": enrich,
     "compose": compose,
+    "render": render,
 }
 
 

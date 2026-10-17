@@ -1,0 +1,149 @@
+/* NewsHelper broadsheet. Page size and running header text are added at render time. */
+
+@font-face { font-family: "Playfair"; src: url("fonts/PlayfairDisplay.ttf"); font-weight: 400 900; font-style: normal; }
+@font-face { font-family: "Playfair"; src: url("fonts/PlayfairDisplay-Italic.ttf"); font-weight: 400 900; font-style: italic; }
+@font-face { font-family: "Source Serif"; src: url("fonts/SourceSerif4.ttf"); font-weight: 200 900; font-style: normal; }
+@font-face { font-family: "Source Serif"; src: url("fonts/SourceSerif4-Italic.ttf"); font-weight: 200 900; font-style: italic; }
+
+:root {
+  --ink: #141414;
+  --muted: #5b5b5b;
+  --rule: #141414;
+  --hair: #9a9a9a;
+  --accent: #8a1c1c;
+  --tint: #f1eee6;
+}
+
+@page {
+  margin: 17mm 13mm 16mm;
+  @top-center {
+    font: italic 400 7.5pt "Source Serif", serif;
+    color: var(--muted);
+    border-bottom: 0.4pt solid var(--hair);
+    padding-bottom: 2mm;
+    vertical-align: bottom;
+  }
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font: 400 7.5pt "Source Serif", serif;
+    color: var(--muted);
+    border-top: 0.4pt solid var(--hair);
+    padding-top: 2mm;
+    vertical-align: top;
+  }
+}
+@page :first {
+  margin-top: 12mm;
+  @top-center { content: none; border: none; }
+}
+
+html { font-family: "Source Serif", Georgia, serif; font-size: 8.6pt; line-height: 1.34; color: var(--ink); hyphens: auto; }
+body { margin: 0; }
+a { color: inherit; text-decoration: none; }
+p { margin: 0 0 0.5em; text-align: justify; orphans: 2; widows: 2; }
+h1, h2, h3, h4 { font-family: "Playfair", Georgia, serif; margin: 0; font-weight: 700; hyphens: manual; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+.hl { hyphens: manual; font-family: "Playfair", Georgia, serif; font-weight: 700; line-height: 1.12; }
+.source { margin: 0.25em 0 0.5em; text-align: left; font-size: 6.8pt; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.source a { border-bottom: 0.3pt solid var(--hair); }
+.kicker { font-size: 6.8pt; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 0 0 0.3em; text-align: left; }
+.facts { margin: 0.2em 0 0.6em; }
+.facts li { position: relative; padding-left: 0.9em; margin-bottom: 0.2em; font-size: 7.8pt; line-height: 1.3; }
+.facts li::before { content: "\25A0"; position: absolute; left: 0; top: 0.05em; font-size: 5pt; color: var(--accent); }
+.figure { margin: 0 0 0.6em; }
+.figure img { display: block; width: 100%; height: auto; max-height: 46mm; object-fit: cover; }
+
+/* ---------- front page ---------- */
+.front { break-after: page; }
+.masthead { text-align: center; margin-bottom: 4mm; }
+.ears { display: flex; justify-content: space-between; align-items: flex-end; font-size: 7pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0 0 1.4mm; }
+.ears span:nth-child(2) { text-align: center; font-style: italic; text-transform: none; letter-spacing: 0.02em; font-size: 8pt; }
+.title-rules { border-top: 3pt solid var(--rule); border-bottom: 0.8pt solid var(--rule); padding: 1.2mm 0 0; }
+.title-rules h1 { font-size: 56pt; font-weight: 900; line-height: 1.04; letter-spacing: -0.01em; padding: 0 0 1.5mm; border-bottom: 0.8pt solid var(--rule); margin-bottom: -0.8pt; }
+.dateline { border-top: 0.8pt solid var(--rule); border-bottom: 3pt solid var(--rule); margin-top: 1.2mm; padding: 1.4mm 0; font-size: 8.4pt; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+
+.front-grid { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 5mm; row-gap: 4mm; }
+.lead { grid-column: 1 / 4; grid-row: 1; padding-right: 2.5mm; border-right: 0.4pt solid var(--hair); }
+.lead .hl { font-size: 27pt; font-weight: 800; letter-spacing: -0.005em; margin-bottom: 0.15em; }
+.lead .source { margin-bottom: 0.7em; }
+.lead .body { column-count: 2; column-gap: 5mm; column-rule: 0.4pt solid var(--hair); }
+.dropcap { float: left; font-family: "Playfair", serif; font-weight: 900; font-size: 36pt; line-height: 0.82; padding: 1pt 3pt 0 0; }
+
+.sidebar { grid-column: 4; grid-row: 1 / span 3; }
+.ear-panel { border: 1.2pt solid var(--rule); padding: 2.4mm 2.6mm 1.4mm; margin-bottom: 4mm; background: var(--tint); }
+.ear-panel h3 { font-size: 10.5pt; font-style: italic; font-weight: 800; border-bottom: 0.6pt solid var(--rule); padding-bottom: 1.2mm; margin-bottom: 1.6mm; }
+.ear-panel ol { margin: 0; padding: 0; list-style: none; counter-reset: n; }
+.ear-panel li { counter-increment: n; position: relative; padding-left: 5.2mm; margin-bottom: 1.8mm; font-size: 8pt; line-height: 1.3; }
+.ear-panel li::before { content: counter(n); position: absolute; left: 0; top: -0.6mm; font: 900 12pt "Playfair", serif; color: var(--accent); }
+.qr { display: flex; align-items: center; gap: 2.4mm; margin: -1.6mm 0 4mm; font-size: 6.6pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); line-height: 1.3; }
+.qr img { display: block; width: 16mm; height: 16mm; flex: none; }
+.briefs-col h3 { font-size: 8pt; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800; border-top: 2pt solid var(--rule); border-bottom: 0.5pt solid var(--rule); padding: 1mm 0; margin-bottom: 1.6mm; font-family: "Source Serif", serif; }
+.brief { padding-bottom: 1.6mm; margin-bottom: 1.6mm; border-bottom: 0.4pt solid var(--hair); break-inside: avoid; }
+.brief:last-child { border-bottom: none; }
+.brief .hl { font-size: 9.6pt; display: inline; }
+.brief p { display: inline; font-size: 8pt; margin: 0; text-align: left; }
+.brief .source { display: inline; margin: 0 0 0 0.4em; font-size: 6.2pt; }
+
+.note { grid-column: 1 / 4; grid-row: 2; border: 0.8pt solid var(--rule); border-top-width: 2.4pt; padding: 2mm 3.2mm 0.8mm; background: var(--tint); }
+.note h3 { font-size: 7.4pt; letter-spacing: 0.16em; text-transform: uppercase; font-family: "Source Serif", serif; font-weight: 800; color: var(--accent); margin-bottom: 1mm; }
+.note p { font-style: italic; font-size: 9pt; line-height: 1.38; margin: 0 0 0.3em; }
+
+.features { grid-column: 1 / 4; grid-row: 3; display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 4.5mm; border-top: 0.8pt solid var(--rule); padding-top: 3mm; }
+.features .feature + .feature { border-left: 0.4pt solid var(--hair); padding-left: 4.5mm; }
+.feature .hl { font-size: 12pt; }
+.feature .figure img { max-height: 24mm; }
+
+/* tighter front pages when the copy is long (see SQUEEZE_SCALE in layout.py) */
+.front.sq2 .feature .figure, .front.sq3 .feature .figure, .front.sq4 .feature .figure, .front.sq5 .feature .figure, .front.sq6 .feature .figure, .front.sq7 .feature .figure, .front.sq8 .feature .figure { display: none; }
+.front.sq4 .lead .figure img, .front.sq5 .lead .figure img, .front.sq6 .lead .figure img { max-height: 34mm; }
+.front.sq7 .lead .figure, .front.sq8 .lead .figure { display: none; }
+.front.sq5 .lead .hl, .front.sq6 .lead .hl, .front.sq7 .lead .hl, .front.sq8 .lead .hl { font-size: 24pt; }
+
+/* ---------- inside pages ---------- */
+.inside { margin-bottom: 7mm; }
+.inside.small { break-inside: avoid; }
+.inside.big { break-before: page; }
+.inside.big:first-of-type { break-before: auto; }
+.banner { display: flex; justify-content: space-between; align-items: baseline; background: var(--rule); color: #fff; padding: 1.2mm 3mm; margin-bottom: 3mm; }
+.banner h2 { font-size: 17pt; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.banner span { font-size: 6.8pt; letter-spacing: 0.14em; text-transform: uppercase; }
+.section-grid { display: grid; grid-template-columns: 3fr 1fr; column-gap: 5mm; }
+.section-grid.no-side { grid-template-columns: 1fr; }
+.section-cols { column-count: 3; column-gap: 4.5mm; column-rule: 0.4pt solid var(--hair); }
+.story { margin-bottom: 3.2mm; }
+.story .hl { font-size: 12pt; }
+.story-head { margin-bottom: 2.4mm; }
+.story-head .hl { font-size: 21pt; font-weight: 800; }
+.story-head .figure img { max-height: 48mm; }
+.story .figure img { max-height: 36mm; }
+.pull-quote { hyphens: manual; break-inside: avoid; margin: 1mm 0 3.4mm; padding: 2mm 0; border-top: 1.4pt solid var(--rule); border-bottom: 0.5pt solid var(--rule); font: italic 700 12.5pt/1.25 "Playfair", serif; text-align: center; color: var(--accent); }
+.section-side { border-left: 0.4pt solid var(--hair); padding-left: 4mm; }
+.section-side h3 { font-size: 7.6pt; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800; font-family: "Source Serif", serif; border-bottom: 0.6pt solid var(--rule); padding-bottom: 1mm; margin-bottom: 1.6mm; }
+
+.inside.explore .section-grid { display: block; }
+.explore-box { border: 1.2pt dashed var(--rule); padding: 3mm 4mm 1.5mm; background: var(--tint); }
+.explore-box .banner { background: none; color: var(--ink); border-bottom: 1.2pt solid var(--rule); padding: 0 0 1.2mm; }
+.explore-box .section-cols { column-count: 2; }
+.why { font-style: italic; font-size: 7.4pt; color: var(--muted); text-align: left; margin: 0 0 0.4em; }
+
+/* ---------- last page ---------- */
+.back { break-before: page; }
+.back-grid { display: grid; grid-template-columns: 1.4fr 1fr; column-gap: 8mm; }
+.quiz { border: 1.2pt solid var(--rule); padding: 4mm 5mm; }
+.quiz h2 { font-size: 20pt; font-weight: 900; font-style: italic; border-bottom: 0.8pt solid var(--rule); padding-bottom: 1.6mm; margin-bottom: 3mm; }
+.q { margin-bottom: 4mm; break-inside: avoid; }
+.q p { text-align: left; font-weight: 600; font-size: 9.6pt; margin-bottom: 1mm; }
+.q ol { margin: 0; padding: 0; list-style: none; }
+.q li { margin-bottom: 0.8mm; font-size: 9pt; }
+.q li b { display: inline-block; width: 5mm; font-family: "Playfair", serif; color: var(--accent); }
+.answers { margin-top: 4mm; font-size: 5.6pt; color: var(--muted); letter-spacing: 0.04em; transform: rotate(180deg); text-align: left; }
+.qotd { text-align: center; padding: 6mm 3mm; border-top: 3pt solid var(--rule); border-bottom: 0.8pt solid var(--rule); }
+.qotd h3 { font-size: 7.4pt; letter-spacing: 0.18em; text-transform: uppercase; font-family: "Source Serif", serif; font-weight: 800; color: var(--accent); margin-bottom: 3mm; }
+.qotd blockquote { margin: 0; font: italic 600 17pt/1.22 "Playfair", serif; }
+.qotd blockquote::before { content: "\201C"; }
+.qotd blockquote::after { content: "\201D"; }
+.qotd cite { display: block; margin-top: 3mm; font-style: normal; font-size: 7.6pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.colophon { margin-top: 12mm; border-top: 0.8pt solid var(--rule); padding-top: 2mm; text-align: center; font-size: 7.6pt; color: var(--muted); }
+.colophon strong { font-family: "Playfair", serif; font-weight: 800; color: var(--ink); }
+.colophon p { text-align: center; margin: 0 0 0.3em; }
