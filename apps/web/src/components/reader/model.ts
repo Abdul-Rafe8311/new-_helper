@@ -7,6 +7,9 @@ export const DEFAULT_VIEW: ViewMode = "cards";
 /** The "all stories" pseudo-section: the whole front page. */
 export const FRONT_PAGE = "";
 
+/** How many editions the archive fetches at a time. */
+export const ARCHIVE_PAGE = 20;
+
 export type Reaction = "more" | "less";
 export type ItemStates = Record<string, ItemState>;
 
