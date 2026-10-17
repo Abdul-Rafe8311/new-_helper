@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routers import (
     auth,
+    catalogue,
     editions,
     events,
     interests,
@@ -43,7 +44,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def health() -> dict[str, str]:
         return {"status": "ok", "version": settings.version, "git_sha": settings.git_sha}
 
-    for module in (auth, me, interests, onboarding, editions, events, redirect, internal, taxonomy):
+    for module in (
+        auth,
+        me,
+        interests,
+        onboarding,
+        editions,
+        events,
+        redirect,
+        internal,
+        taxonomy,
+        catalogue,
+    ):
         app.include_router(module.router)
     app.include_router(editions.saved_router)
     app.include_router(editions.story_router)

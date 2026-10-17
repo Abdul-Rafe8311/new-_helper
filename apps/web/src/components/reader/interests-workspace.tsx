@@ -4,35 +4,36 @@ import { Pin, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SectionHeader } from "@/components/paper";
-import { ApiError, api, type Interests, type Timeline } from "@/lib/api";
+import { ApiError, api, type CatalogueTopic, type Interests, type SourceCatalogue, type Timeline, type TopicCatalogue } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
+import { BrowseTopics } from "./browse-topics";
 import { useAccent, useActiveEdition } from "./chrome-context";
 import { EditionHeader } from "./edition-header";
+import { focusRing, pill } from "./interests-styles";
 import { FRONT_COLOR } from "./palette";
+import { SourceToggles } from "./source-toggles";
 
 const SAVE_DELAY_MS = 500;
-const focusRing = "outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50";
-const pill = cn(
-  "inline-flex min-h-9 items-center gap-1.5 rounded-full border border-rule px-3 font-sans text-sm font-semibold hover:bg-paper-2",
-  focusRing,
-);
 
 /** "Saturday 17 October" for a local ISO day, without letting the browser's zone shift it. */
 function dayLabel(iso: string): string {
   return new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 }
 
-type Props = { initial: Interests; initialTimeline: Timeline };
+type Props = { initial: Interests; initialTimeline: Timeline; topicCatalogue: TopicCatalogue; sourceCatalogue: SourceCatalogue };
 
 /** "What Daybreak has learned about you": sliders, learned names, blocked topics, and the log. */
-export function InterestsWorkspace({ initial, initialTimeline }: Props) {
+export function InterestsWorkspace({ initial, initialTimeline, topicCatalogue, sourceCatalogue }: Props) {
   useActiveEdition(null);
   useAccent(FRONT_COLOR);
   const [data, setData] = useState(initial);
   const [timeline, setTimeline] = useState(initialTimeline);
   const [drafts, setDrafts] = useState<Record<string, number>>({});
   const [confirmingReset, setConfirmingReset] = useState(false);
+  // topics with a slider: those with weight at load, plus what the reader adds. Removing sets the weight to 0
+  // and drops the slider; the history stays.
+  const [active, setActive] = useState(() => new Set(initial.topics.filter((t) => t.weight > 0).map((t) => t.slug)));
   const [message, setMessage] = useState<string | null>(null);
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -50,13 +51,16 @@ export function InterestsWorkspace({ initial, initialTimeline }: Props) {
   }, []);
 
   const run = useCallback(
-    async (action: () => Promise<Interests>, done?: string) => {
+    async (action: () => Promise<Interests>, done?: string): Promise<Interests | null> => {
       try {
-        setData(await action());
+        const next = await action();
+        setData(next);
         setMessage(done ?? null);
         await refreshTimeline();
+        return next;
       } catch (error) {
         setMessage(error instanceof ApiError ? error.message : "That did not save. Try again.");
+        return null;
       }
     },
     [refreshTimeline],
@@ -71,6 +75,22 @@ export function InterestsWorkspace({ initial, initialTimeline }: Props) {
     }, SAVE_DELAY_MS);
   };
 
+  const addTopic = async (topic: CatalogueTopic) => {
+    const next = await run(() => api.interests.setTopics({ [topic.slug]: topicCatalogue.default_weight }), `Added ${topic.label}. Find its slider under Topics.`);
+    if (next) setActive((a) => new Set(a).add(topic.slug));
+  };
+
+  const removeTopic = async (topic: CatalogueTopic) => {
+    clearTimeout(timers.current[topic.slug]);
+    setDrafts((d) => Object.fromEntries(Object.entries(d).filter(([key]) => key !== topic.slug)));
+    const next = await run(() => api.interests.setTopics({ [topic.slug]: 0 }), `Removed ${topic.label}.`);
+    if (next) setActive((a) => new Set([...a].filter((slug) => slug !== topic.slug)));
+  };
+
+  const toggleSource = (name: string, on: boolean) =>
+    run(() => (on ? api.interests.unblockSource(name) : api.interests.blockSource(name)), `${on ? "Switched on" : "Switched off"} ${name}.`);
+
+  const sliders = data.topics.filter((t) => active.has(t.slug));
   const hasTimeline = timeline.days.length > 0;
 
   return (
@@ -97,11 +117,11 @@ export function InterestsWorkspace({ initial, initialTimeline }: Props) {
         <h3 id="topics-h" className="sr-only">
           Topic weights
         </h3>
-        {data.topics.length === 0 ? (
-          <p className="font-serif text-muted">No topics yet.</p>
+        {sliders.length === 0 ? (
+          <p className="font-serif text-muted">No topics yet. Add some below.</p>
         ) : (
           <ul className="grid gap-x-10 gap-y-4 sm:grid-cols-2">
-            {data.topics.map((t) => {
+            {sliders.map((t) => {
               const value = drafts[t.slug] ?? t.weight;
               const id = `topic-${t.slug}`;
               return (
@@ -127,6 +147,16 @@ export function InterestsWorkspace({ initial, initialTimeline }: Props) {
           </ul>
         )}
       </section>
+
+      <BrowseTopics
+        catalogue={topicCatalogue}
+        active={active}
+        blocked={new Set(data.blocked.map((b) => b.topic))}
+        onAdd={addTopic}
+        onRemove={removeTopic}
+      />
+
+      <SourceToggles catalogue={sourceCatalogue} off={new Set(data.blocked_sources)} onToggle={toggleSource} />
 
       <section aria-labelledby="names-h" className="mb-10">
         <SectionHeader title="Names it follows" description="Pin one to keep it for good" />
@@ -225,7 +255,8 @@ export function InterestsWorkspace({ initial, initialTimeline }: Props) {
             <button
               type="button"
               onClick={async () => {
-                await run(() => api.interests.reset(), "Back to your starting interests.");
+                const next = await run(() => api.interests.reset(), "Back to your starting interests.");
+                if (next) setActive(new Set(next.topics.filter((t) => t.weight > 0).map((t) => t.slug)));
                 setConfirmingReset(false);
               }}
               className={cn(pill, "border-accent bg-accent text-accent-ink hover:bg-accent/90")}

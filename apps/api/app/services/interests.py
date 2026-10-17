@@ -13,8 +13,8 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.catalogue import CATALOGUE
 from app.core.errors import AppError
-from app.core.taxonomy import TOPICS
 from app.models import ProfileChange, ReaderProfile, User
 from app.onboarding.profile_builder import BuilderInput, topic_weights
 from app.personalize.config import DEFAULT_LEARNING, LearningConfig
@@ -30,7 +30,7 @@ from app.schemas.interests import (
 
 TIMELINE_DAYS = 30
 TIMELINE_LIMIT = 400
-LABELS = {t.slug: t.label for t in TOPICS}
+LABELS = {t.slug: t.label for t in CATALOGUE}
 # the learner's housekeeping rows say nothing a reader could use
 HIDDEN_KINDS = frozenset({"topic_decay", "interest_vector", "source_affinity", "explore_rate"})
 
@@ -89,6 +89,7 @@ def view(profile: ReaderProfile, has_history: bool) -> InterestsOut:
         topics=[TopicWeight(slug=s, label=label(s), weight=round(w, 4)) for s, w in topics],
         entities=entities,
         blocked=[BlockedTopic(topic=t, label=label(t)) for t in blocked],
+        blocked_sources=list((profile.blocked or {}).get("sources", [])),
         is_new=not has_history and not entities and not blocked,
     )
 
@@ -222,6 +223,31 @@ async def unblock_topic(session: AsyncSession, profile: ReaderProfile, topic: st
     return await get_interests(session, profile)
 
 
+async def block_source(session: AsyncSession, profile: ReaderProfile, source: str) -> InterestsOut:
+    blocked = dict(profile.blocked or {})
+    sources = list(blocked.get("sources", []))
+    if source not in sources:
+        blocked["sources"] = [*sources, source]
+        profile.blocked = blocked
+        session.add(_log(profile, "source_blocked", source, False, True, "switched off by hand"))
+        await session.commit()
+    return await get_interests(session, profile)
+
+
+async def unblock_source(
+    session: AsyncSession, profile: ReaderProfile, source: str
+) -> InterestsOut:
+    blocked = dict(profile.blocked or {})
+    sources = list(blocked.get("sources", []))
+    if source not in sources:
+        raise AppError(404, "source_not_blocked", "That source is not switched off")
+    blocked["sources"] = [s for s in sources if s != source]
+    profile.blocked = blocked
+    session.add(_log(profile, "source_unblocked", source, True, False, "switched on by hand"))
+    await session.commit()
+    return await get_interests(session, profile)
+
+
 def onboarding_defaults(profile: ReaderProfile) -> dict[str, float]:
     """Topic weights as onboarding set them: the snapshot, else rebuilt from the saved answers."""
     saved = (profile.learn_state or {}).get("onboarding_defaults")
@@ -272,7 +298,16 @@ def describe(c: ProfileChange) -> str | None:
             evidence = f"{n} recent {'reads' if rose else 'skips'} of {topic} stories"
         return f"{'Raised' if rose else 'Lowered'} {topic}: {evidence}"
     if c.kind == "topic_manual":
-        return f"You set {topic} to {round(float(c.after or 0) * 100)}%"
+        before, after = float(c.before or 0), float(c.after or 0)
+        if before <= 0 < after:
+            return f"You added {topic} at {round(after * 100)}%"
+        if after <= 0 < before:
+            return f"You removed {topic}"
+        return f"You set {topic} to {round(after * 100)}%"
+    if c.kind == "source_blocked":
+        return f"You switched off {key}"
+    if c.kind == "source_unblocked":
+        return f"You switched {key} back on"
     if c.kind == "entity_promoted":
         return f"Started following {key}: it kept showing up in stories you liked"
     if c.kind == "entity_removed":

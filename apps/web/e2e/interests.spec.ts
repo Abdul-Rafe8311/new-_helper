@@ -89,6 +89,55 @@ test("sliders are keyboard operable and every change is logged; reset asks first
   await expect(page.getByTestId("timeline").getByText("You set Cricket to 85%")).toBeVisible(); // history stays
 });
 
+for (const [name, width] of [
+  ["desktop", 1440],
+  ["390px", 390],
+] as const) {
+  test(`a reader can add Climate from the catalogue and gets a slider, at ${name}`, async ({ page, isMobile }) => {
+    test.skip(isMobile, "the viewport is set here; one project is enough");
+    await signIn(page);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/interests");
+    await expect(page.getByRole("heading", { level: 1, name: "What Daybreak has learned about you" })).toBeVisible();
+    await expect(page.getByRole("slider", { name: /Climate/ })).toHaveCount(0);
+
+    // search and section filters narrow the list
+    await page.getByRole("searchbox", { name: "Search topics" }).fill("climate");
+    await expect(page.getByTestId("catalogue-list").getByRole("listitem")).toHaveCount(1);
+    await page.getByRole("searchbox", { name: "Search topics" }).fill("");
+    await page.getByRole("group", { name: "Filter by section" }).getByRole("button", { name: "Climate", exact: true }).click();
+
+    await page.getByRole("button", { name: "Add Climate" }).click();
+    // announced to screen readers through the status region
+    await expect(page.getByRole("status").filter({ hasText: "Added Climate & Environment." })).toBeVisible();
+    const slider = page.getByRole("slider", { name: /Climate/ });
+    await expect(slider).toBeVisible();
+    await expect(slider).toHaveValue("80"); // the onboarding default, not 100
+    await expect(page.getByTestId("timeline").getByText("You added Climate & Environment at 80%")).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    // removing drops the slider but keeps the history
+    await page.getByRole("button", { name: "Remove Climate & Environment" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Removed Climate & Environment." })).toBeVisible();
+    await expect(page.getByRole("slider", { name: /Climate/ })).toHaveCount(0);
+    await expect(page.getByTestId("timeline").getByText("You added Climate & Environment at 80%")).toBeVisible();
+    await expect(page.getByTestId("timeline").getByText("You removed Climate & Environment")).toBeVisible();
+  });
+}
+
+test("sources are a toggle list grouped by section", async ({ page }) => {
+  await signIn(page);
+  await page.goto("/interests");
+  const dawn = page.getByRole("switch", { name: "Dawn" });
+  await expect(page.getByRole("group", { name: "Pakistan" }).getByRole("switch", { name: "Dawn" })).toBeVisible();
+  await expect(dawn).toHaveAttribute("aria-checked", "true");
+  await dawn.click();
+  await expect(page.getByRole("status").filter({ hasText: "Switched off Dawn." })).toBeVisible();
+  await expect(dawn).toHaveAttribute("aria-checked", "false");
+  await page.reload();
+  await expect(page.getByRole("switch", { name: "Dawn" })).toHaveAttribute("aria-checked", "false");
+});
+
 for (const [name, width, height] of [
   ["1440", 1440, 1000],
   ["390", 390, 844],

@@ -76,6 +76,8 @@ async def test_every_route_needs_a_session(api: AsyncClient) -> None:
         ("DELETE", "/me/interests/entities/x"),
         ("POST", "/me/interests/blocked"),
         ("DELETE", "/me/interests/blocked/celebrity"),
+        ("POST", "/me/interests/blocked-sources"),
+        ("DELETE", "/me/interests/blocked-sources/Dawn"),
         ("POST", "/me/interests/reset"),
         ("GET", "/me/interests/timeline"),
     ]:
@@ -127,6 +129,50 @@ async def test_moving_a_slider_saves_it_and_logs_a_manual_edit(
     assert row.signals == [{"type": "manual_edit", "weight": DEFAULT_LEARNING.manual_edit_weight}]
     timeline = (await api.get("/me/interests/timeline")).json()
     assert timeline["days"][0]["entries"][0]["text"] == "You set Artificial Intelligence to 80%"
+
+
+async def test_a_catalogue_topic_can_be_added_and_removed(
+    api: AsyncClient, db: AsyncSession
+) -> None:
+    await reader(api, db)
+    weight = (await api.get("/catalogue/topics")).json()["default_weight"]
+    assert weight < 1
+
+    added = (await api.put("/me/interests/topics", json={"topics": {"tennis": weight}})).json()
+    assert {t["slug"]: t["weight"] for t in added["topics"]}["tennis"] == weight
+    assert next(t["label"] for t in added["topics"] if t["slug"] == "tennis") == "Tennis"
+
+    removed = (await api.put("/me/interests/topics", json={"topics": {"tennis": 0}})).json()
+    assert {t["slug"]: t["weight"] for t in removed["topics"]}["tennis"] == 0
+
+    first, second = await changes(db, "topic_manual")  # both are logged, and history is kept
+    assert (first.key, first.before, first.after) == ("tennis", 0.0, weight)
+    assert (second.key, second.before, second.after) == ("tennis", weight, 0.0)
+    for row in (first, second):
+        assert row.run == "manual"
+        assert row.signals == [
+            {"type": "manual_edit", "weight": DEFAULT_LEARNING.manual_edit_weight}
+        ]
+    entries = (await api.get("/me/interests/timeline")).json()["days"][0]["entries"]
+    assert [e["text"] for e in entries] == ["You removed Tennis", "You added Tennis at 80%"]
+
+
+async def test_a_source_can_be_switched_off_and_on(api: AsyncClient, db: AsyncSession) -> None:
+    user = await reader(api, db)
+    off = (await api.post("/me/interests/blocked-sources", json={"source": "Dawn"})).json()
+    assert off["blocked_sources"] == ["Dawn"]
+    assert user.profile.blocked["sources"] == ["Dawn"]  # the retriever reads this
+    await api.post("/me/interests/blocked-sources", json={"source": "Dawn"})
+    assert len(await changes(db, "source_blocked")) == 1
+    bad = await api.post("/me/interests/blocked-sources", json={"source": "Nope Daily"})
+    assert bad.status_code == 422
+
+    on = (await api.delete("/me/interests/blocked-sources/Dawn")).json()
+    assert on["blocked_sources"] == []
+    again = await api.delete("/me/interests/blocked-sources/Dawn")
+    assert again.status_code == 404
+    entries = (await api.get("/me/interests/timeline")).json()["days"][0]["entries"]
+    assert [e["text"] for e in entries] == ["You switched Dawn back on", "You switched off Dawn"]
 
 
 async def test_slider_input_is_validated(api: AsyncClient, db: AsyncSession) -> None:

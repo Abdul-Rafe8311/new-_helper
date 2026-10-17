@@ -9,7 +9,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.core.taxonomy import TOPICS_BY_SLUG
+from app.core.catalogue import CATALOGUE_BY_SLUG
 from app.personalize.config import DEFAULT_SELECTION, SelectionConfig, item_count
 from app.personalize.score import cosine
 from app.personalize.types import ProfileView, Scored
@@ -27,7 +27,7 @@ class Selection:
 
 
 def topic_label(slug: str) -> str:
-    topic = TOPICS_BY_SLUG.get(slug)
+    topic = CATALOGUE_BY_SLUG.get(slug)
     return topic.label if topic else slug.replace("-", " ").title()
 
 

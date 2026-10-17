@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.embedder import Embedder, cosine
-from app.core.taxonomy import TOPICS
+from app.core.catalogue import CATALOGUE
 from app.models.ai import TopicPrototype
 
 MAX_TOPICS = 3
@@ -38,7 +38,7 @@ async def ensure_prototypes(session: AsyncSession, embedder: Embedder) -> int:
     """Embed taxonomy descriptions that are new or changed. Returns how many were written."""
     rows = await session.execute(select(TopicPrototype.slug, TopicPrototype.description))
     existing = dict(rows.all())
-    stale = [t for t in TOPICS if existing.get(t.slug) != t.description]
+    stale = [t for t in CATALOGUE if existing.get(t.slug) != t.description]
     if not stale:
         return 0
     vectors = embedder.embed([f"{t.label}. {t.description}" for t in stale])
