@@ -10,6 +10,7 @@ import { ApiError, api, type Taxonomy } from "@/lib/api";
 import { FINALE, canAdvance, progress, reducer, stepPayload, type Draft } from "./machine";
 import { BeatsStep } from "./beats-step";
 import { NameStep } from "./name-step";
+import { ReadingStep } from "./reading-step";
 import { TasteStep } from "./taste-step";
 import { WordsStep } from "./words-step";
 
@@ -87,6 +88,7 @@ export function OnboardingFlow({ initial, taxonomy, today }: Props) {
             {draft.step === 1 ? <NameStep draft={draft} dispatch={dispatch} today={today} /> : null}
             {draft.step === 2 ? <BeatsStep draft={draft} dispatch={dispatch} taxonomy={taxonomy} /> : null}
             {draft.step === 4 ? <TasteStep draft={draft} dispatch={dispatch} /> : null}
+            {draft.step === 5 ? <ReadingStep draft={draft} dispatch={dispatch} /> : null}
             {draft.step === 3 ? <WordsStep draft={draft} dispatch={dispatch} taxonomy={taxonomy} /> : null}
           </motion.div>
         </AnimatePresence>
