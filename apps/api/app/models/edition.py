@@ -39,6 +39,7 @@ class Edition(UUIDPrimaryKey, Timestamps, Base):
     editor_note: Mapped[str | None] = mapped_column(Text)
     layout: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
     pdf_path: Mapped[str | None] = mapped_column(Text)
+    pdf_hash: Mapped[str | None] = mapped_column(String(64))
     audio_path: Mapped[str | None] = mapped_column(Text)
     generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     stats: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
