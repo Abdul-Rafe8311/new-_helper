@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>ArXiv Query: cat:cs.AI</title>
+  <entry>
+    <id>http://arxiv.org/abs/2610.01234v1</id>
+    <title>Scaling Laws for
+      Sparse Agents</title>
+    <summary>  We study how agent performance scales with sparse
+      tool use and show consistent gains.  </summary>
+    <published>2026-10-17T01:02:03Z</published>
+    <link href="http://arxiv.org/abs/2610.01234v1" rel="alternate" type="text/html"/>
+    <author><name>A. Researcher</name></author>
+    <author><name>B. Scientist</name></author>
+    <author><name>C. Student</name></author>
+    <author><name>D. Fourth</name></author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.99999v1</id>
+    <title>No abstract here</title>
+    <published>2026-10-17T01:02:03Z</published>
+    <link href="http://arxiv.org/abs/2610.99999v1" rel="alternate" type="text/html"/>
+  </entry>
+</feed>
