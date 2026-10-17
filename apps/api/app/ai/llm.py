@@ -59,13 +59,15 @@ class LLMCall:
 
 
 class UsageRecorder(Protocol):
-    async def record(self, call: LLMCall) -> None: ...
+    async def record(self, call: LLMCall) -> None:
+        """Persist one call's token usage and cost."""
 
 
 class LLMProvider(Protocol):
     async def complete_json[T: BaseModel](
         self, system: str, prompt: str, schema: type[T], model: str, *, purpose: str = "generic"
-    ) -> T: ...
+    ) -> T:
+        """Return the model's answer validated as `schema`."""
 
 
 class LLMError(Exception):

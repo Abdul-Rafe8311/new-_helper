@@ -21,7 +21,8 @@ DEFAULT_CACHE_DIR = "~/.cache/fastembed"
 class Embedder(Protocol):
     dim: int
 
-    def embed(self, texts: Sequence[str]) -> list[list[float]]: ...
+    def embed(self, texts: Sequence[str]) -> list[list[float]]:
+        """One unit-length vector per text."""
 
 
 def article_embedding_text(title: str, excerpt: str | None, content: str | None) -> str:

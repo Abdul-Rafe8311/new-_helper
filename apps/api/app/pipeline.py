@@ -96,7 +96,7 @@ async def seed(ctx: StageContext) -> None:
 async def enrich(ctx: StageContext) -> None:
     from app.enrich.stage import enrich as run  # lazy: keeps AI imports off other stages
 
-    await run(ctx)
+    await run(ctx.settings)
 
 
 STAGE_FNS: dict[str, StageFn] = {"healthcheck": healthcheck, "seed": seed, "enrich": enrich}

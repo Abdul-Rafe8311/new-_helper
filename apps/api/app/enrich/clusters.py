@@ -40,9 +40,12 @@ class UnionFind[T]:
 
 class Candidate(Protocol):
     @property
-    def quality(self) -> float: ...
+    def quality(self) -> float:
+        """Source quality, 0..1."""
+
     @property
-    def length(self) -> int: ...
+    def length(self) -> int:
+        """Length of the article text."""
 
 
 def representative[C: Candidate](members: Sequence[C]) -> C:

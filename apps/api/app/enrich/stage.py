@@ -19,7 +19,6 @@ from app.enrich.topics import ensure_prototypes, load_prototypes, tag_topics
 from app.models.content import Article, Source
 from app.models.edition import PipelineRun
 from app.models.enums import RunStatus
-from app.pipeline import StageContext
 
 log = structlog.get_logger(__name__)
 
@@ -107,8 +106,7 @@ def build_llm(
     return AnthropicProvider(AsyncAnthropic(api_key=key), DBUsageRecorder(sessionmaker))
 
 
-async def enrich(ctx: StageContext) -> None:
-    settings = ctx.settings
+async def enrich(settings: Settings) -> None:
     sessionmaker = get_sessionmaker()
     guard = BudgetGuard(sessionmaker, settings.llm_daily_budget_usd)
     embedder = FastEmbedEmbedder(
