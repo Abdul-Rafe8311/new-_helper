@@ -31,9 +31,10 @@ _FRONT_FEATURES: dict[Depth, int] = {"brief": 2, "balanced": 3, "deep": 3}
 _FRONT_BRIEFS: dict[Depth, int] = {"brief": 7, "balanced": 5, "deep": 3}
 BIG_SECTION_STORIES = 4
 # The front page must fit one sheet. Each squeeze step shortens its summaries by this factor, drops
-# the lead's key facts and trims the briefs column; every third step also drops a feature.
+# the lead's key facts and trims the briefs column; every third step also drops a feature, and
+# the stylesheet shrinks then hides front-page pictures (``.front.sqN``).
 SQUEEZE_SCALE = 0.8
-MAX_SQUEEZE = 6
+MAX_SQUEEZE = 8
 
 
 def shorten(text: str, limit: int) -> str:
@@ -108,6 +109,7 @@ class PagePlan:
     front: FrontPage
     sections: list[SectionBlock]
     date_line: str = ""
+    squeeze: int = 0
     image_ids: list[str] = field(default_factory=list)
 
 
@@ -180,7 +182,7 @@ def plan_pages(snapshot: EditionSnapshot, squeeze: int = 0) -> PagePlan:
     lead_story = snapshot.story(snapshot.lead_item_id)
     others = [s for s in snapshot.stories if s.item_id != lead_story.item_id]
 
-    n_features = _FRONT_FEATURES[depth] - squeeze // 3
+    n_features = max(0, _FRONT_FEATURES[depth] - squeeze // 3)
     n_briefs = max(2, _FRONT_BRIEFS[depth] - squeeze)
     # Front page: best feature per section first, so the page is not three stories on one topic.
     features: list[Story] = []
@@ -236,5 +238,6 @@ def plan_pages(snapshot: EditionSnapshot, squeeze: int = 0) -> PagePlan:
         front=front,
         sections=blocks,
         date_line=date_line(snapshot),
+        squeeze=squeeze,
         image_ids=[v.story.item_id for v in shown if v.story.image_url],
     )

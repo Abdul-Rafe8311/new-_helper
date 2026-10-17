@@ -135,8 +135,10 @@ class ImageCache:
 
     async def fetch_many(self, urls: Mapping[str, str]) -> dict[str, str]:
         """Fetch ``{key: url}`` concurrently within a time budget; keys that fail are absent."""
-        gate = asyncio.Semaphore(CONCURRENCY)
         found: dict[str, str] = {}
+        if not urls:
+            return found
+        gate = asyncio.Semaphore(CONCURRENCY)
 
         async def one(key: str, url: str) -> None:
             async with gate:

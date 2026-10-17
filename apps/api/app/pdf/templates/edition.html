@@ -12,8 +12,9 @@
 {%- if img %}<div class="figure"><img src="{{ img }}" alt=""></div>{% endif %}
 {%- endmacro %}
 
-{% macro paragraphs(v) -%}
-{% if v.summary %}<p>{{ v.summary }}</p>{% endif %}
+{% macro paragraphs(v, dropcap=False) -%}
+{% if v.summary and dropcap %}<p><span class="dropcap">{{ v.summary[:1] }}</span>{{ v.summary[1:] }}</p>
+{%- elif v.summary %}<p>{{ v.summary }}</p>{% endif %}
 {%- if v.facts %}<ul class="facts">{% for fact in v.facts %}<li>{{ fact }}</li>{% endfor %}</ul>{% endif %}
 {%- endmacro %}
 
@@ -32,7 +33,7 @@
 </head>
 <body>
 
-<section class="front">
+<section class="front sq{{ plan.squeeze }}">
   <header class="masthead">
     <div class="ears">
       <span>Curated for {{ snap.reader_name }}</span>
@@ -51,8 +52,7 @@
       {{ source_line(lead) }}
       {{ figure(lead) }}
       <div class="body">
-        {% if qr %}<div class="qr"><img src="{{ qr }}" alt="QR code"><span>Read the original</span></div>{% endif %}
-        {{ paragraphs(lead) }}
+        {{ paragraphs(lead, dropcap=True) }}
       </div>
     </article>
 
@@ -62,6 +62,9 @@
         <h3>Three things to know</h3>
         <ol>{% for line in snap.three_things %}<li>{{ line }}</li>{% endfor %}</ol>
       </div>
+      {% endif %}
+      {% if qr %}
+      <a class="qr" href="{{ lead.url }}"><img src="{{ qr }}" alt="QR code for the lead story"><span>Scan to read the lead story at {{ lead.domain }}</span></a>
       {% endif %}
       {% if plan.front.briefs %}
       <div class="briefs-col">

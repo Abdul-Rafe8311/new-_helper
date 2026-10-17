@@ -95,3 +95,7 @@ def test_qr_data_uri_is_a_png():
     uri = qr_data_uri("https://example.com/story")
     assert uri.startswith("data:image/png;base64,")
     assert len(uri) > 200
+
+
+async def test_fetch_many_with_nothing_to_fetch(cache):
+    assert await cache.fetch_many({}) == {}
