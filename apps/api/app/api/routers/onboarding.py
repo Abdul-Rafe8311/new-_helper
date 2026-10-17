@@ -6,11 +6,20 @@ import structlog
 from fastapi import APIRouter, Depends, Query
 
 from app.ai.llm import LLMError
-from app.api.deps import LLMDep, SettingsDep, current_user
+from app.api.deps import CurrentUser, LLMDep, SessionDep, SettingsDep, current_user
 from app.core.errors import AppError
+from app.onboarding import service
 from app.onboarding.parse import parse_interests
 from app.onboarding.suggestions import suggestions_for
-from app.schemas.onboarding import ParsedInterests, ParseIn, SuggestionsOut
+from app.schemas.onboarding import (
+    HeadlinesOut,
+    OnboardingStateOut,
+    ParsedInterests,
+    ParseIn,
+    StepIn,
+    SuggestionsOut,
+    TasteAnswerIn,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -34,3 +43,25 @@ async def parse(body: ParseIn, llm: LLMDep, settings: SettingsDep) -> ParsedInte
     except LLMError as exc:
         log.warning("onboarding_parse_failed", error=str(exc))
         raise AppError(502, "llm_failed", "We couldn't read that. Try rephrasing it.") from exc
+
+
+@router.get("/state")
+async def get_state(user: CurrentUser, session: SessionDep) -> OnboardingStateOut:
+    return await service.get_state(session, user)
+
+
+@router.put("/step/{number}")
+async def put_step(
+    number: int, body: StepIn, user: CurrentUser, session: SessionDep
+) -> OnboardingStateOut:
+    return await service.save_step(session, user, number, body)
+
+
+@router.get("/headlines")
+async def get_headlines(user: CurrentUser, session: SessionDep) -> HeadlinesOut:
+    return await service.get_headlines(session, user)
+
+
+@router.post("/taste", status_code=204)
+async def post_taste(body: TasteAnswerIn, user: CurrentUser, session: SessionDep) -> None:
+    await service.record_answer(session, user, body.article_id, body.interested)
