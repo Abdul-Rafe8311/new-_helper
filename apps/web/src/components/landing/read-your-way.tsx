@@ -21,20 +21,24 @@ function WebPanel() {
   return (
     <>
       <div className="lp-wb__head">
-        <strong>NewsHelper</strong>
+        <strong>
+          NewsHelper<span aria-hidden="true">.</span>
+        </strong>
         <span>{SAMPLE_DATE.replace(/ \d{4}$/, "")}</span>
       </div>
-      <p className="lp-wb__title">Your morning paper</p>
+      <p className="lp-wb__title">For You</p>
       <div className="lp-tags">
-        <span className="lp-tag" data-on="true">For you</span>
+        <span className="lp-tag" data-on="true">All</span>
         {["Technology", "Science", "Business"].map((t) => (
           <span key={t} className="lp-tag">{t}</span>
         ))}
       </div>
-      <div className="lp-wb__lead">
-        <div className="lp-photo" style={color(LEAD.section)} />
+      <div className="lp-wb__lead" style={color(LEAD.section)}>
+        <div className="lp-photo" />
         <div>
-          <p className="lp-kicker">{LEAD.section} · {LEAD.source}</p>
+          <p className="lp-meta">
+            <b>{LEAD.source}</b> {LEAD.sources} outlets
+          </p>
           <h3>{LEAD.headline}</h3>
           <p className="lp-sum">{LEAD.summary}</p>
           <div className="lp-actions">
@@ -46,11 +50,11 @@ function WebPanel() {
       </div>
       <div className="lp-mini">
         {MORE.slice(0, 2).map((s) => (
-          <div key={s.id}>
-            <div className="lp-photo" style={color(s.section)} />
+          <div key={s.id} style={color(s.section)}>
+            <div className="lp-photo" />
             <div>
               <h3>{s.headline}</h3>
-              <p>{s.source} · {s.readMins} min</p>
+              <p>{s.source} · {s.sources} outlets</p>
             </div>
           </div>
         ))}
@@ -94,20 +98,25 @@ function PdfPanel() {
 }
 
 function ArchivePanel() {
+  const rows = [SAMPLE_DATE, ...SAMPLE_ARCHIVE_DATES];
   return (
     <div className="lp-ar">
-      <h3>Past editions</h3>
+      <p className="lp-ar__kicker">Every edition, as it was printed</p>
+      <h3>Archive</h3>
       <ul>
-        <li data-today="true">
-          {SAMPLE_DATE.replace(/ \d{4}$/, "")}
-          <span>{SAMPLE_STORIES.length} stories</span>
-        </li>
-        {SAMPLE_ARCHIVE_DATES.map((d) => (
-          <li key={d}>
-            {d.replace(/ \d{4}$/, "")}
-            <span>Sample</span>
-          </li>
-        ))}
+        {rows.map((date, i) => {
+          const [weekday, ...rest] = date.split(" ");
+          return (
+            <li key={date} data-today={i === 0}>
+              <div>
+                <b>{weekday}</b>
+                <span>{rest.join(" ")}</span>
+                {i === 0 ? <em>{SAMPLE_STORIES.length} stories</em> : null}
+              </div>
+              <Download aria-hidden="true" />
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -190,7 +199,7 @@ export function ReadYourWay() {
             Read today&apos;s edition in your browser. Download the newspaper PDF. Open an older edition when you want to return
             to a story.
           </p>
-          <Link href="/today" className="lp-pill lp-pill--dark">
+          <Link href="/today" className="lp-pill lp-pill--primary">
             Open my paper <ArrowRight aria-hidden="true" size={14} />
           </Link>
           <p className="lp-sample">Sample edition · {SAMPLE_DATE}</p>

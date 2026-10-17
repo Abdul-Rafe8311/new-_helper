@@ -65,6 +65,15 @@ export function Globe() {
     if (!wrap || !canvas || !ctx) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
     const points = landPoints();
+    const probe = (name: string) => wrap.querySelector<HTMLElement>(`.lp-gc--${name}`);
+    const palette = { disc: "#242424", dot: "#c9d6b8", rim: "#3b3833" };
+    const readPalette = () => {
+      for (const key of ["disc", "dot", "rim"] as const) {
+        const el = probe(key);
+        if (el) palette[key] = getComputedStyle(el).backgroundColor;
+      }
+    };
+    readPalette();
     let size = 0;
     let frame = 0;
     let visible = true;
@@ -93,13 +102,13 @@ export function Globe() {
       ctx.clearRect(0, 0, size, size);
       ctx.beginPath();
       ctx.arc(c, c, r, 0, Math.PI * 2);
-      ctx.fillStyle = "#191919";
+      ctx.fillStyle = palette.disc;
       ctx.fill();
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(255,255,255,0.10)";
+      ctx.strokeStyle = palette.rim;
       ctx.stroke();
       const dot = Math.max(1.1, size / 330);
-      ctx.fillStyle = "#c9d6b8";
+      ctx.fillStyle = palette.dot;
       for (let i = 0; i < points.length; i += 3) {
         const p = project(points[i], points[i + 1], points[i + 2], angle, r, c);
         if (p.depth <= 0.02) continue;
@@ -121,12 +130,14 @@ export function Globe() {
         const px = p.sx + (dx / len) * reach;
         const py = p.sy + (dy / len) * reach;
         if (front) {
-          ctx.strokeStyle = "rgba(245,245,245,0.45)";
+          ctx.globalAlpha = 0.55;
+          ctx.strokeStyle = palette.dot;
           ctx.beginPath();
           ctx.moveTo(p.sx, p.sy);
           ctx.lineTo(px, py);
           ctx.stroke();
-          ctx.fillStyle = "#f5f5f5";
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = palette.dot;
           ctx.fillRect(p.sx - 1.5, p.sy - 1.5, 3, 3);
         }
         el.style.transform = `translate(${px.toFixed(1)}px, ${py.toFixed(1)}px) translate(-50%, -50%)`;
@@ -157,9 +168,16 @@ export function Globe() {
     });
     intersection.observe(wrap);
     reduce.addEventListener("change", start);
+    // the theme flips a class on <html>: re-read the three colours and repaint
+    const themeObserver = new MutationObserver(() => {
+      readPalette();
+      start();
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
     resize();
     start();
     return () => {
+      themeObserver.disconnect();
       if (frame) cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       intersection.disconnect();
@@ -170,6 +188,9 @@ export function Globe() {
   return (
     <div ref={wrapRef} className="lp-globe" aria-hidden="true">
       <canvas ref={canvasRef} />
+      <i className="lp-gc lp-gc--disc" />
+      <i className="lp-gc lp-gc--dot" />
+      <i className="lp-gc lp-gc--rim" />
       {PINS.map((pin, i) => (
         <div
           key={pin.label}
