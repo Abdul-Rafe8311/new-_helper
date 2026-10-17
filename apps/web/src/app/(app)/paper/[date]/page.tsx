@@ -16,5 +16,5 @@ export default function PaperPage({ params }: PageProps<"/paper/[date]">) {
 
 async function Edition({ params }: Pick<PageProps<"/paper/[date]">, "params">) {
   const { date } = await params;
-  return <EditionPage date={date} sectionsPanel />;
+  return <EditionPage date={date} basePath={`/paper/${date}`} />;
 }

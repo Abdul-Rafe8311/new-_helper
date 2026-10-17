@@ -18,6 +18,9 @@
   --accent-ink: #fffaf2;
   --ring: #a4161a;
   --destructive: #b42318;
+  --canvas: #fbfbfc;
+  --surface: #ffffff;
+  --glow-strength: 24%;
   color-scheme: light;
 }
 
@@ -31,6 +34,9 @@
   --accent-ink: #1c1b19;
   --ring: #e2645f;
   --destructive: #f07167;
+  --canvas: #0b0b0d;
+  --surface: #151518;
+  --glow-strength: 17%;
   color-scheme: dark;
 }
 
@@ -42,6 +48,9 @@
   --color-rule: var(--rule);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-cat: var(--cat, var(--accent));
 
   /* shadcn/ui semantic names, mapped onto the paper tokens */
   --color-background: var(--paper);
@@ -93,4 +102,130 @@
   background-color: var(--paper-2);
   background-image: radial-gradient(var(--rule) 1px, transparent 1.2px);
   background-size: 7px 7px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Reader (the signed-in app). Motion is CSS-only, transform and opacity only, and every hover
+ * effect needs a fine pointer that can hover, so touch screens never get stuck in a hover state.
+ * ------------------------------------------------------------------------------------------- */
+
+/* Two stacked glow layers; the shell fades one in over the other when the category changes. */
+.ambient-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 450ms ease;
+  background:
+    radial-gradient(900px 620px at 16% -6%, color-mix(in oklab, var(--glow) var(--glow-strength), transparent), transparent 70%),
+    radial-gradient(700px 480px at 4% 28%, color-mix(in oklab, var(--glow) calc(var(--glow-strength) * 0.5), transparent), transparent 70%);
+}
+.ambient-layer[data-on="true"] {
+  opacity: 1;
+}
+
+/* The outer element is a stable hit area; only the inner surface moves, so hover never flickers. */
+.story-card__surface {
+  transition: transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+.story-card:has([data-story-link]:focus-visible) .story-card__surface {
+  outline: 3px solid var(--cat);
+  outline-offset: 3px;
+}
+.story-card:active .story-card__surface {
+  transform: scale(0.98);
+}
+.story-card__actions {
+  opacity: 1;
+  transition: opacity 120ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .story-card:hover .story-card__surface {
+    transform: scale(1.025);
+  }
+  .story-card:hover:active .story-card__surface {
+    transform: scale(0.98);
+  }
+  /* actions appear on hover or focus; on touch they are always visible (see the base rule) */
+  .story-card__actions {
+    opacity: 0;
+  }
+  .story-card:hover .story-card__actions,
+  .story-card:focus-within .story-card__actions {
+    opacity: 1;
+  }
+}
+
+.nav-pill {
+  transition:
+    background-color 100ms ease-out,
+    color 100ms ease-out;
+}
+
+.cta-arrow {
+  transition: transform 180ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cta:hover .cta-arrow {
+    transform: translateX(2px);
+  }
+}
+
+.press:active {
+  transform: scale(0.98);
+}
+
+.fade-swap {
+  animation: fade-in 500ms ease both;
+}
+.fade-quick {
+  animation: fade-in 250ms ease both;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Photo stack: each picture settles toward straight, grows a little and drifts apart on hover. */
+.photo-stack__photo {
+  transform: translate(var(--x), var(--y)) rotate(var(--r));
+  transition: transform 200ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .photo-stack:hover .photo-stack__photo {
+    transform: translate(calc(var(--x) * 1.15), calc(var(--y) * 1.15)) rotate(calc(var(--r) * 0.2)) scale(var(--grow));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-card__surface,
+  .story-card__actions,
+  .photo-stack__photo,
+  .cta-arrow,
+  .nav-pill,
+  .ambient-layer {
+    transition: none;
+  }
+  .story-card:hover .story-card__surface,
+  .story-card:active .story-card__surface,
+  .press:active,
+  .photo-stack:hover .photo-stack__photo,
+  .cta:hover .cta-arrow {
+    transform: none;
+  }
+  .photo-stack:hover .photo-stack__photo {
+    transform: translate(var(--x), var(--y)) rotate(var(--r));
+  }
+  .fade-swap,
+  .fade-quick {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }

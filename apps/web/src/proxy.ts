@@ -16,6 +16,7 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/today/:path*",
+    "/story/:path*",
     "/paper/:path*",
     "/archive/:path*",
     "/saved/:path*",

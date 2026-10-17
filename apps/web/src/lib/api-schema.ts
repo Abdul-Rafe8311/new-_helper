@@ -430,6 +430,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stories/{edition_item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Story
+         * @description One story from the reader's paper, with the pictures and outlets of the same story.
+         */
+        get: operations["get_story_stories__edition_item_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/taxonomy": {
         parameters: {
             query?: never;
@@ -962,6 +982,48 @@ export interface components {
          * @enum {string}
          */
         Slot: "lead" | "feature" | "standard" | "brief" | "explore";
+        /** StoryImage */
+        StoryImage: {
+            /** Credit */
+            credit: string;
+            /** Url */
+            url: string;
+        };
+        /** StoryOut */
+        StoryOut: {
+            /** Author */
+            author: string | null;
+            /**
+             * Edition Date
+             * Format: date
+             */
+            edition_date: string;
+            /**
+             * Edition Id
+             * Format: uuid
+             */
+            edition_id: string;
+            /** Edition Number */
+            edition_number: number;
+            /** Images */
+            images: components["schemas"]["StoryImage"][];
+            item: components["schemas"]["EditionItemOut"];
+            /** Sources */
+            sources: components["schemas"]["StorySource"][];
+        };
+        /** StorySource */
+        StorySource: {
+            /** Name */
+            name: string;
+            /** Primary */
+            primary: boolean;
+            /** Published At */
+            published_at: string | null;
+            /** Title */
+            title: string;
+            /** Url */
+            url: string;
+        };
         /** SuggestionsOut */
         SuggestionsOut: {
             /** Suggestions */
@@ -1823,6 +1885,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SavedItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_story_stories__edition_item_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                edition_item_id: string;
+            };
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoryOut"];
                 };
             };
             /** @description Validation Error */

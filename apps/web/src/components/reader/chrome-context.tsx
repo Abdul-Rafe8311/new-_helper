@@ -6,71 +6,42 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useReducer,
   useState,
+  type Dispatch,
   type ReactNode,
 } from "react";
 
-import { DEFAULT_VIEW, VIEW_MODES, type ViewMode } from "./model";
+import { applyPatches, type ItemStates, type StatePatch } from "./model";
+import { FRONT_COLOR } from "./palette";
 
-const VIEW_KEY = "nh:view";
-
-/** The edition on screen, as far as the toolbar needs to know (for the PDF button). */
+/** The edition on screen, as far as the masthead needs to know (for the PDF button). */
 export type ActiveEdition = { date: string; ready: boolean } | null;
 
 type Chrome = {
-  view: ViewMode;
-  setView: (view: ViewMode) => void;
-  query: string;
-  setQuery: (query: string) => void;
-  /** null = the responsive default: open on wide screens, closed below. */
-  panelOpen: boolean | null;
-  setPanelOpen: (open: boolean | null) => void;
-  /** After picking something in the panel: on phones the panel is a drawer, so put it away. */
-  closeDrawer: () => void;
+  /** The category colour that tints the glow and active pills. */
+  accent: string;
+  setAccent: (color: string) => void;
+  menuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
   edition: ActiveEdition;
   setEdition: (edition: ActiveEdition) => void;
+  /** The reader's changes this visit; shared so a save on a story page shows on the feed. */
+  states: ItemStates;
+  patchStates: Dispatch<readonly StatePatch[]>;
 };
 
 const ChromeContext = createContext<Chrome | null>(null);
 
-function readStoredView(): ViewMode {
-  try {
-    const stored = window.localStorage.getItem(VIEW_KEY);
-    return VIEW_MODES.find((mode) => mode === stored) ?? DEFAULT_VIEW;
-  } catch {
-    return DEFAULT_VIEW;
-  }
-}
-
-/** State shared by the toolbar, the panel and the article pane: view mode, search, panel, PDF. */
 export function ChromeProvider({ children }: { children: ReactNode }) {
-  const [view, setViewState] = useState<ViewMode>(DEFAULT_VIEW);
-  const [query, setQuery] = useState("");
-  const [panelOpen, setPanelOpen] = useState<boolean | null>(null);
+  const [accent, setAccent] = useState(FRONT_COLOR);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [edition, setEdition] = useState<ActiveEdition>(null);
-
-  // The saved view is only known in the browser, so it is applied after hydration.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser storage
-    setViewState(readStoredView());
-  }, []);
-
-  const setView = useCallback((next: ViewMode) => {
-    setViewState(next);
-    try {
-      window.localStorage.setItem(VIEW_KEY, next);
-    } catch {
-      // private mode: the choice just lasts for this visit
-    }
-  }, []);
-
-  const closeDrawer = useCallback(() => {
-    if (window.matchMedia("(max-width: 767px)").matches) setPanelOpen(null);
-  }, []);
+  const [states, patchStates] = useReducer(applyPatches, {});
 
   const value = useMemo(
-    () => ({ view, setView, query, setQuery, panelOpen, setPanelOpen, closeDrawer, edition, setEdition }),
-    [view, setView, query, panelOpen, closeDrawer, edition],
+    () => ({ accent, setAccent, menuOpen, setMenuOpen, edition, setEdition, states, patchStates }),
+    [accent, menuOpen, edition, states],
   );
   return <ChromeContext.Provider value={value}>{children}</ChromeContext.Provider>;
 }
@@ -81,7 +52,7 @@ export function useChrome(): Chrome {
   return chrome;
 }
 
-/** Tell the toolbar which edition is on screen; clears it when the page goes away. */
+/** Tell the masthead which edition is on screen; clears it when the page goes away. */
 export function useActiveEdition(edition: ActiveEdition): void {
   const { setEdition } = useChrome();
   const date = edition?.date;
@@ -90,4 +61,17 @@ export function useActiveEdition(edition: ActiveEdition): void {
     setEdition(date ? { date, ready: Boolean(ready) } : null);
     return () => setEdition(null);
   }, [date, ready, setEdition]);
+}
+
+/** Tint the page with a category colour while this view is on screen. */
+export function useAccent(color: string): void {
+  const { setAccent } = useChrome();
+  useEffect(() => {
+    setAccent(color);
+  }, [color, setAccent]);
+}
+
+export function useCloseMenu(): () => void {
+  const { setMenuOpen } = useChrome();
+  return useCallback(() => setMenuOpen(false), [setMenuOpen]);
 }

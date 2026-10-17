@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Today" };
 export default function TodayPage() {
   return (
     <Suspense fallback={<ReaderSkeleton />}>
-      <EditionPage date="today" sectionsPanel />
+      <EditionPage date="today" basePath="/today" />
     </Suspense>
   );
 }

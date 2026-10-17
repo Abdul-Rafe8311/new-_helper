@@ -36,6 +36,14 @@ const STORIES = [
   ["Outside your bubble", "explore", "The quiet comeback of the paper map"],
 ];
 
+const svg = (color, label) =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="800" height="600" fill="${color}"/><text x="40" y="300" font-size="48" fill="white">${label}</text></svg>`,
+  )}`;
+const COLORS = ["#556b2f", "#2f4f6b", "#6b2f4f", "#6b5a2f"];
+/** Stories 1, 2 and 5 have pictures; story 3's picture is broken (the card must fall back). */
+const IMAGES = { 1: svg(COLORS[0], "one"), 2: svg(COLORS[1], "two"), 3: "http://127.0.0.1:1/broken.jpg", 5: svg(COLORS[2], "five") };
+
 const SECTIONS = [...new Set(STORIES.map(([section]) => section))];
 
 function items(sessionState) {
@@ -52,7 +60,7 @@ function items(sessionState) {
     why_text: `Because you follow ${section.toLowerCase()}`,
     url: `https://news${(index % 4) + 1}.example.com/story-${index + 1}`,
     source: ["The Wire", "Dawn", "Ars Technica", "Reuters"][index % 4],
-    image_url: null,
+    image_url: IMAGES[index + 1] ?? null,
     published_at: new Date(Date.now() - (index + 1) * 40 * 60_000).toISOString(),
     score: 0.5,
     score_breakdown: BREAKDOWN,
@@ -160,6 +168,29 @@ export function handleReader({ req, res, path, url, session, send, error, readJs
   }
   const byDate = /^\/editions\/(\d{4}-\d{2}-\d{2})$/.exec(path);
   if (byDate) return send(res, 200, edition(s, byDate[1])), true;
+
+  const story = /^\/stories\/([0-9a-f-]{36})$/.exec(path);
+  if (story) {
+    const item = items(s).find((i) => i.id === story[1]);
+    if (!item) return error(res, 404, "not_found", "That story is not in your paper"), true;
+    const number = Number(item.id.slice(-12));
+    const images = [item.image_url, ...COLORS.map((c, i) => svg(c, `extra${i}`))]
+      .filter((u) => u && !u.includes("broken"))
+      .slice(0, 4)
+      .map((url, i) => ({ url, credit: ["The Wire", "Dawn", "Reuters", "Ars Technica"][i % 4] }));
+    return send(res, 200, {
+      item,
+      edition_id: "11111111-0000-4000-b000-000000000001",
+      edition_date: isoDay(),
+      edition_number: 12,
+      author: "Sara Khan",
+      images,
+      sources: [
+        { name: item.source, title: item.headline, url: `/r/${item.id}`, published_at: item.published_at, primary: true },
+        { name: "Reuters", title: `Reuters on story ${number}`, url: "https://reuters.example.com/a", published_at: item.published_at, primary: false },
+      ],
+    }), true;
+  }
 
   if (path === "/saved") {
     const saved = items(s).filter((item) => item.state.saved);

@@ -2,14 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import type { EditionItem } from "@/lib/api";
 
+import { categoryColor, FRONT_COLOR, PALETTE } from "../palette";
 import {
-  FRONT_PAGE,
-  frontPage,
-  initialStates,
-  reduceStates,
+  applyPatches,
+  outletCount,
   relativeTime,
+  sectionFromParam,
   sectionsOf,
-  sourceCount,
+  slugify,
+  spanFor,
+  stateFor,
   unreadCount,
   visibleItems,
 } from "../model";
@@ -38,95 +40,64 @@ function item(over: Partial<EditionItem> = {}): EditionItem {
   };
 }
 
-describe("sectionsOf", () => {
-  it("follows the composer's section order and sorts stories by position", () => {
+describe("sections", () => {
+  it("follows the composer's order, sorts by position and gives each a unique slug", () => {
     const a = item({ section: "Sport", position: 3 });
-    const b = item({ section: "Tech", position: 2 });
+    const b = item({ section: "Tech & AI", position: 2 });
     const c = item({ section: "Sport", position: 1 });
     const sections = sectionsOf({
       items: [a, b, c],
-      layout: { sections: [{ name: "Tech" }, { name: "Sport" }] },
+      layout: { sections: [{ name: "Tech & AI" }, { name: "Sport" }] },
     });
-    expect(sections.map((s) => s.name)).toEqual(["Tech", "Sport"]);
+    expect(sections.map((s) => [s.name, s.slug])).toEqual([
+      ["Tech & AI", "tech-and-ai"],
+      ["Sport", "sport"],
+    ]);
     expect(sections[1].items).toEqual([c, a]);
   });
 
-  it("adds sections the layout forgot and drops empty ones", () => {
+  it("adds sections the layout forgot, drops empty ones and de-duplicates slugs", () => {
     const sections = sectionsOf({
-      items: [item({ section: "Odd one" })],
+      items: [item({ section: "A B" }), item({ section: "A-B" })],
       layout: { sections: [{ name: "Empty" }] },
     });
-    expect(sections.map((s) => s.name)).toEqual(["Odd one"]);
+    expect(sections.map((s) => s.slug)).toEqual(["a-b", "a-b-2"]);
+  });
+
+  it("resolves ?section= and falls back to the whole paper", () => {
+    const sections = sectionsOf({ items: [item({ section: "Sport" })], layout: {} });
+    expect(sectionFromParam(sections, "sport")?.name).toBe("Sport");
+    expect(sectionFromParam(sections, "nope")).toBeNull();
+    expect(sectionFromParam(sections, null)).toBeNull();
+    expect(slugify("  Hello, World!  ")).toBe("hello-world");
   });
 });
 
-describe("item states", () => {
+describe("story state", () => {
   const a = item();
-  const b = item();
+  const b = item({ state: { read: true, saved: false, skipped: false, reaction: null } });
 
-  it("starts from what the server says", () => {
-    const states = initialStates([item({ state: { read: true, saved: true, skipped: false, reaction: "more" } })]);
-    expect(Object.values(states)[0].saved).toBe(true);
+  it("falls back to what the server sent until the reader changes something", () => {
+    expect(stateFor({}, b).read).toBe(true);
+    const next = applyPatches({}, [{ id: a.id, base: a.state, patch: { saved: true } }]);
+    expect(stateFor(next, a)).toEqual({ read: false, saved: true, skipped: false, reaction: null });
+    expect(stateFor(next, b)).toBe(b.state);
   });
 
-  it("marks stories read, saves, skips and reacts without touching the others", () => {
-    let states = initialStates([a, b]);
-    states = reduceStates(states, { type: "read", ids: [a.id] });
-    states = reduceStates(states, { type: "save", id: a.id, on: true });
-    states = reduceStates(states, { type: "react", id: b.id, reaction: "less" });
-    states = reduceStates(states, { type: "skip", id: b.id, on: true });
-    expect(states[a.id]).toEqual({ read: true, saved: true, skipped: false, reaction: null });
-    expect(states[b.id]).toEqual({ read: false, saved: false, skipped: true, reaction: "less" });
-    states = reduceStates(states, { type: "skip", id: b.id, on: false });
-    expect(states[b.id].skipped).toBe(false);
+  it("layers patches on the latest override, not the server state", () => {
+    let states = applyPatches({}, [{ id: a.id, base: a.state, patch: { saved: true } }]);
+    states = applyPatches(states, [{ id: a.id, base: a.state, patch: { reaction: "more" } }]);
+    expect(stateFor(states, a)).toMatchObject({ saved: true, reaction: "more" });
   });
 
-  it("counts unread stories, ignoring read and skipped ones", () => {
-    let states = initialStates([a, b]);
-    expect(unreadCount([a, b], states)).toBe(2);
-    states = reduceStates(states, { type: "read", ids: [a.id] });
-    states = reduceStates(states, { type: "skip", id: b.id, on: true });
-    expect(unreadCount([a, b], states)).toBe(0);
-  });
-});
-
-describe("visibleItems", () => {
-  const tech = item({ section: "Tech", headline: "Agents everywhere" });
-  const sport = item({ section: "Sport", headline: "Babar bats", source: "Dawn" });
-  const skipped = item({ section: "Sport", headline: "Hidden" });
-  const edition = { items: [tech, sport, skipped], layout: {} };
-  const sections = sectionsOf(edition);
-  const states = reduceStates(initialStates(edition.items), { type: "skip", id: skipped.id, on: true });
-
-  it("shows one section, or everything on the front page, without skipped stories", () => {
-    expect(visibleItems(sections, "Sport", states, "")).toEqual([sport]);
-    expect(visibleItems(sections, FRONT_PAGE, states, "")).toEqual([tech, sport]);
-  });
-
-  it("searches headline, summary and source across every section", () => {
-    expect(visibleItems(sections, "Tech", states, "babar")).toEqual([sport]);
-    expect(visibleItems(sections, "Tech", states, "DAWN")).toEqual([sport]);
-    expect(visibleItems(sections, "Tech", states, "nothing like this")).toEqual([]);
-  });
-});
-
-describe("frontPage", () => {
-  it("puts the lead first and sorts the rest into slots", () => {
-    const lead = item({ slot: "lead" });
-    const feature = item({ slot: "feature" });
-    const brief = item({ slot: "brief" });
-    const explore = item({ slot: "explore" });
-    const page = frontPage([brief, feature, lead, explore]);
-    expect(page.lead).toBe(lead);
-    expect(page.features).toEqual([feature]);
-    expect(page.briefs).toEqual([brief]);
-    expect(page.explore).toEqual([explore]);
-  });
-
-  it("falls back to the first story when nothing is marked lead", () => {
-    const first = item({ slot: "standard" });
-    expect(frontPage([first, item()]).lead).toBe(first);
-    expect(frontPage([]).lead).toBeNull();
+  it("counts unread stories and hides skipped ones", () => {
+    const sections = sectionsOf({ items: [a, b], layout: {} });
+    expect(unreadCount([a, b], {})).toBe(1);
+    const skipped = applyPatches({}, [{ id: a.id, base: a.state, patch: { skipped: true } }]);
+    expect(visibleItems(sections, null, skipped)).toEqual([b]);
+    expect(unreadCount([a, b], skipped)).toBe(0);
+    expect(visibleItems(sections, "tech", {})).toEqual([a, b]);
+    expect(visibleItems(sections, "other", {})).toEqual([]);
   });
 });
 
@@ -142,8 +113,21 @@ describe("helpers", () => {
     expect(relativeTime(null, now)).toBe("");
   });
 
-  it("counts sources from the edition stats, or from the stories", () => {
-    expect(sourceCount({ items: [], stats: { sources: 23 } })).toBe(23);
-    expect(sourceCount({ items: [item({ source: "A" }), item({ source: "A" }), item({ source: "B" })], stats: {} })).toBe(2);
+  it("reports outlet counts only when the composer recorded more than one", () => {
+    expect(outletCount({ score_breakdown: { cluster_size: 5 } })).toBe(5);
+    expect(outletCount({ score_breakdown: { cluster_size: 1 } })).toBeNull();
+    expect(outletCount({ score_breakdown: {} })).toBeNull();
+  });
+
+  it("lays rows out as 7+5, 4+4+4, 5+7, 4+4+4 and repeats", () => {
+    expect(Array.from({ length: 10 }, (_, i) => spanFor(i))).toEqual([7, 5, 4, 4, 4, 5, 7, 4, 4, 4]);
+    expect(spanFor(10)).toBe(7);
+  });
+
+  it("gives a category the same colour every day, from the palette", () => {
+    expect(categoryColor("Pavilion End")).toBe(categoryColor("pavilion end"));
+    expect(PALETTE).toContain(categoryColor("Markets"));
+    expect(new Set(["Markets", "Science", "Pakistan", "Sport", "Culture"].map(categoryColor)).size).toBeGreaterThan(2);
+    expect(PALETTE).toContain(FRONT_COLOR);
   });
 });

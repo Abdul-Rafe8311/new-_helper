@@ -3,14 +3,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { SectionHeader } from "@/components/paper";
+import { PageFrame } from "@/components/reader/page-frame";
+import { SideNav } from "@/components/reader/side-nav";
 import { getSession } from "@/lib/server/session";
 
 export const metadata: Metadata = { title: "Settings" };
 
 const SHORTCUTS: [string, string][] = [
   ["j / k", "Next / previous story"],
-  ["Enter", "Expand or collapse the story"],
+  ["Enter", "Open the focused story"],
   ["o", "Open the original in a new tab"],
   ["s", "Save for later"],
   ["m / l", "More / less like this"],
@@ -20,7 +21,7 @@ const SHORTCUTS: [string, string][] = [
 
 export default function SettingsPage() {
   return (
-    <Suspense fallback={<div aria-busy="true" className="h-64 animate-pulse bg-paper-2" />}>
+    <Suspense fallback={<div aria-busy="true" className="mx-auto mt-10 h-64 w-full max-w-2xl animate-pulse bg-paper-2" />}>
       <Settings />
     </Suspense>
   );
@@ -31,9 +32,11 @@ async function Settings() {
   if (!session) redirect("/login");
   const { user, profile } = session;
   return (
-    <div className="mx-auto w-full max-w-2xl flex-1 space-y-10 px-4 py-8 sm:px-6">
+    <PageFrame nav={<SideNav base="/today" />}>
+    <div className="max-w-2xl space-y-10 py-4">
+      <h1 className="font-sans text-[clamp(2.25rem,6.2vw,4.5rem)] leading-none font-extrabold tracking-tight">Settings</h1>
       <section>
-        <SectionHeader title="Your account" />
+        <h2 className="mb-4 font-sans text-sm font-bold tracking-wide text-muted uppercase">Your account</h2>
         <dl className="grid grid-cols-[8rem_1fr] gap-y-2 font-sans text-sm">
           <dt className="text-muted">Name</dt>
           <dd>{user.display_name}</dd>
@@ -55,7 +58,7 @@ async function Settings() {
         </p>
       </section>
       <section>
-        <SectionHeader title="Keyboard shortcuts" />
+        <h2 className="mb-4 font-sans text-sm font-bold tracking-wide text-muted uppercase">Keyboard shortcuts</h2>
         <dl className="space-y-2 font-sans text-sm">
           {SHORTCUTS.map(([keys, what]) => (
             <div key={keys} className="flex items-baseline gap-4">
@@ -68,5 +71,6 @@ async function Settings() {
         </dl>
       </section>
     </div>
+    </PageFrame>
   );
 }

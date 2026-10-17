@@ -1,164 +1,65 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { originalHref, type EditionItem } from "@/lib/api";
-import { reduceStates, stateOf, type ItemStates, type Reaction } from "./model";
-import { tracker } from "@/lib/tracking-client";
-import type { EventType } from "@/lib/tracking";
 
-export type Toast = { id: number; message: string; undo?: () => void };
-
-export type ReaderActions = {
-  open: (id: string) => void;
-  /** The reader followed the "Read original" link themselves. */
-  opened: (id: string) => void;
-  toggleSave: (id: string) => void;
-  skip: (id: string) => void;
-  react: (id: string, reaction: Reaction) => void;
-  markRead: (ids: readonly string[]) => void;
-};
-
-const REACTION_EVENT: Record<Reaction, EventType> = { more: "more_like", less: "less_like" };
+import { useChrome } from "./chrome-context";
+import { stateFor, type ItemStates } from "./model";
+import { useItemActions, type ItemActions, type ToastApi } from "./use-item-actions";
 
 function isTyping(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+  return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(target.tagName);
+}
+
+/** The link that opens a story, which keyboard focus lands on. */
+export function storyLink(id: string): HTMLElement | null {
+  return document.querySelector<HTMLElement>(`#story-${CSS.escape(id)} [data-story-link]`);
 }
 
 /**
- * Everything the article pane does: per-story state, expand/focus, the actions (each of which
- * logs an event), the undo toast and the keyboard shortcuts.
+ * The feed's behaviour: which stories are shown, keyboard focus, the actions and their toast.
  *
- *   j / k  next / previous      o  open original     s  save
- *   m / l  more / less like     x  skip              Shift+A  mark all read
- *   Enter  expand / collapse (on the focused story)  Esc  collapse
+ *   j / k  next / previous story   o  open original   s  save
+ *   m / l  more / less like this   x  skip            Shift+A  mark all shown as read
+ * (Enter on a focused story follows its link, like any link.)
  */
-export function useReaderCore(
-  initial: ItemStates,
-  view: string,
-  /** Which stories are on screen, given the current states (skipped ones drop out). */
-  select: (states: ItemStates) => EditionItem[],
-) {
-  const [states, dispatch] = useReducer(reduceStates, initial);
-  const visible = useMemo(() => select(states), [select, states]);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+export function useReaderCore(select: (states: ItemStates) => EditionItem[]) {
+  const { states } = useChrome();
+  const { actions, toast } = useItemActions("feed");
+  const items = useMemo(() => select(states), [select, states]);
   const [focusedId, setFocusedId] = useState<string | null>(null);
-  const [toast, setToast] = useState<Toast | null>(null);
-  const toastId = useRef(0);
 
-  // Handlers always see the latest state without being re-created on every change.
-  const live = useRef({ states, visible, focusedId, expandedId });
+  const live = useRef({ items, focusedId });
   useEffect(() => {
-    live.current = { states, visible, focusedId, expandedId };
+    live.current = { items, focusedId };
   });
 
-  const track = useCallback(
-    (type: EventType, id: string, value?: number, meta: Record<string, string> = {}) =>
-      tracker.track({ type, edition_item_id: id, value, meta: { view, ...meta } }, { urgent: true }),
-    [view],
-  );
-
-  const markRead = useCallback(
-    (ids: readonly string[], via = "mark_all") => {
-      const unread = ids.filter((id) => !stateOf(live.current.states, id).read);
-      if (unread.length === 0) return;
-      dispatch({ type: "read", ids: unread });
-      for (const id of unread) track("mark_read", id, undefined, { via });
-    },
-    [track],
-  );
-
-  const showToast = useCallback((message: string, undo?: () => void) => {
-    toastId.current += 1;
-    setToast({ id: toastId.current, message, undo });
-  }, []);
-
-  const actions = useMemo<ReaderActions>(() => {
-    const opened = (id: string) => {
-      // The redirect endpoint logs the open itself; this only updates what the page shows.
-      dispatch({ type: "read", ids: [id] });
-    };
-    const toggleSave = (id: string) => {
-      const on = !stateOf(live.current.states, id).saved;
-      dispatch({ type: "save", id, on });
-      track("save", id, on ? 1 : 0);
-      showToast(on ? "Saved for later" : "Removed from saved");
-    };
-    const skip = (id: string) => {
-      if (stateOf(live.current.states, id).skipped) return;
-      const { visible: shown, focusedId: focus } = live.current;
-      dispatch({ type: "skip", id, on: true });
-      track("skip", id, 1);
-      setExpandedId((current) => (current === id ? null : current));
-      if (focus === id) {
-        const index = shown.findIndex((item) => item.id === id);
-        setFocusedId((shown[index + 1] ?? shown[index - 1])?.id ?? null);
-      }
-      showToast("Story skipped", () => {
-        dispatch({ type: "skip", id, on: false });
-        track("skip", id, 0);
-      });
-    };
-    const react = (id: string, reaction: Reaction) => {
-      const current = stateOf(live.current.states, id).reaction;
-      if (current === reaction) {
-        dispatch({ type: "react", id, reaction: null });
-        track(REACTION_EVENT[reaction], id, 0);
-        return;
-      }
-      if (current) track(REACTION_EVENT[current], id, 0);
-      dispatch({ type: "react", id, reaction });
-      track(REACTION_EVENT[reaction], id, 1);
-      showToast(reaction === "more" ? "You'll see more like this" : "You'll see less like this");
-    };
-    return {
-      open: (id) => {
-        window.open(originalHref(id), "_blank", "noopener");
-        opened(id);
-      },
-      opened,
-      toggleSave,
-      skip,
-      react,
-      markRead: (ids) => markRead(ids),
-    };
-  }, [markRead, showToast, track]);
-
-  const toggleExpanded = useCallback(
-    (id: string) => {
-      setFocusedId(id);
-      setExpandedId((current) => (current === id ? null : id));
-      if (live.current.expandedId !== id) markRead([id], "expand");
-    },
-    [markRead],
-  );
-
-  // Keep keyboard focus on the focused story, scrolling it into view.
-  useEffect(() => {
-    if (!focusedId) return;
-    const element = document.getElementById(`story-${focusedId}`);
-    if (!element) return;
-    if (document.activeElement !== element && !element.contains(document.activeElement)) element.focus({ preventScroll: true });
+  const focusStory = useCallback((id: string) => {
+    setFocusedId(id);
+    const link = storyLink(id);
+    if (!link) return;
+    link.focus({ preventScroll: true });
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    element.scrollIntoView({ block: "nearest", behavior: calm ? "auto" : "smooth" });
-  }, [focusedId]);
+    link.scrollIntoView({ block: "nearest", behavior: calm ? "auto" : "smooth" });
+  }, []);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
-      const { visible: shown, focusedId: focus } = live.current;
+      const { items: shown, focusedId: focus } = live.current;
       const index = shown.findIndex((item) => item.id === focus);
+      const current = index >= 0 ? shown[index] : null;
       const move = (to: number) => {
         const next = shown[Math.min(shown.length - 1, Math.max(0, to))];
-        if (next) setFocusedId(next.id);
+        if (next) focusStory(next.id);
       };
-      const current = focus && index >= 0 ? focus : null;
 
       if (event.key === "A" && event.shiftKey) {
         event.preventDefault();
-        markRead(shown.map((item) => item.id));
-        showToast(`Marked ${shown.length} ${shown.length === 1 ? "story" : "stories"} as read`);
+        actions.markRead(shown, "mark_all");
+        toast.show(`Marked ${shown.length} ${shown.length === 1 ? "story" : "stories"} as read`);
         return;
       }
       if (event.shiftKey) return;
@@ -171,18 +72,6 @@ export function useReaderCore(
           event.preventDefault();
           move(index < 0 ? 0 : index - 1);
           break;
-        case "Escape":
-          setExpandedId(null);
-          break;
-        case "Enter": {
-          // Only when the story itself has focus: buttons and links inside it keep their own Enter.
-          const story = event.target instanceof HTMLElement ? event.target.closest("[data-story]") : null;
-          if (story && event.target === story) {
-            event.preventDefault();
-            toggleExpanded(story.getAttribute("data-story") ?? "");
-          }
-          break;
-        }
         case "o":
         case "s":
         case "m":
@@ -190,30 +79,28 @@ export function useReaderCore(
         case "x": {
           if (!current) return;
           event.preventDefault();
-          if (event.key === "o") actions.open(current);
-          else if (event.key === "s") actions.toggleSave(current);
+          if (event.key === "o") {
+            window.open(originalHref(current.id), "_blank", "noopener");
+            actions.opened(current);
+          } else if (event.key === "s") actions.toggleSave(current);
           else if (event.key === "m") actions.react(current, "more");
           else if (event.key === "l") actions.react(current, "less");
-          else actions.skip(current);
+          else {
+            const next = shown[index + 1] ?? shown[index - 1];
+            actions.skip(current);
+            if (next) focusStory(next.id);
+          }
           break;
         }
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [actions, markRead, showToast, toggleExpanded]);
+  }, [actions, focusStory, toast]);
 
-  return {
-    states,
-    items: visible,
-    expandedId,
-    focusedId,
-    setFocusedId,
-    toggleExpanded,
-    actions,
-    toast,
-    dismissToast: useCallback(() => setToast(null), []),
-  };
+  return { items, states, focusedId, setFocusedId, actions, toast };
 }
 
 export type ReaderCore = ReturnType<typeof useReaderCore>;
+export type { ItemActions, ToastApi };
+export { stateFor };

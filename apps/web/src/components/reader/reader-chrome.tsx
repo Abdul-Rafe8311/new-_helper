@@ -1,33 +1,42 @@
 import type { ReactNode } from "react";
 
-import { paperNameFor } from "@/components/shell/app-header";
 import type { Session } from "@/lib/server/session";
 
+import { AmbientBackground } from "./ambient-background";
 import { ChromeProvider } from "./chrome-context";
-import { Sidebar } from "./sidebar";
-import { Toolbar } from "./toolbar";
+import { Masthead } from "./masthead";
+import { ShellRoot } from "./shell-root";
 import { TrackingProvider } from "./tracking-provider";
 
-/** The signed-in frame: icon rail (tab bar on phones), toolbar, and the page below it. */
+/** Today's date (YYYY-MM-DD) in the reader's time zone, which is what "today's paper" means. */
+function localDate(timeZone: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date());
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+/** The signed-in frame: glow, masthead, and whichever page the reader is on. */
 export function ReaderChrome({ session, children }: { session: Session; children: ReactNode }) {
   return (
     <ChromeProvider>
       <TrackingProvider>
-        <a
-          href="#main"
-          className="sr-only z-50 bg-ink px-3 py-2 font-sans text-sm text-paper focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
-        >
-          Skip to the stories
-        </a>
-        <Sidebar />
-        <div className="flex min-h-screen flex-1 flex-col pb-14 md:pb-0 md:pl-[60px]">
-          <Toolbar
-            paperName={paperNameFor(session)}
+        <ShellRoot>
+          <a
+            href="#main"
+            className="sr-only z-50 bg-ink px-3 py-2 font-sans text-sm text-paper focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+          >
+            Skip to the stories
+          </a>
+          <AmbientBackground />
+          <Masthead
             displayName={session.user.display_name}
             email={session.user.email}
+            pdfDate={localDate(session.user.timezone)}
           />
           {children}
-        </div>
+        </ShellRoot>
       </TrackingProvider>
     </ChromeProvider>
   );
@@ -35,11 +44,9 @@ export function ReaderChrome({ session, children }: { session: Session; children
 
 export function ReaderChromeSkeleton() {
   return (
-    <div aria-hidden="true" className="flex min-h-screen flex-1 flex-col md:pl-[60px]">
-      <div className="flex items-center gap-3 border-b border-rule px-4 py-3">
-        <div className="size-8 animate-pulse bg-paper-2" />
-        <div className="h-6 w-40 animate-pulse bg-paper-2" />
-        <div className="ml-4 hidden h-8 flex-1 animate-pulse bg-paper-2 sm:block sm:max-w-md" />
+    <div aria-hidden="true" className="min-h-screen bg-canvas">
+      <div className="mx-auto flex h-16 max-w-[1680px] items-center px-4 sm:h-20 lg:h-[88px] lg:px-8">
+        <div className="h-8 w-44 animate-pulse rounded bg-paper-2" />
       </div>
     </div>
   );

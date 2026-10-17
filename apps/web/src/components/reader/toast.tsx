@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import type { Toast } from "./use-reader-core";
+import type { Toast } from "./use-item-actions";
 
 const TOAST_MS = 6000;
 
@@ -20,7 +20,7 @@ export function UndoToast({ toast, onDismiss }: { toast: Toast | null; onDismiss
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-x-0 bottom-16 z-50 flex justify-center px-4 md:bottom-6 md:pl-[60px]"
+      className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
     >
       <div className="flex items-center gap-3 rounded-md bg-ink px-4 py-2 font-sans text-sm text-paper shadow-lg">
         <span>{toast.message}</span>

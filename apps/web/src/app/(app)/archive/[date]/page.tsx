@@ -16,5 +16,5 @@ export default function ArchiveEditionPage({ params }: PageProps<"/archive/[date
 
 async function Edition({ params }: Pick<PageProps<"/archive/[date]">, "params">) {
   const { date } = await params;
-  return <EditionPage date={date} sectionsPanel={false} />;
+  return <EditionPage date={date} basePath={`/archive/${date}`} />;
 }

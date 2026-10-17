@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { EditionItem } from "@/lib/api";
 
-import { initialStates, stateOf, type ItemStates } from "../model";
+import { ChromeProvider } from "../chrome-context";
+import { stateFor, type ItemStates } from "../model";
 import { useReaderCore } from "../use-reader-core";
 
 const track = vi.hoisted(() => vi.fn());
@@ -31,34 +32,42 @@ function item(n: number): EditionItem {
 }
 
 const ITEMS = [item(1), item(2), item(3)];
-const initial = initialStates(ITEMS);
-const selectAll = (states: ItemStates) => ITEMS.filter((i) => !stateOf(states, i.id).skipped);
+const selectAll = (states: ItemStates) => ITEMS.filter((i) => !stateFor(states, i).skipped);
 
 function Harness() {
-  const core = useReaderCore(initial, "cards", selectAll);
+  const core = useReaderCore(selectAll);
   return (
     <div>
       <ul>
         {core.items.map((i) => (
-          <li key={i.id} id={`story-${i.id}`} tabIndex={-1} data-story={i.id}>
-            {i.headline} {stateOf(core.states, i.id).read ? "(read)" : ""}
-            {stateOf(core.states, i.id).saved ? "(saved)" : ""}
-            {stateOf(core.states, i.id).reaction ?? ""}
+          <li key={i.id} id={`story-${i.id}`} data-story={i.id}>
+            <a href="#" data-story-link>
+              {i.headline}
+            </a>
+            {stateFor(core.states, i).read ? "(read)" : ""}
+            {stateFor(core.states, i).saved ? "(saved)" : ""}
+            {stateFor(core.states, i).reaction ?? ""}
           </li>
         ))}
       </ul>
       <p data-testid="focused">{core.focusedId ?? "none"}</p>
-      <p data-testid="expanded">{core.expandedId ?? "none"}</p>
-      {core.toast ? (
+      {core.toast.toast ? (
         <div role="status">
-          {core.toast.message}
-          {core.toast.undo ? <button onClick={core.toast.undo}>Undo</button> : null}
+          {core.toast.toast.message}
+          {core.toast.toast.undo ? <button onClick={core.toast.toast.undo}>Undo</button> : null}
         </div>
       ) : null}
       <input aria-label="search" />
     </div>
   );
 }
+
+const renderHarness = () =>
+  render(
+    <ChromeProvider>
+      <Harness />
+    </ChromeProvider>,
+  );
 
 const press = (key: string, init: KeyboardEventInit = {}) =>
   act(() => {
@@ -74,10 +83,11 @@ beforeEach(() => {
 });
 
 describe("useReaderCore keyboard shortcuts", () => {
-  it("j and k move focus through the visible stories and stop at the ends", () => {
-    render(<Harness />);
+  it("j and k move focus through the visible stories, onto the story link, and stop at the ends", () => {
+    renderHarness();
     press("j");
     expect(screen.getByTestId("focused")).toHaveTextContent("item-1");
+    expect(screen.getByRole("link", { name: "Headline 1" })).toHaveFocus();
     press("j");
     press("j");
     press("j");
@@ -87,16 +97,16 @@ describe("useReaderCore keyboard shortcuts", () => {
   });
 
   it("s toggles save on the focused story and logs it (1 on, 0 to retract)", () => {
-    render(<Harness />);
+    renderHarness();
     press("j");
     press("s");
-    expect(screen.getByText(/Headline 1/)).toHaveTextContent("(saved)");
+    expect(screen.getByText(/Headline 1/).closest("li")).toHaveTextContent("(saved)");
     press("s");
     expect(events().filter((e) => e.type === "save").map((e) => e.value)).toEqual([1, 0]);
   });
 
   it("m and l set a reaction; switching retracts the other; pressing again clears", () => {
-    render(<Harness />);
+    renderHarness();
     press("j");
     press("m");
     press("l");
@@ -105,13 +115,13 @@ describe("useReaderCore keyboard shortcuts", () => {
       ["more_like", 0],
       ["less_like", 1],
     ]);
-    expect(screen.getByText(/Headline 1/)).toHaveTextContent("less");
+    expect(screen.getByText(/Headline 1/).closest("li")).toHaveTextContent("less");
     press("l");
-    expect(screen.getByText(/Headline 1/)).not.toHaveTextContent("less");
+    expect(screen.getByText(/Headline 1/).closest("li")).not.toHaveTextContent("less");
   });
 
   it("x skips the story, moves focus on, and Undo brings it back", () => {
-    render(<Harness />);
+    renderHarness();
     press("j");
     press("x");
     expect(screen.queryByText(/Headline 1/)).not.toBeInTheDocument();
@@ -123,7 +133,7 @@ describe("useReaderCore keyboard shortcuts", () => {
   });
 
   it("Shift+A marks everything shown as read, once", () => {
-    render(<Harness />);
+    renderHarness();
     press("A", { shiftKey: true });
     expect(screen.getAllByText(/\(read\)/)).toHaveLength(3);
     expect(events().filter((e) => e.type === "mark_read")).toHaveLength(3);
@@ -133,17 +143,17 @@ describe("useReaderCore keyboard shortcuts", () => {
 
   it("o opens the original through the logging redirect in a new tab", () => {
     const open = vi.spyOn(window, "open").mockReturnValue(null);
-    render(<Harness />);
+    renderHarness();
     press("j");
     press("o");
     expect(open).toHaveBeenCalledWith("/api/r/item-1", "_blank", "noopener");
-    expect(screen.getByText(/Headline 1/)).toHaveTextContent("(read)");
+    expect(screen.getByText(/Headline 1/).closest("li")).toHaveTextContent("(read)");
     // the redirect logs the open itself, so no separate event is sent
     expect(events()).toEqual([]);
   });
 
   it("does nothing while typing in a field or with a modifier held", () => {
-    render(<Harness />);
+    renderHarness();
     const input = screen.getByLabelText("search");
     input.focus();
     act(() => {
@@ -154,7 +164,7 @@ describe("useReaderCore keyboard shortcuts", () => {
   });
 
   it("does nothing on s, m, l, x, o before a story is focused", () => {
-    render(<Harness />);
+    renderHarness();
     for (const key of ["s", "m", "l", "x", "o"]) press(key);
     expect(events()).toEqual([]);
   });

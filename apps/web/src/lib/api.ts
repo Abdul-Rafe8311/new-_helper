@@ -29,6 +29,9 @@ export type EditionItem = Schemas["EditionItemOut"];
 export type EditionSummary = Schemas["EditionSummary"];
 export type ItemState = Schemas["ItemState"];
 export type SavedItem = Schemas["SavedItem"];
+export type Story = Schemas["StoryOut"];
+export type StoryImage = Schemas["StoryImage"];
+export type StorySource = Schemas["StorySource"];
 export type StepBody = NameStep | BeatsStep | WordsStep | TasteStep | ReadingStep;
 
 /** Every API failure, carrying the `{"error": {"code", "message"}}` body. */
@@ -114,6 +117,7 @@ export function createApiClient({ baseUrl = "/api", headers = {}, fetch: fetchIm
       regenerate: () => request<Edition>("POST", "/editions/today/regenerate"),
     },
     saved: () => request<SavedItem[]>("GET", "/saved"),
+    story: (itemId: string) => request<Story>("GET", `/stories/${itemId}`),
     taxonomy: () => request<Taxonomy>("GET", "/taxonomy"),
     onboarding: {
       state: () => request<OnboardingState>("GET", "/onboarding/state"),

@@ -31,7 +31,7 @@ export function AvatarMenu({ name, email }: { name: string; email: string }) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        aria-label={`Account menu for ${name}`}
+        aria-label={`${initialsOf(name)}: account menu for ${name}`}
         className="inline-flex size-8 items-center justify-center rounded-full bg-ink font-sans text-xs font-semibold text-paper outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
       >
         {initialsOf(name)}

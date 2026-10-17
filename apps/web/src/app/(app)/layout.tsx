@@ -18,10 +18,6 @@ async function SignedIn({ children }: { children: ReactNode }) {
   if (!session) redirect("/login");
   if (!session.profile.onboarding_completed) redirect("/onboarding");
   return (
-    <ReaderChrome session={session}>
-      <main id="main" className="flex flex-1 flex-col">
-        {children}
-      </main>
-    </ReaderChrome>
+    <ReaderChrome session={session}>{children}</ReaderChrome>
   );
 }
