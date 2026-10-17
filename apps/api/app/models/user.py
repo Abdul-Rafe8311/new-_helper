@@ -64,5 +64,7 @@ class ReaderProfile(UUIDPrimaryKey, Timestamps, Base):
     interest_vector: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIM))
     paper_name: Mapped[str | None] = mapped_column(String(120))
     context_notes: Mapped[str | None] = mapped_column(Text)
+    # Autosaved onboarding answers, so a refresh loses nothing; see app.onboarding.state
+    onboarding_state: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
 
     user: Mapped[User] = relationship(back_populates="profile", lazy="raise")

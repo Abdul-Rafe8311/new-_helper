@@ -15,6 +15,16 @@ export type RegisterBody = Schemas["RegisterIn"];
 export type LoginBody = Schemas["LoginIn"];
 export type Taxonomy = Schemas["TaxonomyOut"];
 export type Topic = Schemas["TopicOut"];
+export type OnboardingState = Schemas["OnboardingStateOut"];
+export type ParsedInterests = Schemas["ParsedInterests"];
+export type Headline = Schemas["HeadlineOut"];
+export type EditionStatus = Schemas["EditionStatusOut"];
+export type NameStep = Schemas["NameStep"];
+export type BeatsStep = Schemas["BeatsStep"];
+export type WordsStep = Schemas["WordsStep"];
+export type TasteStep = Schemas["TasteStep"];
+export type ReadingStep = Schemas["ReadingStep"];
+export type StepBody = NameStep | BeatsStep | WordsStep | TasteStep | ReadingStep;
 
 /** Every API failure, carrying the `{"error": {"code", "message"}}` body. */
 export class ApiError extends Error {
@@ -86,6 +96,19 @@ export function createApiClient({ baseUrl = "/api", headers = {}, fetch: fetchIm
       update: (changes: ProfileUpdate) => request<Profile>("PUT", "/me/profile", changes),
     },
     taxonomy: () => request<Taxonomy>("GET", "/taxonomy"),
+    onboarding: {
+      state: () => request<OnboardingState>("GET", "/onboarding/state"),
+      saveStep: (number: number, body: StepBody) =>
+        request<OnboardingState>("PUT", `/onboarding/step/${number}`, body),
+      suggestions: (topic: string) =>
+        request<Schemas["SuggestionsOut"]>("GET", `/onboarding/suggestions?topic=${encodeURIComponent(topic)}`),
+      parse: (text: string) => request<ParsedInterests>("POST", "/onboarding/parse", { text }),
+      headlines: () => request<Schemas["HeadlinesOut"]>("GET", "/onboarding/headlines"),
+      answer: (articleId: string, interested: boolean) =>
+        request<void>("POST", "/onboarding/taste", { article_id: articleId, interested }),
+      complete: () => request<Schemas["CompleteOut"]>("POST", "/onboarding/complete"),
+      status: () => request<EditionStatus>("GET", "/onboarding/status"),
+    },
   };
 }
 

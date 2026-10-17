@@ -8,7 +8,8 @@ Next.js (App Router, Cache Components), Tailwind v4, shadcn/ui. The browser call
 | `pnpm build` / `pnpm start` | Production build / serve it |
 | `pnpm lint` / `pnpm typecheck` | ESLint / route types + `tsc` |
 | `pnpm test` | Vitest + Testing Library |
-| `pnpm test:e2e` | Playwright smoke tests against the production build (run `pnpm build` first) |
+| `pnpm build:e2e` | Production build whose `/api/*` rewrite points at the e2e mock API (:3199) |
+| `pnpm test:e2e` | Playwright tests against that build, using `e2e/mock-api.mjs` as the API (run `pnpm build:e2e` first) |
 | `pnpm gen:api` | Regenerate `src/lib/api-schema.ts` from the API's OpenAPI schema (needs uv) |
 
 Layout:
