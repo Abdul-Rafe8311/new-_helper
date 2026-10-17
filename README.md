@@ -32,3 +32,63 @@ Each reader action becomes a small, logged change to their interest profile, wit
 ![Precision@10 over a week of simulated reading](docs/learning-curve.png)
 
 Precision@10 rose from 0.52 on day 1 to 0.88 on day 7, on simulated readers (5 synthetic readers, with a control group). Details are in [docs/learning.md](docs/learning.md).
+
+## Architecture
+
+<!-- TODO: docs/architecture.md is not in the repo, so the Mermaid diagram is not included yet. Paste it in from docs/architecture.md once that file is added. -->
+> TODO: the architecture diagram (`docs/architecture.md`) is not in the repo yet.
+
+For now, the flow in short: the daily pipeline runs `ingest -> enrich -> learn -> compose -> render` against Postgres, the API serves editions and PDFs, and the web app talks to the API through a `/api/*` rewrite. See [docs/composer.md](docs/composer.md), [docs/ingestion.md](docs/ingestion.md) and [docs/decisions/0001-stack.md](docs/decisions/0001-stack.md).
+
+## Stack
+
+| Layer | Technology |
+| --- | --- |
+| API | FastAPI, Python 3.12, SQLAlchemy 2 (async), Alembic, uv |
+| Database | Postgres with pgvector, hosted on Supabase |
+| Web | Next.js, TypeScript, Tailwind, pnpm |
+| PDF | Jinja2 and WeasyPrint |
+| AI | Anthropic Claude API (Haiku for bulk work, Sonnet for the daily editor call); embeddings with fastembed `BAAI/bge-small-en-v1.5`, run in the pipeline only |
+| Files | Supabase Storage in production, local disk in dev |
+| Hosting | API on Render (Docker image), web on Vercel |
+| CI/CD | GitHub Actions |
+
+## Local setup
+
+```bash
+git clone https://github.com/Abdul-Rafe8311/new-_helper.git && cd new-_helper
+cp .env.example .env   # then set DATABASE_URL (Supabase session pooler), JWT_SECRET, CRON_SECRET
+make install
+make migrate
+make seed
+make dev               # API on :8000, web on :3000
+```
+
+You need Python 3.12, [uv](https://docs.astral.sh/uv/), Node.js and pnpm. There is no local Docker database: point `DATABASE_URL` at a Supabase project. Run `make test` and `make lint` before you commit. On macOS, PDF rendering needs `brew install pango` and `DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib`.
+
+## Environment variables
+
+Names and purpose only. Copy `.env.example` to `.env`; never commit it.
+
+| Name | Purpose |
+| --- | --- |
+| `ENV`, `LOG_LEVEL`, `GIT_SHA` | Runtime mode, log level, and the commit shown by `/health` |
+| `CORS_ORIGINS`, `WEB_URL` | Allowed browser origins and the public web URL |
+| `DATABASE_URL` | Postgres connection (Supabase pooler, asyncpg driver) |
+| `STORAGE_BACKEND`, `STORAGE_LOCAL_DIR` | `local` or `supabase` file storage, and the local folder |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` | Supabase Storage in production |
+| `PDF_PAGE_SIZE` | A4 or Letter |
+| `JWT_SECRET`, `JWT_EXPIRY_DAYS` | Session token signing and lifetime |
+| `CRON_SECRET` | Shared secret for `/internal` routes |
+| `DEMO_EMAIL` | Email of the seeded demo account |
+| `ANTHROPIC_API_KEY` | Claude API access |
+| `LLM_FAST_MODEL`, `LLM_SMART_MODEL` | Models for bulk work and the daily editor call |
+| `LLM_DAILY_BUDGET_USD` | Daily LLM spend cap; above it summaries fall back to extractive |
+| `EMBEDDING_MODEL`, `EMBEDDING_DIM`, `FASTEMBED_CACHE_DIR` | Local embedding model, vector size and cache folder |
+| `ALLOWED_LANGUAGES` | Languages kept at ingestion |
+| `REDDIT_ENABLED` | Turns the Reddit fetcher on or off |
+| `APIFY_TOKEN`, `APIFY_GNEWS_ACTOR`, `APIFY_EXTRACT_ACTOR` | Optional Apify fallback scrapers |
+| `ELEVENLABS_API_KEY` | Optional key reserved for the audio edition (not built yet) |
+| `API_URL` | Where the web app rewrites `/api/*` to |
+| `QUIZ_ENABLED` | Web flag that shows or hides the quiz |
+| `RENDER_DEPLOY_HOOK_URL`, `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | GitHub Actions secrets for deploys |
