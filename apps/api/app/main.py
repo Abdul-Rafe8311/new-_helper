@@ -7,6 +7,7 @@ from app.api.routers import (
     auth,
     editions,
     events,
+    interests,
     internal,
     me,
     onboarding,
@@ -42,7 +43,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def health() -> dict[str, str]:
         return {"status": "ok", "version": settings.version, "git_sha": settings.git_sha}
 
-    for module in (auth, me, onboarding, editions, events, redirect, internal, taxonomy):
+    for module in (auth, me, interests, onboarding, editions, events, redirect, internal, taxonomy):
         app.include_router(module.router)
     app.include_router(editions.saved_router)
     app.include_router(editions.story_router)
