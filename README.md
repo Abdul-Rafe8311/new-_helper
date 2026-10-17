@@ -10,9 +10,8 @@ Built for the Eynvision hackathon.
 
 ```bash
 git clone https://github.com/Abdul-Rafe8311/new-_helper.git && cd new-_helper
-cp .env.example .env
+cp .env.example .env   # set DATABASE_URL to your Supabase session pooler URL
 make install
-make db-up
 make dev        # API on :8000, web on :3000
 ```
 
@@ -22,5 +21,4 @@ make dev        # API on :8000, web on :3000
 | --- | --- |
 | `apps/api` | FastAPI backend and daily pipeline (Python 3.12, uv) |
 | `apps/web` | Next.js web app (TypeScript, Tailwind, pnpm) |
-| `infra` | docker-compose for local Postgres + pgvector |
 | `docs` | Architecture decisions and docs |

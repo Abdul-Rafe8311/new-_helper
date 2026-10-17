@@ -10,7 +10,7 @@ Repo: https://github.com/Abdul-Rafe8311/new-_helper (product name NewsHelper; bo
 ## Stack (do not change without asking)
 - `apps/web`: Next.js App Router, TypeScript strict, Tailwind, shadcn/ui, pnpm, vitest + Testing Library. Deployed on Vercel. Next.js rewrites `/api/*` to the API so auth cookies stay first-party.
 - `apps/api`: Python 3.12, FastAPI, SQLAlchemy 2 async + asyncpg, Alembic, Pydantic v2, uv. Docker image on Render.
-- DB: Postgres 16 + pgvector (docker-compose locally, Supabase in prod). Files behind a `Storage` interface (local disk dev, Supabase Storage prod).
+- DB: Postgres + pgvector on Supabase, for local dev too (no Docker locally). `DATABASE_URL` in `.env` uses `postgresql+asyncpg://` and the Supabase pooler, so asyncpg always gets `statement_cache_size=0`. CI uses a `pgvector/pgvector:pg16` service container. Files behind a `Storage` interface (local disk dev, Supabase Storage prod).
 - Scraping: open source first — feedparser, Google News RSS search (googlenewsdecoder), HN Algolia, arXiv, trafilatura (newspaper4k fallback). Apify only as fallback when `APIFY_TOKEN` is set.
 - AI: Anthropic SDK behind `LLMProvider`. `LLM_FAST_MODEL=claude-haiku-5-5`, `LLM_SMART_MODEL=claude-sonnet-5-5`. Embeddings behind `Embedder`, fastembed `BAAI/bge-small-en-v1.5` (384 dims).
 - PDF: Jinja2 + WeasyPrint.
@@ -28,7 +28,6 @@ apps/api/            FastAPI backend + pipeline
   app/ingest/ ai/ personalize/ editions/ pdf/   pipeline domains (T5+)
   tests/             pytest
 apps/web/            Next.js app (src/app, src/components, src/lib)
-infra/               docker-compose (Postgres + pgvector)
 docs/decisions/      ADRs
 .github/             CI/CD workflows (T1+)
 TASKS.md             task checklist and deferred notes
@@ -38,7 +37,6 @@ TASKS.md             task checklist and deferred notes
 | Do | Command |
 | --- | --- |
 | Install all | `make install` |
-| Start DB | `make db-up` / `make db-down` |
 | Run API / web / both | `make api` / `make web` / `make dev` |
 | Test all | `make test` |
 | Lint + typecheck all | `make lint` |
@@ -46,7 +44,7 @@ TASKS.md             task checklist and deferred notes
 | API only | `cd apps/api && uv run ruff check . && uv run ruff format --check . && uv run mypy app && uv run pytest` |
 | Web only | `cd apps/web && pnpm lint && pnpm typecheck && pnpm test && pnpm build` |
 
-Copy `.env.example` to `.env` at the repo root for local settings.
+Copy `.env.example` to `.env` at the repo root for local settings. Never print or commit `.env` or `DATABASE_URL`.
 
 ## Coding standards
 - TypeScript strict, no `any`. Python fully typed; ruff + mypy (strict) clean.

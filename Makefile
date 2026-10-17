@@ -1,6 +1,4 @@
-.PHONY: help dev db-up db-down api web test test-api test-web lint lint-api lint-web format install
-
-COMPOSE := docker compose -f infra/docker-compose.yml
+.PHONY: help dev api web test test-api test-web lint lint-api lint-web format install
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-10s %s\n", $$1, $$2}'
@@ -9,19 +7,13 @@ install: ## Install API and web dependencies
 	cd apps/api && uv sync
 	cd apps/web && pnpm install
 
-db-up: ## Start Postgres + pgvector and wait until healthy
-	$(COMPOSE) up -d --wait db
-
-db-down: ## Stop Postgres
-	$(COMPOSE) down
-
 api: ## Run the API with reload on :8000
 	cd apps/api && uv run uvicorn app.main:app --reload --port 8000
 
 web: ## Run the web dev server on :3000
 	cd apps/web && pnpm dev
 
-dev: db-up ## Start the database, API and web together
+dev: ## Start the API and web together (DB is Supabase, from .env)
 	$(MAKE) -j2 api web
 
 test: test-api test-web ## Run all tests
