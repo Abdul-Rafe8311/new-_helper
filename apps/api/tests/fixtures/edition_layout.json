@@ -1,0 +1,898 @@
+{
+  "edition": {
+    "id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+    "user_id": "7b5dd27b-8a1c-5579-9ded-769efcaeda83",
+    "edition_date": "2026-10-17",
+    "number": 12,
+    "status": "ready",
+    "title": "The Rafe Courier",
+    "editor_note": "Good morning, Rafe. Central banks are finally in step, the floods in Sindh are receding but the bills are not, and Babar is batting in Multan. I kept the markets coverage short today and gave cricket more room, since you opened every match report last week.",
+    "layout": {
+      "version": 1,
+      "tagline": "Saturday's papers, written for one reader",
+      "lead_item_id": "87ca285b-11b7-51be-b1a0-1b49bc558b6d",
+      "sections": [
+        {
+          "name": "Top Stories",
+          "item_ids": [
+            "87ca285b-11b7-51be-b1a0-1b49bc558b6d",
+            "2de7d222-3412-5784-a105-863a13ec3ec5",
+            "f042e16d-9dd2-53b7-98ab-9dcc8fa24ef1",
+            "5e5c5e89-aa66-5dc7-8d56-6daea80b9d41",
+            "b9a53211-9572-5be3-9dd4-65e569307399",
+            "8208cd0c-cc15-528f-8be8-c174e585c647"
+          ]
+        },
+        {
+          "name": "Pakistan",
+          "item_ids": [
+            "6375cdd9-b837-5ac9-a4d6-ae200d4e6059",
+            "d74d2042-627b-55fc-a36e-25cf5bebaf19",
+            "c12d301a-5c69-5a4c-a1d1-456d3245e247",
+            "9a169f54-2acb-5b58-b89b-7901297ad1de",
+            "74a4aa03-3493-544b-8c0b-531ba005ed0e"
+          ]
+        },
+        {
+          "name": "Technology & AI",
+          "item_ids": [
+            "99893b94-dfff-50e2-a9c1-613926ebef6b",
+            "8b151054-288f-5a76-9cb6-f6577a6ec6e3",
+            "87baef8e-529a-5969-b1ac-d7d22d263e97",
+            "ba2d2f06-f272-5f9f-aadb-48fa2d7d19fd",
+            "677d8e56-acd2-59bb-92bf-67fca6362a28"
+          ]
+        },
+        {
+          "name": "Science",
+          "item_ids": [
+            "60a63814-83b0-5041-9920-41b686892ac3",
+            "94145ffa-604b-5efb-9dc1-883cad451383",
+            "1888f291-7b93-5987-9759-01bf2da6b37f"
+          ]
+        },
+        {
+          "name": "Sport",
+          "item_ids": [
+            "b05c6e55-e2b2-5713-b0b0-25e95c4cc05c",
+            "0b07b97e-3f1c-5ef3-9190-5c45301b17d5",
+            "1bfdcae7-0afd-5ab8-bebc-02643a2cf283",
+            "693e9441-2961-5245-a86e-420635d3b339"
+          ]
+        },
+        {
+          "name": "Culture",
+          "item_ids": [
+            "648c92ed-15e3-5429-8f58-6f9482513612",
+            "eeffd9c9-c7b6-5bcc-a9d4-fe4ec5e2c408"
+          ]
+        },
+        {
+          "name": "Outside your bubble",
+          "item_ids": [
+            "9b1aa574-74fa-52fb-a053-52b88282558e",
+            "fc1ee835-9a68-57ef-b8e6-b103cffee541"
+          ]
+        }
+      ],
+      "three_things": [
+        "Rates: the Fed, ECB and Bank of England are all signalling a pause.",
+        "Sindh: water is draining, but 1.2 million people still need homes.",
+        "Cricket: Babar's 127* puts Pakistan 187 ahead in Multan."
+      ],
+      "quote": {
+        "text": "The true test will be whether the corridor stays clear of encroachment.",
+        "source": "Dawn",
+        "item_id": "6375cdd9-b837-5ac9-a4d6-ae200d4e6059"
+      },
+      "quiz": [
+        {
+          "question": "Which sodium-based advance could cut electric-car prices by a fifth?",
+          "options": [
+            "Solid-state lithium",
+            "Sodium-ion cells",
+            "Hydrogen fuel cells",
+            "Supercapacitors"
+          ],
+          "answer": 1
+        },
+        {
+          "question": "How far above the Big Bang was the faintest galaxy Webb has found?",
+          "options": [
+            "29 million years",
+            "290 million years",
+            "2.9 billion years"
+          ],
+          "answer": 1
+        },
+        {
+          "question": "What did Pakistan's lead stand at on day two in Multan?",
+          "options": [
+            "87 runs",
+            "187 runs",
+            "287 runs"
+          ],
+          "answer": 1
+        }
+      ],
+      "masthead": {
+        "paper_name": "The Rafe Courier",
+        "city": "Islamabad",
+        "weather": {
+          "city": "Islamabad",
+          "condition": "Sunny",
+          "temp_max_c": 24,
+          "temp_min_c": 12
+        }
+      }
+    },
+    "stats": {}
+  },
+  "items": [
+    {
+      "id": "87ca285b-11b7-51be-b1a0-1b49bc558b6d",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "78ed0f83-7802-5e08-939e-259495fec5e6",
+      "section": "Top Stories",
+      "position": 0,
+      "slot": "lead",
+      "headline": "Central banks edge towards a synchronised pause as inflation cools faster than forecast",
+      "summary": "Policymakers in Washington, Frankfurt and London signalled this week that the long cycle of rate rises is over, after consumer price data showed inflation falling for a fifth straight month. Markets now price in the first cuts by spring, though officials warned that wage growth and energy costs could still derail the recovery. Economists say the unusual alignment of the three banks reduces the risk of sharp currency swings that have unsettled emerging markets, including Pakistan, whose import bill is sensitive to the dollar. Bond yields fell across the board on the news, and equity indices closed at their highest level since the summer.",
+      "why_text": "You follow markets and the global economy closely.",
+      "score": 0.95,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/financial-times/lead",
+        "title": "Central banks edge towards a synchronised pause as inflation cools faster than forecast",
+        "source_name": "Financial Times",
+        "author": "Priya Natarajan",
+        "image_url": null,
+        "excerpt": "Policymakers in Washington, Frankfurt and London signalled this week that the long cycle of rate rises is over, after consumer price data sh",
+        "key_facts": [
+          "US inflation fell to 2.6% in September, the lowest since early 2021",
+          "The ECB and Bank of England meet again in three weeks",
+          "Futures imply two quarter-point cuts by June"
+        ],
+        "topics": {
+          "business": 0.9,
+          "markets": 0.8,
+          "world": 0.4
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "2de7d222-3412-5784-a105-863a13ec3ec5",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "25c69dcb-a463-5896-9c75-83447d9724cf",
+      "section": "Top Stories",
+      "position": 1,
+      "slot": "feature",
+      "headline": "Floods recede in Sindh, but the harder work of rebuilding is only beginning",
+      "summary": "Three weeks after the monsoon breached embankments along the Indus, water has drained from most affected districts, leaving behind damaged roads, ruined crops and families still sheltering in relief camps. Provincial officials say reconstruction will need more than the funds pledged so far. Aid groups are urging donors to prioritise housing and clean water before winter arrives, while farmers ask for seed support to save the wheat sowing season.",
+      "why_text": "Pakistan is one of your top interests.",
+      "score": 0.93,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/dawn/f1",
+        "title": "Floods recede in Sindh, but the harder work of rebuilding is only beginning",
+        "source_name": "Dawn",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Three weeks after the monsoon breached embankments along the Indus, water has drained from most affected districts, leaving behind damaged r",
+        "key_facts": [
+          "More than 1.2 million people were displaced",
+          "Wheat sowing begins in November"
+        ],
+        "topics": {
+          "pakistan": 0.95,
+          "climate": 0.6
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "f042e16d-9dd2-53b7-98ab-9dcc8fa24ef1",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "71436c70-568e-545f-9943-ba441d1f4eed",
+      "section": "Top Stories",
+      "position": 2,
+      "slot": "feature",
+      "headline": "A quiet breakthrough in battery chemistry could cut electric-car prices by a fifth",
+      "summary": "Researchers at a Swedish start-up say a new sodium-based cell matches the energy density of today's lithium packs at a much lower cost, using materials that are abundant and easy to source. Carmakers have signed evaluation deals, and the first vehicles could reach showrooms within two years if pilot production goes to plan.",
+      "why_text": "Matches your interest in clean technology.",
+      "score": 0.91,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/mit-technology-review/f2",
+        "title": "A quiet breakthrough in battery chemistry could cut electric-car prices by a fifth",
+        "source_name": "MIT Technology Review",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Researchers at a Swedish start-up say a new sodium-based cell matches the energy density of today's lithium packs at a much lower cost, usin",
+        "key_facts": [
+          "Sodium is roughly 1,000 times more abundant than lithium",
+          "Pilot line opens in Gothenburg next spring"
+        ],
+        "topics": {
+          "tech": 0.8,
+          "climate": 0.5,
+          "science": 0.5
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "5e5c5e89-aa66-5dc7-8d56-6daea80b9d41",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "c183451c-6517-5ff3-bc05-d6afd23d6d24",
+      "section": "Top Stories",
+      "position": 3,
+      "slot": "brief",
+      "headline": "UN climate envoy urges richer nations to double adaptation finance",
+      "summary": "Speaking in Nairobi, the envoy said current pledges leave poorer countries exposed to storms and drought.",
+      "why_text": null,
+      "score": 0.89,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/reuters/b1",
+        "title": "UN climate envoy urges richer nations to double adaptation finance",
+        "source_name": "Reuters",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Speaking in Nairobi, the envoy said current pledges leave poorer countries exposed to storms and drought.",
+        "key_facts": [],
+        "topics": {
+          "climate": 0.7
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "b9a53211-9572-5be3-9dd4-65e569307399",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "4aed658e-9c97-5e87-9863-c5103dfc525a",
+      "section": "Top Stories",
+      "position": 4,
+      "slot": "brief",
+      "headline": "Oil steadies near $78 as Gulf supply fears ease",
+      "summary": "Brent crude held a narrow range after talks eased concerns over shipping routes.",
+      "why_text": null,
+      "score": 0.87,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/bloomberg/b2",
+        "title": "Oil steadies near $78 as Gulf supply fears ease",
+        "source_name": "Bloomberg",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Brent crude held a narrow range after talks eased concerns over shipping routes.",
+        "key_facts": [],
+        "topics": {
+          "markets": 0.6
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "8208cd0c-cc15-528f-8be8-c174e585c647",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "417c4c51-2cde-5583-a4f8-5e18bc63d362",
+      "section": "Top Stories",
+      "position": 5,
+      "slot": "brief",
+      "headline": "Heathrow to trial AI-assisted baggage screening next month",
+      "summary": "The airport says passengers will no longer need to remove laptops at two terminals.",
+      "why_text": null,
+      "score": 0.85,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/bbc-news/b3",
+        "title": "Heathrow to trial AI-assisted baggage screening next month",
+        "source_name": "BBC News",
+        "author": null,
+        "image_url": null,
+        "excerpt": "The airport says passengers will no longer need to remove laptops at two terminals.",
+        "key_facts": [],
+        "topics": {
+          "tech": 0.4
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "6375cdd9-b837-5ac9-a4d6-ae200d4e6059",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "1ab49880-bfb4-5883-9d66-2e7d14f9e19b",
+      "section": "Pakistan",
+      "position": 6,
+      "slot": "feature",
+      "headline": "Karachi's new bus rapid transit line opens to riders, to mixed reviews",
+      "summary": "The 26-kilometre Red Line carried 90,000 passengers on its first working day, officials said, but commuters complained about long queues at interchange stations and patchy air-conditioning. The provincial government promised more buses within a month. Transport analysts say the true test will be whether the corridor stays clear of encroachment and whether feeder routes are integrated with it.",
+      "why_text": null,
+      "score": 0.83,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/dawn/p1",
+        "title": "Karachi's new bus rapid transit line opens to riders, to mixed reviews",
+        "source_name": "Dawn",
+        "author": null,
+        "image_url": null,
+        "excerpt": "The 26-kilometre Red Line carried 90,000 passengers on its first working day, officials said, but commuters complained about long queues at ",
+        "key_facts": [
+          "26 km corridor, 28 stations",
+          "Fare capped at Rs 50 for the full route"
+        ],
+        "topics": {
+          "pakistan": 0.9
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "d74d2042-627b-55fc-a36e-25cf5bebaf19",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "024c0b03-53bc-527e-95a0-9031789e269d",
+      "section": "Pakistan",
+      "position": 7,
+      "slot": "standard",
+      "headline": "State Bank holds policy rate at 11% and flags food prices",
+      "summary": "The central bank said headline inflation is easing but food costs remain volatile, and kept the policy rate unchanged for the third meeting in a row. Analysts expect a cut by the end of the year if the rupee holds.",
+      "why_text": null,
+      "score": 0.81,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/business-recorder/p2",
+        "title": "State Bank holds policy rate at 11% and flags food prices",
+        "source_name": "Business Recorder",
+        "author": null,
+        "image_url": null,
+        "excerpt": "The central bank said headline inflation is easing but food costs remain volatile, and kept the policy rate unchanged for the third meeting ",
+        "key_facts": [
+          "Inflation eased to 7.2% in September"
+        ],
+        "topics": {
+          "pakistan": 0.8,
+          "business": 0.7
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "c12d301a-5c69-5a4c-a1d1-456d3245e247",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "b4a5e577-1f4e-5172-aaca-546578c23a96",
+      "section": "Pakistan",
+      "position": 8,
+      "slot": "standard",
+      "headline": "Islamabad's tech parks court foreign start-ups with tax breaks",
+      "summary": "A new package offers a five-year income-tax holiday to companies that hire at least 50 local engineers, part of a wider push to turn the capital into a regional software hub.",
+      "why_text": null,
+      "score": 0.79,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/the-express-tribune/p3",
+        "title": "Islamabad's tech parks court foreign start-ups with tax breaks",
+        "source_name": "The Express Tribune",
+        "author": null,
+        "image_url": null,
+        "excerpt": "A new package offers a five-year income-tax holiday to companies that hire at least 50 local engineers, part of a wider push to turn the cap",
+        "key_facts": [],
+        "topics": {
+          "pakistan": 0.7,
+          "startups": 0.6
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "9a169f54-2acb-5b58-b89b-7901297ad1de",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "2bd3fa37-0f66-59da-8bd2-c8c443f9eb8f",
+      "section": "Pakistan",
+      "position": 9,
+      "slot": "brief",
+      "headline": "Lahore smog levels fall after rain",
+      "summary": "Air quality improved overnight but remains unhealthy for sensitive groups.",
+      "why_text": null,
+      "score": 0.77,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/geo-news/p4",
+        "title": "Lahore smog levels fall after rain",
+        "source_name": "Geo News",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Air quality improved overnight but remains unhealthy for sensitive groups.",
+        "key_facts": [],
+        "topics": {
+          "pakistan": 0.5
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "74a4aa03-3493-544b-8c0b-531ba005ed0e",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "f0b9e9c7-b871-5013-9346-961d5d80a435",
+      "section": "Pakistan",
+      "position": 10,
+      "slot": "brief",
+      "headline": "Rupee gains marginally against the dollar",
+      "summary": "The currency closed at 278.4 in the interbank market.",
+      "why_text": null,
+      "score": 0.75,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/dawn/p5",
+        "title": "Rupee gains marginally against the dollar",
+        "source_name": "Dawn",
+        "author": null,
+        "image_url": null,
+        "excerpt": "The currency closed at 278.4 in the interbank market.",
+        "key_facts": [],
+        "topics": {
+          "pakistan": 0.5
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "99893b94-dfff-50e2-a9c1-613926ebef6b",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "5a965fa2-712a-5bbc-8cd3-c148d9c9bc1f",
+      "section": "Technology & AI",
+      "position": 11,
+      "slot": "feature",
+      "headline": "Open-weight models close the gap with the frontier, and enterprises are noticing",
+      "summary": "A new generation of freely downloadable language models now matches proprietary systems on many coding and reasoning benchmarks, prompting companies to reconsider how much they spend on API access. Vendors respond by cutting prices and bundling tools, but security teams say hosting models in-house brings its own risks, from supply-chain attacks to prompt-injection exposure. The result, analysts argue, will be a mixed market in which most firms use several models for different jobs.",
+      "why_text": "AI is your strongest interest.",
+      "score": 0.73,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/ars-technica/t1",
+        "title": "Open-weight models close the gap with the frontier, and enterprises are noticing",
+        "source_name": "Ars Technica",
+        "author": "Benj Edwards",
+        "image_url": null,
+        "excerpt": "A new generation of freely downloadable language models now matches proprietary systems on many coding and reasoning benchmarks, prompting c",
+        "key_facts": [
+          "Benchmark gap narrowed to under 4 points on average",
+          "Median API price per million tokens down 40% in a year",
+          "Three in five firms now run at least one open model"
+        ],
+        "topics": {
+          "ai": 0.95,
+          "tech": 0.8
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "8b151054-288f-5a76-9cb6-f6577a6ec6e3",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "d75e6ded-1fce-5650-bed9-a62cdb69d005",
+      "section": "Technology & AI",
+      "position": 12,
+      "slot": "standard",
+      "headline": "Why your phone's battery health matters less than you think",
+      "summary": "Engineers say software throttling, not capacity, explains most of the slowdowns users blame on ageing cells. A fresh install and a cooler pocket often help more than a replacement battery.",
+      "why_text": null,
+      "score": 0.71,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/the-verge/t2",
+        "title": "Why your phone's battery health matters less than you think",
+        "source_name": "The Verge",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Engineers say software throttling, not capacity, explains most of the slowdowns users blame on ageing cells. A fresh install and a cooler po",
+        "key_facts": [
+          "Most phones are rated for 500 full cycles"
+        ],
+        "topics": {
+          "tech": 0.6
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "87baef8e-529a-5969-b1ac-d7d22d263e97",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "e52ea512-8fca-59da-868f-471e78e41017",
+      "section": "Technology & AI",
+      "position": 13,
+      "slot": "standard",
+      "headline": "Start-up raises $40m to automate customer-support calls in Urdu",
+      "summary": "The Karachi company says its voice agents now resolve a majority of routine banking queries without a human, and plans to expand to Arabic and Bengali next year.",
+      "why_text": null,
+      "score": 0.69,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/techcrunch/t3",
+        "title": "Start-up raises $40m to automate customer-support calls in Urdu",
+        "source_name": "TechCrunch",
+        "author": null,
+        "image_url": null,
+        "excerpt": "The Karachi company says its voice agents now resolve a majority of routine banking queries without a human, and plans to expand to Arabic a",
+        "key_facts": [],
+        "topics": {
+          "startups": 0.8,
+          "ai": 0.7
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "ba2d2f06-f272-5f9f-aadb-48fa2d7d19fd",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "9d56aa67-8964-54f1-b6b2-99e6b2c76c86",
+      "section": "Technology & AI",
+      "position": 14,
+      "slot": "brief",
+      "headline": "Chip makers brace for new export rules",
+      "summary": "Shares in major suppliers fell after the draft was leaked.",
+      "why_text": null,
+      "score": 0.67,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/reuters/t4",
+        "title": "Chip makers brace for new export rules",
+        "source_name": "Reuters",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Shares in major suppliers fell after the draft was leaked.",
+        "key_facts": [],
+        "topics": {
+          "tech": 0.5
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "677d8e56-acd2-59bb-92bf-67fca6362a28",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "a0b71e6d-4cfa-5c37-be6a-0c93e83ca384",
+      "section": "Technology & AI",
+      "position": 15,
+      "slot": "brief",
+      "headline": "Linux kernel adds support for the next-generation Wi-Fi standard",
+      "summary": "Developers merged the drivers after months of review.",
+      "why_text": null,
+      "score": 0.65,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/hacker-news/t5",
+        "title": "Linux kernel adds support for the next-generation Wi-Fi standard",
+        "source_name": "Hacker News",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Developers merged the drivers after months of review.",
+        "key_facts": [],
+        "topics": {
+          "tech": 0.5
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "60a63814-83b0-5041-9920-41b686892ac3",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "489ee939-3160-50f8-b7d8-9b2139f306ab",
+      "section": "Science",
+      "position": 16,
+      "slot": "feature",
+      "headline": "Webb telescope spots the faintest galaxy yet, only 290 million years after the Big Bang",
+      "summary": "Astronomers using the James Webb Space Telescope have confirmed a compact, star-forming galaxy that existed when the universe was barely two per cent of its present age. The object is far smaller than expected, suggesting that galaxies began assembling earlier and more efficiently than standard models predict. Follow-up observations next year will look for signs of heavy elements.",
+      "why_text": null,
+      "score": 0.63,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/nature-news/s1",
+        "title": "Webb telescope spots the faintest galaxy yet, only 290 million years after the Big Bang",
+        "source_name": "Nature News",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Astronomers using the James Webb Space Telescope have confirmed a compact, star-forming galaxy that existed when the universe was barely two",
+        "key_facts": [
+          "Redshift of 14.4 confirmed by spectroscopy",
+          "Mass roughly 100 million suns"
+        ],
+        "topics": {
+          "science": 0.95,
+          "space": 0.8
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "94145ffa-604b-5efb-9dc1-883cad451383",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "67754149-fbb9-58f2-8299-6ee576752ea5",
+      "section": "Science",
+      "position": 17,
+      "slot": "standard",
+      "headline": "Gut bacteria may explain why some people respond better to flu vaccines",
+      "summary": "A study of 600 volunteers found that those with higher levels of certain microbes produced stronger antibody responses, hinting at a cheap way to boost protection with diet or probiotics.",
+      "why_text": null,
+      "score": 0.61,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/science-daily/s2",
+        "title": "Gut bacteria may explain why some people respond better to flu vaccines",
+        "source_name": "Science Daily",
+        "author": null,
+        "image_url": null,
+        "excerpt": "A study of 600 volunteers found that those with higher levels of certain microbes produced stronger antibody responses, hinting at a cheap w",
+        "key_facts": [],
+        "topics": {
+          "health": 0.7,
+          "science": 0.6
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "1888f291-7b93-5987-9759-01bf2da6b37f",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "b76f5d44-c22b-5988-a9b3-9c13a26b305e",
+      "section": "Science",
+      "position": 18,
+      "slot": "brief",
+      "headline": "Deep-sea mining pause extended by regulators",
+      "summary": "The authority delayed a decision on commercial licences until next year.",
+      "why_text": null,
+      "score": 0.59,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/bbc-news/s3",
+        "title": "Deep-sea mining pause extended by regulators",
+        "source_name": "BBC News",
+        "author": null,
+        "image_url": null,
+        "excerpt": "The authority delayed a decision on commercial licences until next year.",
+        "key_facts": [],
+        "topics": {
+          "climate": 0.5
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "b05c6e55-e2b2-5713-b0b0-25e95c4cc05c",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "a49b1081-7271-5b5e-82ad-cca420eaa499",
+      "section": "Sport",
+      "position": 19,
+      "slot": "feature",
+      "headline": "Babar's century anchors Pakistan to a commanding lead in Multan",
+      "summary": "Pakistan closed the second day at 412 for 4, a lead of 187, after a patient century from Babar Azam and a brisk half-century from Rizwan. The visitors' spinners found turn late in the day, but captain Masood said the plan is to bat on and give the bowlers a full day to attack.",
+      "why_text": "You follow cricket.",
+      "score": 0.57,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/espncricinfo/c1",
+        "title": "Babar's century anchors Pakistan to a commanding lead in Multan",
+        "source_name": "ESPNcricinfo",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Pakistan closed the second day at 412 for 4, a lead of 187, after a patient century from Babar Azam and a brisk half-century from Rizwan. Th",
+        "key_facts": [
+          "Babar Azam 127*, his 31st Test century",
+          "Pakistan lead by 187 runs"
+        ],
+        "topics": {
+          "cricket": 0.95,
+          "pakistan": 0.5
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "0b07b97e-3f1c-5ef3-9190-5c45301b17d5",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "7fb6105d-ea8d-5d65-ba52-737aa9ff9a55",
+      "section": "Sport",
+      "position": 20,
+      "slot": "standard",
+      "headline": "Verstappen takes pole in Austin after late red flag",
+      "summary": "The Dutchman edged Norris by 0.04 seconds in a session stopped twice, with the title fight still wide open.",
+      "why_text": null,
+      "score": 0.55,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/autosport/c2",
+        "title": "Verstappen takes pole in Austin after late red flag",
+        "source_name": "Autosport",
+        "author": null,
+        "image_url": null,
+        "excerpt": "The Dutchman edged Norris by 0.04 seconds in a session stopped twice, with the title fight still wide open.",
+        "key_facts": [],
+        "topics": {
+          "f1": 0.9
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "1bfdcae7-0afd-5ab8-bebc-02643a2cf283",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "5ca02f37-ede8-5c9b-82c2-22a87406116f",
+      "section": "Sport",
+      "position": 21,
+      "slot": "brief",
+      "headline": "Arsenal extend lead with 2-0 win at Villa",
+      "summary": "Goals either side of half-time sealed the points.",
+      "why_text": null,
+      "score": 0.53,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/bbc-sport/c3",
+        "title": "Arsenal extend lead with 2-0 win at Villa",
+        "source_name": "BBC Sport",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Goals either side of half-time sealed the points.",
+        "key_facts": [],
+        "topics": {
+          "football": 0.6
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "693e9441-2961-5245-a86e-420635d3b339",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "358ba624-8ed8-53b6-806b-af74adda4c25",
+      "section": "Sport",
+      "position": 22,
+      "slot": "brief",
+      "headline": "Pakistan women book World Cup semi-final berth",
+      "summary": "A six-wicket win over Sri Lanka sealed qualification.",
+      "why_text": null,
+      "score": 0.51,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/espncricinfo/c4",
+        "title": "Pakistan women book World Cup semi-final berth",
+        "source_name": "ESPNcricinfo",
+        "author": null,
+        "image_url": null,
+        "excerpt": "A six-wicket win over Sri Lanka sealed qualification.",
+        "key_facts": [],
+        "topics": {
+          "cricket": 0.6
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "648c92ed-15e3-5429-8f58-6f9482513612",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "7f4bac83-2742-5cf1-a718-5ad420a5b7de",
+      "section": "Culture",
+      "position": 23,
+      "slot": "feature",
+      "headline": "The return of the long-playing record, and what it says about how we listen",
+      "summary": "Vinyl sales have overtaken CDs for the third year running, driven less by nostalgia than by a desire for attention. Record-shop owners say younger customers want something to hold, sleeve notes to read and an album to hear from start to finish. Streaming services, in turn, are experimenting with features that reward listening in order.",
+      "why_text": null,
+      "score": 0.49,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/the-guardian/k1",
+        "title": "The return of the long-playing record, and what it says about how we listen",
+        "source_name": "The Guardian",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Vinyl sales have overtaken CDs for the third year running, driven less by nostalgia than by a desire for attention. Record-shop owners say y",
+        "key_facts": [
+          "Vinyl up 11% year on year",
+          "Gen Z account for 40% of buyers"
+        ],
+        "topics": {
+          "culture": 0.8,
+          "music": 0.7
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "eeffd9c9-c7b6-5bcc-a9d4-fe4ec5e2c408",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "04ba8389-ce7a-5dbb-a811-91befb72fbd5",
+      "section": "Culture",
+      "position": 24,
+      "slot": "brief",
+      "headline": "Booker shortlist features first Pakistani-born writer in a decade",
+      "summary": "The judges praised the novel's restraint.",
+      "why_text": null,
+      "score": 0.47,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/the-guardian/k2",
+        "title": "Booker shortlist features first Pakistani-born writer in a decade",
+        "source_name": "The Guardian",
+        "author": null,
+        "image_url": null,
+        "excerpt": "The judges praised the novel's restraint.",
+        "key_facts": [],
+        "topics": {
+          "books": 0.6
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "9b1aa574-74fa-52fb-a053-52b88282558e",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "524e2207-bb96-5caf-b488-aa5b8794c289",
+      "section": "Outside your bubble",
+      "position": 25,
+      "slot": "explore",
+      "headline": "How Japan quietly became the world's top recycler of plastic bottles",
+      "summary": "Outside the headlines, a patchwork of local rules and cultural habits means more than 90 per cent of bottles in Japan are collected and reused. Residents rinse, strip labels and sort into as many as 20 categories, a routine many treat as a point of civic pride. Visitors are often surprised that there are almost no public bins.",
+      "why_text": "Something far from your usual reading.",
+      "score": 0.45,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/bbc-future/x1",
+        "title": "How Japan quietly became the world's top recycler of plastic bottles",
+        "source_name": "BBC Future",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Outside the headlines, a patchwork of local rules and cultural habits means more than 90 per cent of bottles in Japan are collected and reus",
+        "key_facts": [
+          "Bottle recycling rate above 90%",
+          "Some towns sort into 45 categories"
+        ],
+        "topics": {
+          "world": 0.3,
+          "climate": 0.4
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    },
+    {
+      "id": "fc1ee835-9a68-57ef-b8e6-b103cffee541",
+      "edition_id": "bf1a5afc-fa79-56db-b1e7-f604c4552127",
+      "article_id": "97584d14-5b5a-5270-a17a-875011dd9a6a",
+      "section": "Outside your bubble",
+      "position": 26,
+      "slot": "explore",
+      "headline": "The mathematician who proved a 60-year-old conjecture on her kitchen table",
+      "summary": "Working alone during a sabbatical, Maryam Karimi found a short argument for a problem that stumped specialists for decades. Peers are checking the proof, which uses ideas from an unrelated branch of geometry.",
+      "why_text": null,
+      "score": 0.43,
+      "score_breakdown": {},
+      "article": {
+        "url": "https://example.com/quanta-magazine/x2",
+        "title": "The mathematician who proved a 60-year-old conjecture on her kitchen table",
+        "source_name": "Quanta Magazine",
+        "author": null,
+        "image_url": null,
+        "excerpt": "Working alone during a sabbatical, Maryam Karimi found a short argument for a problem that stumped specialists for decades. Peers are checki",
+        "key_facts": [],
+        "topics": {
+          "science": 0.4
+        },
+        "published_at": "2026-10-16T21:30:00+00:00"
+      }
+    }
+  ],
+  "reader": {
+    "display_name": "Rafe",
+    "paper_name": "The Rafe Courier",
+    "depth": "balanced",
+    "city": "Islamabad",
+    "topics": {
+      "pakistan": 0.95,
+      "ai": 0.9,
+      "business": 0.8,
+      "markets": 0.7,
+      "cricket": 0.85,
+      "science": 0.6,
+      "culture": 0.3,
+      "tech": 0.8
+    }
+  }
+}
