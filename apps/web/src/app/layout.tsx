@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Figtree, Inter, Source_Serif_4 } from "next/font/google";
+import { Fraunces, Inter, Source_Serif_4 } from "next/font/google";
 
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
@@ -7,7 +7,6 @@ import "./globals.css";
 
 const fraunces = Fraunces({ variable: "--font-fraunces", subsets: ["latin"] });
 const sourceSerif = Source_Serif_4({ variable: "--font-source-serif", subsets: ["latin"] });
-const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"] });
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -20,7 +19,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${sourceSerif.variable} ${inter.variable} ${figtree.variable} h-full`}
+      className={`${fraunces.variable} ${sourceSerif.variable} ${inter.variable} h-full`}
     >
       <body className="flex min-h-full flex-col">
         <ThemeProvider>{children}</ThemeProvider>

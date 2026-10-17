@@ -1,5 +1,5 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import Home from "../page";
 
@@ -7,16 +7,38 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
+beforeAll(() => {
+  window.matchMedia ??= ((query: string) => ({
+    matches: false,
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  })) as unknown as typeof window.matchMedia;
+  window.IntersectionObserver ??= class {
+    constructor(readonly callback: IntersectionObserverCallback) {}
+    observe = vi.fn();
+    disconnect = vi.fn();
+    unobserve = vi.fn();
+  } as unknown as typeof IntersectionObserver;
+});
+
 describe("Home page", () => {
-  it("renders one h1, the sample edition, how-it-works and the top-bar actions", () => {
+  it("has one h1, three sections and the real calls to action", () => {
     render(<Home />);
-    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1, name: "Your morning, on one page" })).toBeInTheDocument();
-    expect(screen.getByText("Sample edition", { exact: true })).toBeInTheDocument();
-    const how = screen.getByRole("region", { name: "How it works" });
-    expect(within(how).getAllByRole("listitem")).toHaveLength(3);
-    expect(screen.getByRole("link", { name: "Start my paper" })).toHaveAttribute("href", "/signup");
-    expect(screen.getAllByRole("link", { name: "Sign in" })[0]).toHaveAttribute("href", "/login");
-    expect(screen.getByRole("button", { name: "Try the demo" })).toBeEnabled();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Your world. One daily paper.");
+    expect(screen.getByRole("region", { name: "How it works" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Read your way" })).toBeInTheDocument();
+    expect(document.querySelectorAll("main > * section, main section")).toHaveLength(3);
+    expect(screen.getAllByRole("link", { name: "Build my paper" })[0]).toHaveAttribute("href", "/signup");
+    expect(screen.getByRole("link", { name: "Open my paper" })).toHaveAttribute("href", "/today");
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/login");
+  });
+
+  it("names every topic desk and keeps the manifesto as one readable paragraph", () => {
+    render(<Home />);
+    expect(screen.getByRole("button", { name: "Science desk" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Technology desk" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button").filter((b) => /desk$/.test(b.getAttribute("aria-label") ?? ""))).toHaveLength(16);
+    expect(screen.getByText(/NewsHelper brings the stories you care about/)).toBeInTheDocument();
   });
 });
