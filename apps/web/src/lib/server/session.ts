@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 import { ApiError, createApiClient, type Profile, type User } from "@/lib/api";
 
@@ -21,8 +22,11 @@ export async function serverApi() {
   });
 }
 
-/** The signed-in reader, or null. Reads the request cookie, so call it inside <Suspense>. */
-export async function getSession(): Promise<Session | null> {
+/**
+ * The signed-in reader, or null. Reads the request cookie, so call it inside <Suspense>.
+ * Cached per request: the layout and the page both ask, but the API is only called once.
+ */
+export const getSession = cache(async (): Promise<Session | null> => {
   if (!(await cookies()).get(SESSION_COOKIE)?.value) return null;
   const client = await serverApi();
   try {
@@ -32,4 +36,4 @@ export async function getSession(): Promise<Session | null> {
     if (error instanceof ApiError && error.status === 401) return null;
     throw error;
   }
-}
+});

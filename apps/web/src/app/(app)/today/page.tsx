@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { Placeholder } from "@/components/shell/placeholder";
+import { EditionPage } from "@/components/reader/edition-page";
+import { ReaderSkeleton } from "@/components/reader/skeletons";
 
 export const metadata: Metadata = { title: "Today" };
 
 export default function TodayPage() {
   return (
-    <Placeholder title="Today's paper">
-      <p>Your first edition is on the press. Stories will appear here each morning.</p>
-    </Placeholder>
+    <Suspense fallback={<ReaderSkeleton />}>
+      <EditionPage date="today" sectionsPanel />
+    </Suspense>
   );
 }

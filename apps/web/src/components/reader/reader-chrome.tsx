@@ -1,26 +1,34 @@
 import type { ReactNode } from "react";
 
-import type { Session } from "@/lib/server/session";
-
 import { paperNameFor } from "@/components/shell/app-header";
+import type { Session } from "@/lib/server/session";
 
 import { ChromeProvider } from "./chrome-context";
 import { Sidebar } from "./sidebar";
 import { Toolbar } from "./toolbar";
+import { TrackingProvider } from "./tracking-provider";
 
 /** The signed-in frame: icon rail (tab bar on phones), toolbar, and the page below it. */
 export function ReaderChrome({ session, children }: { session: Session; children: ReactNode }) {
   return (
     <ChromeProvider>
-      <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col pb-14 md:pb-0 md:pl-[60px]">
-        <Toolbar
-          paperName={paperNameFor(session)}
-          displayName={session.user.display_name}
-          email={session.user.email}
-        />
-        {children}
-      </div>
+      <TrackingProvider>
+        <a
+          href="#main"
+          className="sr-only z-50 bg-ink px-3 py-2 font-sans text-sm text-paper focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        >
+          Skip to the stories
+        </a>
+        <Sidebar />
+        <div className="flex min-h-screen flex-1 flex-col pb-14 md:pb-0 md:pl-[60px]">
+          <Toolbar
+            paperName={paperNameFor(session)}
+            displayName={session.user.display_name}
+            email={session.user.email}
+          />
+          {children}
+        </div>
+      </TrackingProvider>
     </ChromeProvider>
   );
 }

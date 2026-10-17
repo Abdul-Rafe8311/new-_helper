@@ -25,6 +25,8 @@ type Chrome = {
   /** null = the responsive default: open on wide screens, closed below. */
   panelOpen: boolean | null;
   setPanelOpen: (open: boolean | null) => void;
+  /** After picking something in the panel: on phones the panel is a drawer, so put it away. */
+  closeDrawer: () => void;
   edition: ActiveEdition;
   setEdition: (edition: ActiveEdition) => void;
 };
@@ -62,9 +64,13 @@ export function ChromeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const closeDrawer = useCallback(() => {
+    if (window.matchMedia("(max-width: 767px)").matches) setPanelOpen(null);
+  }, []);
+
   const value = useMemo(
-    () => ({ view, setView, query, setQuery, panelOpen, setPanelOpen, edition, setEdition }),
-    [view, setView, query, panelOpen, edition],
+    () => ({ view, setView, query, setQuery, panelOpen, setPanelOpen, closeDrawer, edition, setEdition }),
+    [view, setView, query, panelOpen, closeDrawer, edition],
   );
   return <ChromeContext.Provider value={value}>{children}</ChromeContext.Provider>;
 }

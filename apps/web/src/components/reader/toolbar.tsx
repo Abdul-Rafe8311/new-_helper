@@ -2,6 +2,7 @@
 
 import { Download, Headphones, PanelLeft, Search } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -18,8 +19,20 @@ export function Toolbar({ paperName, displayName, email }: ToolbarProps) {
   const { query, setQuery, panelOpen, setPanelOpen, edition } = useChrome();
   const canDownload = Boolean(edition?.ready);
 
+  // Sticky things below the toolbar (section tabs, the panel) need to know how tall it is.
+  const bar = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const element = bar.current;
+    if (!element) return;
+    const publish = () => document.documentElement.style.setProperty("--toolbar-h", `${element.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <header className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/80">
+    <header ref={bar} className="sticky top-0 z-20 border-b border-rule bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/80">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-2 px-3 py-2 sm:px-4">
         <Button
           variant="ghost"
