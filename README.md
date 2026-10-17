@@ -22,3 +22,12 @@ make dev        # API on :8000, web on :3000
 | `apps/api` | FastAPI backend and daily pipeline (Python 3.12, uv) |
 | `apps/web` | Next.js web app (TypeScript, Tailwind, pnpm) |
 | `docs` | Architecture decisions and docs |
+
+## Pre-commit hooks
+
+Hooks run ruff (lint + format), whitespace/YAML checks and gitleaks before every commit. Install them once after cloning:
+
+```bash
+uvx pre-commit install            # needs uv; or: pipx run pre-commit install
+uvx pre-commit run --all-files    # optional: check the whole repo now
+```
