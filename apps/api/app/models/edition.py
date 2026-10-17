@@ -108,3 +108,14 @@ class PipelineRun(UUIDPrimaryKey, Timestamps, Base):
         pg_enum(RunStatus, "run_status"), nullable=False, default=RunStatus.RUNNING
     )
     stats: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+
+
+class WeatherCache(UUIDPrimaryKey, Timestamps, Base):
+    """One forecast per city per day, shared by every reader in that city."""
+
+    __tablename__ = "weather_cache"
+    __table_args__ = (UniqueConstraint("city_key", "day"),)
+
+    city_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    day: Mapped[date] = mapped_column(Date, nullable=False)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)

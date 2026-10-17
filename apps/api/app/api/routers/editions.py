@@ -1,21 +1,22 @@
-"""Daily editions and the archive. The list/read endpoints arrive in T10; the PDF is here."""
+"""Daily editions, the archive and the PDF download."""
 
-from datetime import date
+from datetime import UTC, date, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.responses import Response
 from sqlalchemy import select
 
-from app.api.deps import CurrentUser, SessionDep, SettingsDep, current_user
+from app.api.deps import CurrentUser, EditionServiceDep, SessionDep, SettingsDep, current_user
 from app.core.errors import AppError
+from app.editions.service import local_date
 from app.models import Edition, EditionStatus, EventType, ReaderEvent
 from app.pdf.service import PDF_CONTENT_TYPE, pdf_filename, read_pdf, render_edition
+from app.schemas.editions import EditionOut, EditionSummary
+from app.services import editions as read
 from app.storage import Storage, StorageError, default_storage
 
 router = APIRouter(prefix="/editions", tags=["editions"], dependencies=[Depends(current_user)])
-
-_NOT_YET = AppError(501, "not_implemented", "Editions are not available yet")
 
 
 def get_storage_dep() -> Storage:
@@ -25,14 +26,39 @@ def get_storage_dep() -> Storage:
 StorageDep = Annotated[Storage, Depends(get_storage_dep)]
 
 
-@router.get("")
-async def list_editions() -> None:
-    raise _NOT_YET
+def _today(user: CurrentUser) -> date:
+    return local_date(user.timezone, datetime.now(UTC))
 
 
-@router.get("/{edition_date}")
-async def get_edition(edition_date: date) -> None:
-    raise _NOT_YET
+@router.get("", response_model=list[EditionSummary])
+async def list_editions(user: CurrentUser, session: SessionDep) -> list[EditionSummary]:
+    return await read.list_archive(session, user.id)
+
+
+@router.get("/today", response_model=EditionOut)
+async def get_today(user: CurrentUser, session: SessionDep) -> EditionOut:
+    return await read.get_edition_out(session, user.id, _today(user))
+
+
+@router.post("/today/regenerate", response_model=EditionOut, status_code=202)
+async def regenerate_today(
+    user: CurrentUser,
+    session: SessionDep,
+    service: EditionServiceDep,
+    background: BackgroundTasks,
+) -> EditionOut:
+    """Start (or restart) building today's paper and return at once; poll GET /editions/today.
+
+    Limited to 3 regenerations a day. A paper that is already being built is left alone."""
+    prepared = await service.prepare(session, user.id, _today(user), force=True)
+    if prepared.needs_build:
+        background.add_task(service.run, prepared.edition.id)
+    return await read.to_out(session, prepared.edition)
+
+
+@router.get("/{edition_date}", response_model=EditionOut)
+async def get_edition(edition_date: date, user: CurrentUser, session: SessionDep) -> EditionOut:
+    return await read.get_edition_out(session, user.id, edition_date)
 
 
 @router.get(

@@ -8,7 +8,7 @@
 - [x] T5 Ingestion
 - [x] T6 Enrichment
 - [x] T7 Onboarding
-- [ ] T8 Ranking & composer
+- [x] T8 Ranking & composer
 - [x] T9 PDF
 - [ ] T10 Web reader & archive
 - [ ] T11 Learning loop
@@ -44,13 +44,18 @@
 - T6: migration 0003 was not run against a real migrated DB locally (no Docker); CI's `alembic check` is the verification.
 - T6: set the `ANTHROPIC_API_KEY` secret in the `production` environment before the first scheduled run.
 - T7: autosaved answers live in `reader_profiles.onboarding_state` (migration 0005); taste-test answers are `reader_events` (onboarding_like/skip), one per article, so re-answering replaces.
-- T7: `/onboarding/complete` opens today's edition and runs an `EditionGenerator` as a background task. The stub marks it ready with placeholder content and writes `stats.stage`; T8 swaps it in `get_edition_generator` (`app/api/deps.py`) and must keep writing the stage names (gathering, choosing, writing, typesetting, done).
+- T7: `/onboarding/complete` opens today's edition and runs an `EditionGenerator` as a background task; the generator writes `stats.stage` (gathering, choosing, writing, typesetting, done). T8 replaced the stub with `ComposerEditionGenerator` (`app/onboarding/generator.py`), which keeps writing those stages.
 - T7: the taste test needs enriched articles (stored topics and embeddings from T5/T6); with none, the step says so and can be passed.
 - T7: parsed keywords are matched with Postgres full-text search over the last 7 days (at most 12 keywords, 5 articles each) with no index; add a GIN index if the article table grows.
 - T7: `/onboarding/parse` is guarded by the daily LLM budget but has no per-user rate limit. The real model is only used there; tests use FakeLLM.
 - T7: e2e now needs `pnpm build:e2e` (the `/api` rewrite points at `e2e/mock-api.mjs`); CI does this.
 - T7: `tests/conftest.py` also drops and recreates `TEST_DB_SCHEMA` at the start of a run (T5's `schema_translate_map` change creates the tables inside it).
 - T7: set `ANTHROPIC_API_KEY` in Render's env, or `/onboarding/parse` returns 503 `llm_unavailable` (the page then offers "Continue without").
+- T8: no real LLM or Open-Meteo call has been made yet (all tests use FakeLLM and respx); the section names for the demo user need one real `compose` run, which is deliberately left to the owner.
+- T8: weights and thresholds in `app/personalize/config.py` are untuned against real bge-small vectors (raw cosine is used for the semantic component); revisit once real editions exist.
+- T8: the "seen" penalty uses impression/open/skip events, which nothing records until T10/T11; until then only the 7-edition exclusion applies.
+- T8: keyword retrieval uses an unindexed `to_tsvector` over the 24h window; add a GIN index if the daily article volume grows past a few thousand.
+- T8: `--stage all` runs compose then render; `learn` (T11) is still skipped.
 - T9: built against `apps/api/tests/fixtures/edition_layout.json` (shaped like `Edition`/`EditionItem` plus each item's article) because T8 was not merged. `app/pdf/snapshot.py` reads `Edition.layout` keys `lead_item_id`, `sections`, `tagline`, `three_things`, `quote` (`text`, `source`, `item_id`), `quiz` (`question`, `options`, `answer`) and `masthead` (`paper_name`, `city`, `weather`); every key is optional, so check T8's real layout against it after merging.
 - T9: migration 0006 adds `editions.pdf_hash`; a PDF is re-typeset only when the edition's content fingerprint (or `TEMPLATE_VERSION` in `snapshot.py`) changes. `GET /editions/{date}/pdf` typesets on demand if the stored file is missing or stale, one render at a time per process (512 MB rule).
 - T9: the `render` stage covers ready editions from the last 2 days. `compose` is still T8's, so `--stage all` only renders what already exists.

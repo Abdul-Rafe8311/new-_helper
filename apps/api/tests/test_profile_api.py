@@ -81,12 +81,8 @@ async def test_put_profile_validates(
 
 
 async def test_stub_routes_require_auth_then_501(client: AsyncClient, db: AsyncSession) -> None:
-    assert (await client.get("/editions")).status_code == 401
+    assert (await client.post("/events")).status_code == 401
     await _login(client, db)
-    for response in (
-        await client.get("/editions"),
-        await client.get("/editions/2026-10-17"),
-        await client.post("/events"),
-    ):
-        assert response.status_code == 501
-        assert response.json()["error"]["code"] == "not_implemented"
+    response = await client.post("/events")
+    assert response.status_code == 501
+    assert response.json()["error"]["code"] == "not_implemented"

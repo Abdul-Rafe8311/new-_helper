@@ -1,5 +1,3 @@
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
@@ -10,9 +8,11 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_edition_generator
+from app.editions.service import EditionService
 from app.models import Edition, EditionStatus, ReaderProfile, TopicPrototype, User
 from app.onboarding.completion import default_paper_name
-from app.onboarding.generator import STAGES, SessionFactory, StubEditionGenerator
+from app.onboarding.generator import STAGES, ComposerEditionGenerator
+from tests.editions_helpers import fake_editor, seed_articles, sessionmaker_for
 from tests.test_onboarding_api import (
     BEATS,
     NAME,
@@ -171,23 +171,15 @@ async def test_status_follows_the_edition(
     assert ready == {"status": "ready", "stage": "done", "edition_id": edition_id}
 
 
-def factory_for(session: AsyncSession) -> SessionFactory:
-    @asynccontextmanager
-    async def _factory() -> AsyncIterator[AsyncSession]:
-        yield session
-
-    return _factory
-
-
-async def test_stub_generator_walks_the_stages_then_marks_ready(
+async def test_composer_generator_walks_the_stages_then_marks_ready(
     client: AsyncClient, db: AsyncSession, generator: RecordingGenerator
 ) -> None:
     await login(client, db)
     await put_step(client, 2, BEATS)
     edition_id = UUID((await client.post("/onboarding/complete")).json()["edition_id"])
+    await seed_articles(db, "ai", "Agents", now=datetime.now(UTC))
 
     seen: list[str] = []
-    stub = StubEditionGenerator(factory_for(db), stage_seconds=0)
     original_commit = db.commit
 
     async def spy() -> None:
@@ -197,35 +189,30 @@ async def test_stub_generator_walks_the_stages_then_marks_ready(
         seen.append(str(edition.stats.get("stage")))
 
     db.commit = spy  # type: ignore[method-assign]
-    await stub.generate(edition_id)
+    service = EditionService(sessionmaker_for(db), fake_editor(), "claude-sonnet-5-5")
+    await ComposerEditionGenerator(service).generate(edition_id)
     db.commit = original_commit  # type: ignore[method-assign]
 
-    assert seen[: len(STAGES)] == list(STAGES)
+    assert [s for s in seen if s in STAGES][: len(STAGES)] == list(STAGES)
     edition = await db.get(Edition, edition_id)
     assert edition is not None
     assert edition.status == EditionStatus.READY
     assert edition.generated_at is not None
-    assert edition.layout == {"placeholder": True}
+    assert edition.layout["composed_by"] == "llm"
     assert edition.stats["stage"] == "done"
+    status = (await client.get("/onboarding/status")).json()
+    assert status == {"status": "ready", "stage": "done", "edition_id": str(edition_id)}
 
 
-async def test_stub_generator_marks_failures(
+async def test_composer_generator_marks_an_empty_day_as_failed(
     client: AsyncClient, db: AsyncSession, generator: RecordingGenerator
 ) -> None:
     await login(client, db)
     await put_step(client, 2, BEATS)
     edition_id = UUID((await client.post("/onboarding/complete")).json()["edition_id"])
-
-    calls = {"n": 0}
-
-    @asynccontextmanager
-    async def flaky() -> AsyncIterator[AsyncSession]:
-        calls["n"] += 1
-        if calls["n"] == 1:
-            raise RuntimeError("database went away")
-        yield db
-
-    await StubEditionGenerator(flaky, stage_seconds=0).generate(edition_id)
+    service = EditionService(sessionmaker_for(db), fake_editor(), "claude-sonnet-5-5")
+    await ComposerEditionGenerator(service).generate(edition_id)
     edition = await db.get(Edition, edition_id)
     assert edition is not None
     assert edition.status == EditionStatus.FAILED
+    assert "NoArticlesError" in edition.stats["error"]
