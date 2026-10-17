@@ -20,9 +20,7 @@ export function StepHeading({
   }, []);
   return (
     <header className="mb-6">
-      <p className="kicker text-accent">
-        Step {step} of {FINALE - 1}
-      </p>
+      <p className="kicker text-accent">{step >= FINALE ? "Going to press" : `Step ${step} of ${FINALE - 1}`}</p>
       <h2
         ref={ref}
         tabIndex={-1}
