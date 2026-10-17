@@ -37,9 +37,20 @@ export type Interests = {
   topics: { slug: string; label: string; weight: number }[];
   entities: { id: string; kind: string; name: string; pinned: boolean }[];
   blocked: { topic: string; label: string }[];
+  /** Registry sources the reader has switched off, by name. */
+  blocked_sources: string[];
   /** True until the paper has learned or been told anything. */
   is_new: boolean;
 };
+export type CatalogueTopic = { slug: string; label: string; section: string; description: string };
+export type TopicCatalogue = {
+  sections: string[];
+  topics: CatalogueTopic[];
+  /** Where a topic starts when a reader adds it (what onboarding gives a topic they picked). */
+  default_weight: number;
+};
+export type CatalogueSource = { name: string; section: string; topics: string[] };
+export type SourceCatalogue = { sections: string[]; sources: CatalogueSource[] };
 export type Timeline = {
   days: { date: string; entries: { id: string; at: string; kind: string; text: string }[] }[];
 };
@@ -123,6 +134,9 @@ export function createApiClient({ baseUrl = "/api", headers = {}, fetch: fetchIm
       removeEntity: (id: string) => request<Interests>("DELETE", `/me/interests/entities/${id}`),
       block: (topic: string) => request<Interests>("POST", "/me/interests/blocked", { topic }),
       unblock: (topic: string) => request<Interests>("DELETE", `/me/interests/blocked/${encodeURIComponent(topic)}`),
+      blockSource: (source: string) => request<Interests>("POST", "/me/interests/blocked-sources", { source }),
+      unblockSource: (source: string) =>
+        request<Interests>("DELETE", `/me/interests/blocked-sources/${encodeURIComponent(source)}`),
       reset: () => request<Interests>("POST", "/me/interests/reset"),
     },
     editions: {
@@ -141,6 +155,10 @@ export function createApiClient({ baseUrl = "/api", headers = {}, fetch: fetchIm
     saved: () => request<SavedItem[]>("GET", "/saved"),
     story: (itemId: string) => request<Story>("GET", `/stories/${itemId}`),
     taxonomy: () => request<Taxonomy>("GET", "/taxonomy"),
+    catalogue: {
+      topics: () => request<TopicCatalogue>("GET", "/catalogue/topics"),
+      sources: () => request<SourceCatalogue>("GET", "/catalogue/sources"),
+    },
     onboarding: {
       state: () => request<OnboardingState>("GET", "/onboarding/state"),
       saveStep: (number: number, body: StepBody) =>
