@@ -1,4 +1,4 @@
-.PHONY: help dev api web test test-api test-web lint lint-api lint-web format install
+.PHONY: help dev api web test test-api test-web lint lint-api lint-web format install migrate seed
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-10s %s\n", $$1, $$2}'
@@ -15,6 +15,12 @@ web: ## Run the web dev server on :3000
 
 dev: ## Start the API and web together (DB is Supabase, from .env)
 	$(MAKE) -j2 api web
+
+migrate: ## Apply DB migrations (DATABASE_URL from .env)
+	cd apps/api && uv run alembic upgrade head
+
+seed: ## Create the demo reader and load the source registry (idempotent)
+	cd apps/api && uv run python -m app.scripts.seed
 
 test: test-api test-web ## Run all tests
 

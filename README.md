@@ -14,6 +14,7 @@ Built for the Eynvision hackathon.
 git clone https://github.com/Abdul-Rafe8311/new-_helper.git && cd new-_helper
 cp .env.example .env   # set DATABASE_URL to your Supabase session pooler URL
 make install
+make migrate && make seed
 make dev        # API on :8000, web on :3000
 ```
 
@@ -41,9 +42,15 @@ make dev        # API on :8000, web on :3000
 | `make install` | Install API (uv) and web (pnpm) dependencies |
 | `make dev` | API on :8000 and web on :3000 together |
 | `make api` / `make web` | Run one app |
+| `make migrate` | Apply Alembic migrations to `DATABASE_URL` |
+| `make seed` | Create the demo reader and load `app/sources/registry.yaml` (idempotent) |
 | `make test` | pytest + vitest |
 | `make lint` | ruff, ruff format check, mypy, eslint, tsc |
 | `make format` | Auto-fix lint and formatting |
+
+### Database tests
+
+DB tests need `TEST_DATABASE_URL` and are skipped without it. CI points it at a `pgvector/pgvector:pg16` service container. Every test runs in a transaction that is rolled back. To run them against a shared database (e.g. Supabase), also set `TEST_DB_SCHEMA=test_<name>`: tables are created in that schema and it is dropped afterwards. The tests refuse to run in a Supabase `public` schema.
 
 ### Pre-commit hooks
 
