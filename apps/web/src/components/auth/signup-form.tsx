@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -42,7 +42,7 @@ export function SignupForm() {
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {errors.root ? (
-        <p role="alert" className="border-l-2 border-destructive pl-3 font-sans text-sm text-destructive">
+        <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 font-sans text-sm text-destructive">
           {errors.root.message}
         </p>
       ) : null}
@@ -64,9 +64,9 @@ export function SignupForm() {
         error={errors.password?.message}
         {...register("password")}
       />
-      <Button type="submit" className="su-cta" disabled={isSubmitting}>
+      <Button type="submit" variant="accent" size="lg" className="w-full justify-between" disabled={isSubmitting} aria-busy={isSubmitting}>
         {isSubmitting ? "Setting the presses…" : "Start my paper"}
-        <ArrowRight aria-hidden="true" />
+        {isSubmitting ? <Loader2 aria-hidden="true" className="animate-spin" /> : <ArrowRight aria-hidden="true" />}
       </Button>
     </form>
   );
