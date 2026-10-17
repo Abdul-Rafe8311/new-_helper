@@ -19,10 +19,15 @@ export default function InterestsPage() {
 
 async function Interests() {
   const api = await serverApi();
-  const [interests, timeline] = await Promise.all([api.interests.get(), api.interests.timeline()]);
+  const [interests, timeline, topics, sources] = await Promise.all([
+    api.interests.get(),
+    api.interests.timeline(),
+    api.catalogue.topics(),
+    api.catalogue.sources(),
+  ]);
   return (
     <PageFrame nav={<SideNav base="/today" />}>
-      <InterestsWorkspace initial={interests} initialTimeline={timeline} />
+      <InterestsWorkspace initial={interests} initialTimeline={timeline} topicCatalogue={topics} sourceCatalogue={sources} />
     </PageFrame>
   );
 }
