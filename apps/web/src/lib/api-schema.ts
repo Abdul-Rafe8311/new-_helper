@@ -106,6 +106,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/editions/today": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Today */
+        get: operations["get_today_editions_today_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/editions/today/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Regenerate Today
+         * @description Start (or restart) building today's paper and return at once; poll GET /editions/today.
+         *
+         *     Limited to 3 regenerations a day. A paper that is already being built is left alone.
+         */
+        post: operations["regenerate_today_editions_today_regenerate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/editions/{edition_date}": {
         parameters: {
             query?: never;
@@ -400,6 +439,81 @@ export interface components {
          * @enum {string}
          */
         Depth: "brief" | "balanced" | "deep";
+        /** EditionItemOut */
+        EditionItemOut: {
+            /**
+             * Article Id
+             * Format: uuid
+             */
+            article_id: string;
+            /** Headline */
+            headline: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Image Url */
+            image_url: string | null;
+            /** Position */
+            position: number;
+            /** Published At */
+            published_at: string | null;
+            /** Score */
+            score: number | null;
+            /** Score Breakdown */
+            score_breakdown: {
+                [key: string]: unknown;
+            };
+            /** Section */
+            section: string;
+            slot: components["schemas"]["Slot"];
+            /** Source */
+            source: string;
+            /** Summary */
+            summary: string;
+            /** Url */
+            url: string;
+            /** Why Text */
+            why_text: string | null;
+        };
+        /** EditionOut */
+        EditionOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Editor Note */
+            editor_note: string | null;
+            /** Generated At */
+            generated_at: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Items */
+            items: components["schemas"]["EditionItemOut"][];
+            /** Layout */
+            layout: {
+                [key: string]: unknown;
+            };
+            /** Number */
+            number: number;
+            /** Stats */
+            stats: {
+                [key: string]: unknown;
+            };
+            status: components["schemas"]["EditionStatus"];
+            /** Title */
+            title: string | null;
+        };
+        /**
+         * EditionStatus
+         * @enum {string}
+         */
+        EditionStatus: "pending" | "ready" | "failed";
         /**
          * EditionStatusOut
          * @description Progress of the first edition, polled by the printing-press finale.
@@ -414,6 +528,27 @@ export interface components {
              * @enum {string}
              */
             status: "none" | "pending" | "ready" | "failed";
+        };
+        /** EditionSummary */
+        EditionSummary: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Item Count */
+            item_count: number;
+            /** Number */
+            number: number;
+            /** Title */
+            title: string | null;
+            /** Top Topics */
+            top_topics: string[];
         };
         /** Entities */
         Entities: {
@@ -652,6 +787,11 @@ export interface components {
              */
             timezone: string;
         };
+        /**
+         * Slot
+         * @enum {string}
+         */
+        Slot: "lead" | "feature" | "standard" | "brief" | "explore";
         /** SuggestionsOut */
         SuggestionsOut: {
             /** Suggestions */
@@ -900,7 +1040,69 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["EditionSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_today_editions_today_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EditionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    regenerate_today_editions_today_regenerate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EditionOut"];
                 };
             };
             /** @description Validation Error */
@@ -933,7 +1135,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["EditionOut"];
                 };
             };
             /** @description Validation Error */
