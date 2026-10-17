@@ -10,6 +10,8 @@
  */
 import { createServer } from "node:http";
 
+import { handleReader, seed } from "./mock-reader.mjs";
+
 const PORT = Number(process.env.MOCK_API_PORT ?? 3199);
 const SESSION_COOKIE = "dp_session";
 const STAGES = ["gathering", "choosing", "writing", "typesetting"];
@@ -158,8 +160,18 @@ async function handle(req, res) {
   const id = cookieOf(req);
   // test-only: read what the app saved
   if (path === "/__state") return id ? send(res, 200, sessionFor(id)) : error(res, 400, "bad_request", "no cookie");
+  // test-only: the original article that /r/{id} redirects to
+  if (path.startsWith("/__original/")) {
+    res.writeHead(200, { "Content-Type": "text/html" }).end("<!doctype html><title>Original article</title><h1>Original article</h1>");
+    return;
+  }
   if (!id) return error(res, 401, "not_authenticated", "Sign in to continue");
   const s = sessionFor(id);
+  if (path === "/__seed" && req.method === "POST") {
+    seed(s, await readJson(req));
+    return send(res, 204);
+  }
+  if (handleReader({ req, res, path, url, session: s, send, error, readJson })) return;
 
   if (path === "/auth/me") return send(res, 200, user(s));
   if (path === "/me/profile") return send(res, 200, profile(s));
