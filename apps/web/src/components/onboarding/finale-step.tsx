@@ -74,7 +74,11 @@ export function FinaleStep({ paperName }: { paperName: string }) {
         lede={`${paperName} is going to press.`}
       />
 
-      <PrintingPress />
+      <PrintingPress
+        label={phase.kind === "printing" ? PRESS_STAGES[stageIndex(phase.stage)].label.toUpperCase() : undefined}
+        progress={phase.kind === "ready" ? 1 : phase.kind === "printing" ? (stageIndex(phase.stage) + 0.5) / PRESS_STAGES.length : undefined}
+        idle={phase.kind === "failed"}
+      />
 
       <p role="status" aria-live="polite" className="mt-6 font-serif text-xl italic">
         {phase.kind === "printing"

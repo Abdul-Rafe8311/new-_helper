@@ -65,6 +65,14 @@ test("landing: preview chips select a view and hide the others", async ({ page }
   await expect(page.locator("#lp-panel-pdf [href], #lp-panel-pdf button")).toHaveCount(0);
 });
 
+test("landing: the preview carries a decorative pixel-scan canvas", async ({ page }) => {
+  await page.goto("/");
+  const scan = page.locator(".lp-phone canvas");
+  await expect(scan).toHaveCount(1);
+  await expect(scan).toHaveAttribute("aria-hidden", "true");
+  await expect(scan).toHaveCSS("pointer-events", "none");
+});
+
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   test("nothing is pinned or rotating, and the statement is fully lit", async ({ page }) => {
