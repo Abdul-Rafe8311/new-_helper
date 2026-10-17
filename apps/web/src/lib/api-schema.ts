@@ -192,6 +192,145 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/onboarding/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Complete
+         * @description Build the profile and start the first edition; poll GET /onboarding/status for progress.
+         */
+        post: operations["complete_onboarding_complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/headlines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Headlines */
+        get: operations["get_headlines_onboarding_headlines_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Parse */
+        post: operations["parse_onboarding_parse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get State */
+        get: operations["get_state_onboarding_state_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Status */
+        get: operations["get_status_onboarding_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/step/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Put Step */
+        put: operations["put_step_onboarding_step__number__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Suggestions */
+        get: operations["get_suggestions_onboarding_suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/taste": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Taste */
+        post: operations["post_taste_onboarding_taste_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/taxonomy": {
         parameters: {
             query?: never;
@@ -213,6 +352,18 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * BeatsStep
+         * @description Step 2: chosen topics, and the sub-interests picked under "Go deeper".
+         */
+        BeatsStep: {
+            /** Deeper */
+            deeper?: {
+                [key: string]: string[];
+            };
+            /** Topics */
+            topics: string[];
+        };
         /** Blocked */
         Blocked: {
             /**
@@ -231,11 +382,39 @@ export interface components {
              */
             topics: string[];
         };
+        /** CompleteOut */
+        CompleteOut: {
+            /**
+             * Edition Id
+             * Format: uuid
+             */
+            edition_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "ready" | "failed";
+        };
         /**
          * Depth
          * @enum {string}
          */
         Depth: "brief" | "balanced" | "deep";
+        /**
+         * EditionStatusOut
+         * @description Progress of the first edition, polled by the printing-press finale.
+         */
+        EditionStatusOut: {
+            /** Edition Id */
+            edition_id?: string | null;
+            /** Stage */
+            stage?: ("gathering" | "choosing" | "writing" | "typesetting" | "done") | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "none" | "pending" | "ready" | "failed";
+        };
         /** Entities */
         Entities: {
             /**
@@ -264,6 +443,34 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HeadlineOut */
+        HeadlineOut: {
+            /** Answer */
+            answer?: boolean | null;
+            /** Headline */
+            headline: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Image Url */
+            image_url: string | null;
+            /**
+             * Outside
+             * @description True for the few picks outside the reader's chosen topics.
+             */
+            outside: boolean;
+            /** Source */
+            source: string;
+            /** Topic */
+            topic: string | null;
+        };
+        /** HeadlinesOut */
+        HeadlinesOut: {
+            /** Headlines */
+            headlines: components["schemas"]["HeadlineOut"][];
+        };
         /** LoginIn */
         LoginIn: {
             /**
@@ -273,6 +480,89 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /**
+         * NameStep
+         * @description Step 1: the paper's name and where the reader is.
+         */
+        NameStep: {
+            /** City */
+            city?: string | null;
+            /** Paper Name */
+            paper_name: string;
+            /** Timezone */
+            timezone: string;
+        };
+        /**
+         * OnboardingStateOut
+         * @description Everything saved so far, so a refresh resumes where the reader left off.
+         */
+        OnboardingStateOut: {
+            /**
+             * Answers
+             * @description Taste test answers by article id; true = interested.
+             */
+            answers?: {
+                [key: string]: boolean;
+            };
+            beats?: components["schemas"]["BeatsStep"] | null;
+            /** Completed */
+            completed: boolean;
+            name?: components["schemas"]["NameStep"] | null;
+            reading?: components["schemas"]["ReadingStep"] | null;
+            /**
+             * Step
+             * @description The step to resume at (6 is the finale).
+             */
+            step: number;
+            words?: components["schemas"]["WordsStep"] | null;
+        };
+        /** ParseIn */
+        ParseIn: {
+            /** Text */
+            text: string;
+        };
+        /** ParsedBlocked */
+        ParsedBlocked: {
+            /** Keywords */
+            keywords?: string[];
+            /** Topics */
+            topics?: string[];
+        };
+        /** ParsedEntities */
+        ParsedEntities: {
+            /** Companies */
+            companies?: string[];
+            /** People */
+            people?: string[];
+            /** Places */
+            places?: string[];
+            /** Teams */
+            teams?: string[];
+        };
+        /**
+         * ParsedInterests
+         * @description What we heard in the reader's own words, shown back as editable chips.
+         */
+        ParsedInterests: {
+            blocked?: components["schemas"]["ParsedBlocked"];
+            /**
+             * Context
+             * @default
+             */
+            context: string;
+            entities?: components["schemas"]["ParsedEntities"];
+            /** Keywords */
+            keywords?: string[];
+            /** Topics */
+            topics?: components["schemas"]["ParsedTopic"][];
+        };
+        /** ParsedTopic */
+        ParsedTopic: {
+            /** Slug */
+            slug: string;
+            /** Weight */
+            weight: number;
         };
         /** ProfileOut */
         ProfileOut: {
@@ -325,6 +615,24 @@ export interface components {
                 [key: string]: number;
             } | null;
         };
+        /**
+         * ReadingStep
+         * @description Step 5: how the reader reads.
+         */
+        ReadingStep: {
+            /** @default balanced */
+            depth: components["schemas"]["Depth"];
+            /**
+             * Reading Minutes
+             * @enum {integer}
+             */
+            reading_minutes: 5 | 10 | 20;
+            /**
+             * Surprise Me
+             * @default true
+             */
+            surprise_me: boolean;
+        };
         /** RegisterIn */
         RegisterIn: {
             /** City */
@@ -343,6 +651,31 @@ export interface components {
              * @default Asia/Karachi
              */
             timezone: string;
+        };
+        /** SuggestionsOut */
+        SuggestionsOut: {
+            /** Suggestions */
+            suggestions: string[];
+            /** Topic */
+            topic: string;
+        };
+        /** TasteAnswerIn */
+        TasteAnswerIn: {
+            /**
+             * Article Id
+             * Format: uuid
+             */
+            article_id: string;
+            /** Interested */
+            interested: boolean;
+        };
+        /**
+         * TasteStep
+         * @description Step 4: how many headlines were answered; the answers themselves are events.
+         */
+        TasteStep: {
+            /** Answered */
+            answered: number;
         };
         /** TaxonomyOut */
         TaxonomyOut: {
@@ -396,6 +729,15 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /**
+         * WordsStep
+         * @description Step 3: the reader's own words and the (edited) chips parsed from them.
+         */
+        WordsStep: {
+            parsed?: components["schemas"]["ParsedInterests"] | null;
+            /** Text */
+            text: string;
         };
     };
     responses: never;
@@ -745,6 +1087,268 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ProfileOut"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    complete_onboarding_complete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompleteOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_headlines_onboarding_headlines_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HeadlinesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    parse_onboarding_parse_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParseIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsedInterests"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_state_onboarding_state_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingStateOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_status_onboarding_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EditionStatusOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_step_onboarding_step__number__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                number: number;
+            };
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NameStep"] | components["schemas"]["BeatsStep"] | components["schemas"]["WordsStep"] | components["schemas"]["TasteStep"] | components["schemas"]["ReadingStep"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingStateOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_suggestions_onboarding_suggestions_get: {
+        parameters: {
+            query: {
+                topic: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestionsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_taste_onboarding_taste_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TasteAnswerIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
