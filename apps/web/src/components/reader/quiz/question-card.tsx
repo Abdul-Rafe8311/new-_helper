@@ -16,6 +16,8 @@ type Props = {
   index: number;
   kind: AnswerKind;
   onAnswered?: (verdict: Verdict) => void;
+  /** Lay the options out in a single row on wide screens (the compact "Still remember?" card). */
+  compact?: boolean;
 };
 
 const LETTERS = "ABCD";
@@ -32,7 +34,7 @@ function logAnswer(question: QuizQuestion, index: number, kind: AnswerKind, verd
  * One question with instant feedback. Options are real buttons; the verdict and the one-line
  * explanation sit in a polite live region so a screen reader announces them after the pick.
  */
-export function QuestionCard({ question, index, kind, onAnswered }: Props) {
+export function QuestionCard({ question, index, kind, onAnswered, compact = false }: Props) {
   const id = useId();
   const [choice, setChoice] = useState<number | null>(null);
   const verdict = choice === null ? null : scoreAnswer(question, choice);
@@ -50,7 +52,7 @@ export function QuestionCard({ question, index, kind, onAnswered }: Props) {
       <p id={`${id}-q`} className="font-sans text-[17px] leading-snug font-bold text-balance sm:text-lg">
         {question.question}
       </p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+      <div className={cn("mt-3 grid gap-2 sm:grid-cols-2", compact && question.options.length === 3 && "lg:grid-cols-3")}>
         {question.options.map((option, i) => {
           const chosen = choice === i;
           const right = choice !== null && i === question.answer;
@@ -82,7 +84,7 @@ export function QuestionCard({ question, index, kind, onAnswered }: Props) {
           );
         })}
       </div>
-      <p role="status" aria-live="polite" data-testid="quiz-feedback" className="mt-3 min-h-6 font-serif text-[15px] leading-snug">
+      <p role="status" aria-live="polite" data-testid="quiz-feedback" className="mt-2.5 min-h-6 font-serif text-[15px] leading-snug">
         {verdict ? (
           <>
             <strong className={cn("font-sans font-bold", verdict.correct ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400")}>

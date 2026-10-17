@@ -24,7 +24,7 @@ export function QuizSection({ questions }: { questions: QuizQuestion[] }) {
   const streak = server ? (finished ? streakAfterFinishing(server.streak, server.done_today) : server.streak) : null;
 
   return (
-    <section aria-labelledby="quiz-title" data-testid="quiz" className="mx-auto mt-14 w-full max-w-3xl">
+    <section aria-labelledby="quiz-title" data-testid="quiz" className="mt-14 w-full max-w-3xl">
       <div className="rounded-[14px] border border-rule bg-surface p-5 shadow-sm sm:p-7">
         <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 border-b border-rule pb-4">
           <div>
@@ -50,7 +50,7 @@ export function QuizSection({ questions }: { questions: QuizQuestion[] }) {
         <ol className="mt-5 space-y-7">
           {questions.map((question, index) => (
             <li key={`${index}-${question.question}`} className="flex gap-3">
-              <span aria-hidden="true" className="font-display text-2xl leading-none font-black text-cat">
+              <span aria-hidden="true" className="w-5 shrink-0 font-display text-2xl leading-none font-black text-cat">
                 {index + 1}
               </span>
               <div className="min-w-0 flex-1">
