@@ -96,7 +96,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Editions */
+        /**
+         * List Editions
+         * @description The archive, newest first. A page shorter than ``limit`` is the last one.
+         */
         get: operations["list_editions_editions_get"];
         put?: never;
         post?: never;
@@ -191,8 +194,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Record Events */
-        post: operations["record_events_events_post"];
+        /** Post Events */
+        post: operations["post_events_events_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -390,6 +393,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/r/{edition_item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Open Original */
+        get: operations["open_original_r__edition_item_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/saved": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Saved
+         * @description Stories the reader saved, from any edition.
+         */
+        get: operations["list_saved_saved_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/taxonomy": {
         parameters: {
             query?: never;
@@ -475,6 +515,8 @@ export interface components {
             id: string;
             /** Image Url */
             image_url: string | null;
+            /** Key Facts */
+            key_facts: string[];
             /** Position */
             position: number;
             /** Published At */
@@ -490,6 +532,7 @@ export interface components {
             slot: components["schemas"]["Slot"];
             /** Source */
             source: string;
+            state: components["schemas"]["ItemState"];
             /** Summary */
             summary: string;
             /** Url */
@@ -593,6 +636,44 @@ export interface components {
              */
             teams: string[];
         };
+        /**
+         * EventIn
+         * @description One thing the reader did to one story.
+         *
+         *     ``value`` carries the measurement: seconds for ``dwell``; for the toggles (``skip``,
+         *     ``save``, ``more_like``, ``less_like``) ``0`` retracts an earlier event and anything else
+         *     (or nothing) sets it.
+         */
+        EventIn: {
+            /**
+             * Edition Item Id
+             * Format: uuid
+             */
+            edition_item_id: string;
+            /** Meta */
+            meta?: {
+                [key: string]: string | number | boolean | null;
+            };
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "impression" | "dwell" | "skip" | "more_like" | "less_like" | "save" | "mark_read";
+            /** Value */
+            value?: number | null;
+        };
+        /** EventsIn */
+        EventsIn: {
+            /** Events */
+            events: components["schemas"]["EventIn"][];
+        };
+        /** EventsOut */
+        EventsOut: {
+            /** Accepted */
+            accepted: number;
+            /** Rejected */
+            rejected: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -625,6 +706,29 @@ export interface components {
         HeadlinesOut: {
             /** Headlines */
             headlines: components["schemas"]["HeadlineOut"][];
+        };
+        /**
+         * ItemState
+         * @description What this reader has done with a story, folded from their events (latest event wins).
+         */
+        ItemState: {
+            /** Reaction */
+            reaction?: ("more" | "less") | null;
+            /**
+             * Read
+             * @default false
+             */
+            read: boolean;
+            /**
+             * Saved
+             * @default false
+             */
+            saved: boolean;
+            /**
+             * Skipped
+             * @default false
+             */
+            skipped: boolean;
         };
         /** LoginIn */
         LoginIn: {
@@ -806,6 +910,52 @@ export interface components {
              * @default Asia/Karachi
              */
             timezone: string;
+        };
+        /** SavedItem */
+        SavedItem: {
+            /**
+             * Article Id
+             * Format: uuid
+             */
+            article_id: string;
+            /**
+             * Edition Date
+             * Format: date
+             */
+            edition_date: string;
+            /** Headline */
+            headline: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Image Url */
+            image_url: string | null;
+            /** Key Facts */
+            key_facts: string[];
+            /** Position */
+            position: number;
+            /** Published At */
+            published_at: string | null;
+            /** Score */
+            score: number | null;
+            /** Score Breakdown */
+            score_breakdown: {
+                [key: string]: unknown;
+            };
+            /** Section */
+            section: string;
+            slot: components["schemas"]["Slot"];
+            /** Source */
+            source: string;
+            state: components["schemas"]["ItemState"];
+            /** Summary */
+            summary: string;
+            /** Url */
+            url: string;
+            /** Why Text */
+            why_text: string | null;
         };
         /**
          * Slot
@@ -1045,7 +1195,11 @@ export interface operations {
     };
     list_editions_editions_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Only editions before this date */
+                before?: string | null;
+                limit?: number;
+            };
             header?: never;
             path?: never;
             cookie?: {
@@ -1202,7 +1356,7 @@ export interface operations {
             };
         };
     };
-    record_events_events_post: {
+    post_events_events_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1211,7 +1365,11 @@ export interface operations {
                 dp_session?: string | null;
             };
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventsIn"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -1219,7 +1377,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["EventsOut"];
                 };
             };
             /** @description Validation Error */
@@ -1604,6 +1762,68 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    open_original_r__edition_item_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                edition_item_id: string;
+            };
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirect to the original article */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_saved_saved_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedItem"][];
+                };
             };
             /** @description Validation Error */
             422: {
