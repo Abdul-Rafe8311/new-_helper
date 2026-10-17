@@ -9,7 +9,7 @@
 - [x] T6 Enrichment
 - [x] T7 Onboarding
 - [ ] T8 Ranking & composer
-- [ ] T9 PDF
+- [x] T9 PDF
 - [ ] T10 Web reader & archive
 - [ ] T11 Learning loop
 - [ ] T12 Explore features
@@ -51,3 +51,10 @@
 - T7: e2e now needs `pnpm build:e2e` (the `/api` rewrite points at `e2e/mock-api.mjs`); CI does this.
 - T7: `tests/conftest.py` also drops and recreates `TEST_DB_SCHEMA` at the start of a run (T5's `schema_translate_map` change creates the tables inside it).
 - T7: set `ANTHROPIC_API_KEY` in Render's env, or `/onboarding/parse` returns 503 `llm_unavailable` (the page then offers "Continue without").
+- T9: built against `apps/api/tests/fixtures/edition_layout.json` (shaped like `Edition`/`EditionItem` plus each item's article) because T8 was not merged. `app/pdf/snapshot.py` reads `Edition.layout` keys `lead_item_id`, `sections`, `tagline`, `three_things`, `quote` (`text`, `source`, `item_id`), `quiz` (`question`, `options`, `answer`) and `masthead` (`paper_name`, `city`, `weather`); every key is optional, so check T8's real layout against it after merging.
+- T9: migration 0006 adds `editions.pdf_hash`; a PDF is re-typeset only when the edition's content fingerprint (or `TEMPLATE_VERSION` in `snapshot.py`) changes. `GET /editions/{date}/pdf` typesets on demand if the stored file is missing or stale, one render at a time per process (512 MB rule).
+- T9: the `render` stage covers ready editions from the last 2 days. `compose` is still T8's, so `--stage all` only renders what already exists.
+- T9: the front page is a CSS grid that must fit one sheet; `fit_front_page` re-plans with shorter text, fewer features and smaller pictures until a one-page trial render fits (`SQUEEZE_SCALE`, `MAX_SQUEEZE` in `layout.py`). It costs up to nine extra one-page renders for very long copy.
+- T9: fonts (Playfair Display, Source Serif 4) are Latin subsets under `app/pdf/static/fonts` with their OFL licences; non-Latin headlines fall back to the system font. On macOS, WeasyPrint needs `DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib` (`brew install pango`).
+- T9: images come from scraped URLs, so each fetch hop must resolve to a public host; the cache lives in `STORAGE_LOCAL_DIR/image-cache` (ephemeral on Render, which only costs a re-download). Real photographs have not been run through it yet: the sample uses generated stand-ins (`python -m tests.make_sample_pdf`).
+- T9: `SupabaseStorage` is tested against mocked REST responses only; create the private `editions` bucket and set `STORAGE_BACKEND=supabase`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` before the first prod render.

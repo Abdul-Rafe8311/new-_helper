@@ -107,8 +107,9 @@ def test_depth_changes_the_printed_paper():
         " ".join(page_texts(render_pdf(fixture_snapshot(depth=d)))) for d in ("brief", "deep")
     )
     assert len(deep) > len(brief)
-    assert "Benchmark gap narrowed" in deep  # key-fact lists only for deep readers
-    assert "Benchmark gap narrowed" not in brief
+    fact = squash("Redshift of 14.4 confirmed by spectroscopy")  # an inside story's key fact
+    assert fact in squash(deep)  # key-fact lists are for deep readers
+    assert fact not in squash(brief)
 
 
 def test_front_page_never_spills_even_with_long_copy():
@@ -132,7 +133,7 @@ def test_text_is_escaped_and_missing_layout_parts_are_left_out():
     assert "<script>" not in html
     assert "Fish &amp; chips &lt;script&gt;" in html
     text = " ".join(page_texts(render_pdf(snapshot)))
-    assert "Fish & chips <script>alert(1)</script> at 5%" in text
+    assert squash("Fish & chips <script>alert(1)</script> at 5%") in squash(text)
     assert "Editor's note" not in text
     assert "The morning quiz" not in text
 
