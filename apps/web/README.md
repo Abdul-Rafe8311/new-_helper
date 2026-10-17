@@ -1,36 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NewsHelper web
 
-## Getting Started
+Next.js (App Router, Cache Components), Tailwind v4, shadcn/ui. The browser calls `/api/*`, which `next.config.ts` rewrites to `API_URL` (default `http://localhost:8000`), so the `dp_session` cookie stays first-party.
 
-First, run the development server:
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | Dev server on :3000 |
+| `pnpm build` / `pnpm start` | Production build / serve it |
+| `pnpm lint` / `pnpm typecheck` | ESLint / route types + `tsc` |
+| `pnpm test` | Vitest + Testing Library |
+| `pnpm test:e2e` | Playwright smoke tests against the production build (run `pnpm build` first) |
+| `pnpm gen:api` | Regenerate `src/lib/api-schema.ts` from the API's OpenAPI schema (needs uv) |
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Layout:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/app/(auth)`: `/login`, `/signup`
+- `src/app/(app)`: signed-in pages; the layout reads the session behind `<Suspense>` and sends new readers to `/onboarding`
+- `src/proxy.ts`: optimistic cookie check that redirects to `/login?next=…`
+- `src/components/paper`: the newspaper design system. See it all at `/styleguide`.
