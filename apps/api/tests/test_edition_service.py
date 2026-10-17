@@ -18,6 +18,8 @@ from app.editions.service import (
 from app.editions.weather import Weather
 from app.models import Edition, EditionItem, EditionStatus, Slot
 from app.models.enums import Depth
+from app.pdf.service import load_snapshot
+from tests.conftest import TEST_SETTINGS
 from tests.editions_helpers import (
     NOW,
     E,
@@ -300,3 +302,23 @@ def test_assign_slot() -> None:
         assign_slot(plain, is_lead=False, first_in_section=False, depth=Depth.DEEP) is Slot.STANDARD
     )
     assert assign_slot(plain, is_lead=False, first_in_section=True, depth=Depth.BRIEF) is Slot.BRIEF
+
+
+@pytest.mark.integration
+async def test_a_built_edition_can_be_typeset(db: AsyncSession) -> None:
+    """The layout JSON is the contract with the PDF renderer (T9)."""
+    await seed_articles(db, "ai", "Agents")
+    user = await reader(db, topics={"ai": 0.9}, interest_vector=E.embed(["Agents story 0"])[0])
+    weather = Weather(city="Lahore", condition="Clear", temp_max_c=31, temp_min_c=18)
+    edition = await service(db, fake_editor(), weather=StubWeather(weather)).generate_edition(
+        db, user.id, TODAY
+    )
+    snapshot = await load_snapshot(db, edition, TEST_SETTINGS)
+    assert snapshot.lead_item_id == edition.layout["lead_item_id"]
+    assert [s.name for s in snapshot.sections] == ["Fake Section One", "Fake Section Two"]
+    assert snapshot.tagline == "Composed by a fake editor"
+    assert snapshot.three_things == ["First", "Second", "Third"]
+    assert snapshot.weather is not None
+    assert snapshot.weather.condition == "Clear"
+    assert snapshot.quote is not None
+    assert len(snapshot.quiz) == 3
