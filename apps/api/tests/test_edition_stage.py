@@ -1,5 +1,6 @@
 import asyncio
 from datetime import UTC, datetime, timedelta
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import delete, select
@@ -7,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.llm import FakeLLM
 from app.editions.service import EditionService
-from app.editions.stage import list_readers, run_bounded, run_compose
+from app.editions.stage import Reader, list_readers, run_bounded, run_compose
 from app.models import Edition, EditionStatus, User
 from app.pipeline import STAGE_FNS
 from tests.editions_helpers import fake_editor, seed_articles, sessionmaker_for
@@ -30,18 +31,19 @@ def test_compose_is_registered_as_a_pipeline_stage() -> None:
 
 async def test_run_bounded_limits_concurrency_and_survives_failures() -> None:
     running = peak = done = 0
+    readers = [Reader(uuid4(), "UTC") for _ in range(20)]
 
-    async def work(n: int) -> None:
+    async def work(reader: Reader) -> None:
         nonlocal running, peak, done
         running += 1
         peak = max(peak, running)
         await asyncio.sleep(0.01)
         running -= 1
-        if n == 3:
+        if reader is readers[3]:
             raise RuntimeError("one reader blows up")
         done += 1
 
-    await run_bounded(range(20), work, limit=5)
+    await run_bounded(readers, work, limit=5)
     assert peak == 5
     assert done == 19
 

@@ -54,20 +54,20 @@ async def list_readers(session: AsyncSession, email: str | None = None) -> list[
     return [Reader(i, tz) for i, tz in (await session.execute(stmt)).all()]
 
 
-async def run_bounded[T](
-    items: Iterable[T], work: Callable[[T], Awaitable[None]], limit: int = CONCURRENCY
+async def run_bounded(
+    readers: Iterable[Reader], work: Callable[[Reader], Awaitable[None]], limit: int = CONCURRENCY
 ) -> None:
-    """Run `work` on every item, at most `limit` at once; one failure never stops the rest."""
+    """Run `work` for every reader, at most `limit` at once; one failure never stops the rest."""
     gate = asyncio.Semaphore(limit)
 
-    async def one(item: T) -> None:
+    async def one(reader: Reader) -> None:
         async with gate:
             try:
-                await work(item)
+                await work(reader)
             except Exception:
                 log.exception("compose_reader_crashed")
 
-    await asyncio.gather(*(one(i) for i in items))
+    await asyncio.gather(*(one(r) for r in readers))
 
 
 async def run_compose(
