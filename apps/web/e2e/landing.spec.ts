@@ -11,12 +11,12 @@ function watchConsole(page: Page): string[] {
 
 const noSideScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
 
-test("landing: three sections, real destinations, no console errors", async ({ page }) => {
+test("landing: six sections, real destinations, no console errors", async ({ page }) => {
   const errors = watchConsole(page);
   await page.goto("/");
   await expect(page).toHaveTitle(/NewsHelper/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("One daily paper.");
-  await expect(page.locator("main section")).toHaveCount(3);
+  await expect(page.locator("main section")).toHaveCount(6);
   const nav = page.getByRole("banner");
   await expect(nav.getByRole("link", { name: "Build my paper" })).toHaveAttribute("href", "/signup");
   await expect(page.getByRole("link", { name: "Open my paper" })).toHaveAttribute("href", "/today");
@@ -71,6 +71,53 @@ test("landing: the preview carries a decorative pixel-scan canvas", async ({ pag
   await expect(scan).toHaveCount(1);
   await expect(scan).toHaveAttribute("aria-hidden", "true");
   await expect(scan).toHaveCSS("pointer-events", "none");
+});
+
+test("landing: desk cards open in place and close with Escape", async ({ page }) => {
+  await page.goto("/");
+  const card = page.locator(".lp-card__btn", { hasText: "Science" });
+  await card.scrollIntoViewIfNeeded();
+  await expect(card).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByText("Researchers combined sonar")).toBeHidden();
+  await card.click();
+  await expect(card).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByText("Researchers combined sonar")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(card).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByText("Researchers combined sonar")).toBeHidden();
+});
+
+test("landing: FAQ answers open one at a time and stay out of reach when closed", async ({ page }) => {
+  await page.goto("/");
+  const first = page.getByRole("button", { name: "What is NewsHelper?" });
+  const second = page.getByRole("button", { name: "Can I go back to an earlier edition?" });
+  await first.scrollIntoViewIfNeeded();
+  await expect(page.getByText("A personal morning newspaper.")).toBeHidden();
+  await first.click();
+  await expect(first).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByText("A personal morning newspaper.")).toBeVisible();
+  await second.click();
+  await expect(first).toHaveAttribute("aria-expanded", "false");
+  await expect(second).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByText("A personal morning newspaper.")).toBeHidden();
+});
+
+test("landing: the globe is decorative and draws land", async ({ page }) => {
+  await page.goto("/");
+  const globe = page.locator(".lp-globe");
+  await globe.scrollIntoViewIfNeeded();
+  await expect(globe).toHaveAttribute("aria-hidden", "true");
+  await expect(globe).toHaveCSS("pointer-events", "none");
+  await page.waitForTimeout(300);
+  const lit = await globe.locator("canvas").evaluate((canvas) => {
+    const c = canvas as HTMLCanvasElement;
+    const data = c.getContext("2d")!.getImageData(0, 0, c.width, c.height).data;
+    let n = 0;
+    for (let i = 3; i < data.length; i += 4) if (data[i] > 0) n += 1;
+    return n;
+  });
+  expect(lit).toBeGreaterThan(1000);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test.describe("reduced motion", () => {
