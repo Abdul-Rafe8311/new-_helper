@@ -155,7 +155,8 @@ async def test_pin_unpin_and_remove_a_learned_entity(api: AsyncClient, db: Async
     after = (await api.delete(f"/me/interests/entities/{ada}")).json()
     assert [e["name"] for e in after["entities"]] == ["Karachi Kings"]
     assert user.profile.entities["people"] == ["Babar Azam"]  # the onboarding name stays
-    assert (await api.delete(f"/me/interests/entities/{ada}")).status_code == 404
+    gone = await api.delete(f"/me/interests/entities/{ada}")
+    assert gone.status_code == 404
     assert (await api.post("/me/interests/entities/unknown/pin")).status_code == 404
 
 
@@ -178,7 +179,8 @@ async def test_block_and_unblock_a_topic(api: AsyncClient, db: AsyncSession) -> 
     assert [b["topic"] for b in body["blocked"]] == ["f1"]
     # the "less like this" tally goes too, or the learner would block it again on the next one
     assert "celebrity" not in user.profile.learn_state["less_like_counts"]
-    assert (await api.delete("/me/interests/blocked/celebrity")).status_code == 404
+    not_blocked = await api.delete("/me/interests/blocked/celebrity")
+    assert not_blocked.status_code == 404
     kinds = [c.kind for c in await changes(db)]
     assert kinds == ["topic_blocked", "topic_unblocked"]
 
