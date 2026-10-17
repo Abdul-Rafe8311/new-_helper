@@ -377,3 +377,78 @@ async def test_stories_of_other_readers_are_hidden(api: AsyncClient, db: AsyncSe
     await sign_in(api, db)
     assert (await api.get(f"/stories/{foreign.id}")).status_code == 404
     assert (await api.get("/stories/not-a-uuid")).status_code == 422
+
+
+async def test_quiz_answers_are_stored_with_one_for_right_and_zero_for_wrong(
+    api: AsyncClient, db: AsyncSession
+) -> None:
+    user = await sign_in(api, db)
+    first, second, _ = await seed_edition(db, user)
+    meta = {"q": 0, "kind": "quiz"}
+    response = await api.post(
+        "/events",
+        json={
+            "events": [
+                event(first, "quiz_answer", value=1, meta=meta),
+                event(second, "quiz_answer", value=0, meta={**meta, "q": 1}),
+            ]
+        },
+    )
+    assert response.json() == {"accepted": 2, "rejected": 0}
+    rows = [r for r in await stored(db) if r.type is EventType.QUIZ_ANSWER]
+    assert [(r.edition_item_id, r.value, r.meta["q"]) for r in rows] == [
+        (first.id, 1.0, 0),
+        (second.id, 0.0, 1),
+    ]
+    assert all(r.user_id == user.id and r.edition_id == first.edition_id for r in rows)
+
+
+async def finish_quiz(api: AsyncClient, item: EditionItem, kind: str = "quiz") -> None:
+    events = [event(item, "quiz_answer", value=1, meta={"q": n, "kind": kind}) for n in range(3)]
+    assert (await api.post("/events", json={"events": events})).status_code == 200
+
+
+async def with_quiz(db: AsyncSession, items: list[EditionItem]) -> None:
+    edition = await db.get(Edition, items[0].edition_id)
+    assert edition is not None
+    edition.layout = {
+        "quiz": [{"question": f"Q{n}?", "options": ["a", "b", "c"], "answer": 0} for n in range(3)]
+    }
+    await db.flush()
+
+
+async def test_the_quiz_streak_counts_finished_days_and_resets_after_a_missed_one(
+    api: AsyncClient, db: AsyncSession
+) -> None:
+    user = await sign_in(api, db)
+    assert (await api.get("/me/quiz-streak")).json() == {"streak": 0, "done_today": False}
+    today = datetime.now(UTC).date()
+    papers = {}
+    for back in (3, 2, 0):  # yesterday is missed
+        papers[back] = await seed_edition(db, user, day=today - timedelta(days=back))
+        await with_quiz(db, papers[back])
+    await finish_quiz(api, papers[3][0])
+    await finish_quiz(api, papers[2][0])
+    # today is open and yesterday was missed
+    assert (await api.get("/me/quiz-streak")).json() == {"streak": 0, "done_today": False}
+    await finish_quiz(api, papers[0][0])
+    assert (await api.get("/me/quiz-streak")).json() == {"streak": 1, "done_today": True}
+
+
+async def test_a_half_finished_or_recall_only_day_does_not_count(
+    api: AsyncClient, db: AsyncSession
+) -> None:
+    user = await sign_in(api, db)
+    today = datetime.now(UTC).date()
+    paper = await seed_edition(db, user, day=today)
+    await with_quiz(db, paper)
+    two = [event(paper[0], "quiz_answer", value=1, meta={"q": n, "kind": "quiz"}) for n in range(2)]
+    await api.post("/events", json={"events": two})
+    assert (await api.get("/me/quiz-streak")).json() == {"streak": 0, "done_today": False}
+    await finish_quiz(api, paper[0], kind="recall")
+    assert (await api.get("/me/quiz-streak")).json() == {"streak": 0, "done_today": False}
+    await api.post(
+        "/events",
+        json={"events": [event(paper[0], "quiz_answer", value=0, meta={"q": 2, "kind": "quiz"})]},
+    )
+    assert (await api.get("/me/quiz-streak")).json() == {"streak": 1, "done_today": True}

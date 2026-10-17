@@ -86,6 +86,13 @@ function foldStates(sessionState) {
   return states;
 }
 
+// [question, options, answer index, explanation, story number]
+const QUIZ = [
+  ["Who is now negotiating contracts on their own?", ["AI agents", "Central banks", "Cricket boards"], 0, "The lead story says agents are negotiating their own contracts.", 1],
+  ["Which batter found his rhythm in Multan?", ["Rizwan", "Babar Azam", "Fakhar"], 1, "Babar found his rhythm in Multan, per the cricket report.", 5],
+  ["What did central banks signal?", ["A rate hike", "A synchronised pause", "A rate cut", "Nothing"], 1, "Central banks signalled a synchronised pause.", 8],
+];
+
 function edition(sessionState, date) {
   return {
     id: `11111111-0000-4000-b000-${date.replaceAll("-", "").padStart(12, "0")}`,
@@ -101,6 +108,17 @@ function edition(sessionState, date) {
       })),
       lead_item_id: id(1),
       three_things: ["Agents are signing contracts.", "Central banks are pausing.", "Babar is in form."],
+      ...(sessionState.quiz === "none"
+        ? {}
+        : {
+            quiz: QUIZ.map(([question, options, answer, explanation, story]) => ({
+              question,
+              options,
+              answer,
+              explanation,
+              item_id: id(story),
+            })),
+          }),
     },
     items: items(sessionState),
     stats: { sources: 4, items: STORIES.length },
@@ -265,6 +283,13 @@ export function handleReader({ req, res, path, url, session, send, error, readJs
 
   if (path.startsWith("/me/interests") && handleInterests({ req, res, path, session: s, send, error, readJson })) return true;
 
+  if (path === "/me/quiz-streak" && req.method === "GET") {
+    // finished = every question of today's quiz answered (recall answers do not count)
+    const answered = new Set(s.events.filter((e) => e.type === "quiz_answer" && e.meta?.kind === "quiz").map((e) => e.meta.q));
+    const done = answered.size >= QUIZ.length;
+    return send(res, 200, { streak: done ? 1 : 0, done_today: done }), true;
+  }
+
   if (path === "/editions/today" && req.method === "GET") {
     const today = todaysEdition(s);
     if (!today) return error(res, 404, "edition_not_found", "No edition for today"), true;
@@ -350,6 +375,7 @@ export function handleReader({ req, res, path, url, session, send, error, readJs
 /** Test-only: put a reader into a known situation. */
 export function seed(s, body) {
   s.completed = true;
+  s.quiz = body.quiz ?? "on";
   s.editionPlan =
     body.edition === "pending"
       ? { mode: "pending", startedAt: Date.now(), readyAt: Date.now() + (body.readyAfterMs ?? 3000) }

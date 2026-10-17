@@ -236,6 +236,142 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/interests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Interests */
+        get: operations["get_interests_me_interests_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/interests/blocked": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Blocked */
+        post: operations["post_blocked_me_interests_blocked_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/interests/blocked/{topic}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Blocked */
+        delete: operations["delete_blocked_me_interests_blocked__topic__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/interests/entities/{entity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Entity */
+        delete: operations["delete_entity_me_interests_entities__entity_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/interests/entities/{entity_id}/pin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pin Entity */
+        post: operations["pin_entity_me_interests_entities__entity_id__pin_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/interests/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Reset */
+        post: operations["post_reset_me_interests_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/interests/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Timeline */
+        get: operations["get_timeline_me_interests_timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/interests/topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Put Topics */
+        put: operations["put_topics_me_interests_topics_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/profile": {
         parameters: {
             query?: never;
@@ -247,6 +383,23 @@ export interface paths {
         get: operations["get_profile_me_profile_get"];
         /** Put Profile */
         put: operations["put_profile_me_profile_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/quiz-streak": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Quiz Streak */
+        get: operations["get_quiz_streak_me_quiz_streak_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -501,6 +654,18 @@ export interface components {
              */
             topics: string[];
         };
+        /** BlockedIn */
+        BlockedIn: {
+            /** Topic */
+            topic: string;
+        };
+        /** BlockedTopic */
+        BlockedTopic: {
+            /** Label */
+            label: string;
+            /** Topic */
+            topic: string;
+        };
         /** CompleteOut */
         CompleteOut: {
             /**
@@ -662,7 +827,9 @@ export interface components {
          *
          *     ``value`` carries the measurement: seconds for ``dwell``; for the toggles (``skip``,
          *     ``save``, ``more_like``, ``less_like``) ``0`` retracts an earlier event and anything else
-         *     (or nothing) sets it.
+         *     (or nothing) sets it. A ``quiz_answer`` carries ``1`` (correct) or ``0`` (wrong) and, in
+         *     ``meta``, ``q`` (the question's position) and ``kind`` (``quiz`` for today's questions,
+         *     ``recall`` for "Still remember?"); it is tied to the story the question was about.
          */
         EventIn: {
             /**
@@ -678,7 +845,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "impression" | "dwell" | "skip" | "more_like" | "less_like" | "save" | "mark_read";
+            type: "impression" | "dwell" | "skip" | "more_like" | "less_like" | "save" | "mark_read" | "quiz_answer";
             /** Value */
             value?: number | null;
         };
@@ -727,6 +894,17 @@ export interface components {
             /** Headlines */
             headlines: components["schemas"]["HeadlineOut"][];
         };
+        /** InterestsOut */
+        InterestsOut: {
+            /** Blocked */
+            blocked: components["schemas"]["BlockedTopic"][];
+            /** Entities */
+            entities: components["schemas"]["LearnedEntity"][];
+            /** Is New */
+            is_new: boolean;
+            /** Topics */
+            topics: components["schemas"]["TopicWeight"][];
+        };
         /**
          * ItemState
          * @description What this reader has done with a story, folded from their events (latest event wins).
@@ -749,6 +927,17 @@ export interface components {
              * @default false
              */
             skipped: boolean;
+        };
+        /** LearnedEntity */
+        LearnedEntity: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** Pinned */
+            pinned: boolean;
         };
         /** LoginIn */
         LoginIn: {
@@ -843,6 +1032,14 @@ export interface components {
             /** Weight */
             weight: number;
         };
+        /** PinIn */
+        PinIn: {
+            /**
+             * Pinned
+             * @default true
+             */
+            pinned: boolean;
+        };
         /** ProfileOut */
         ProfileOut: {
             blocked: components["schemas"]["Blocked"];
@@ -893,6 +1090,17 @@ export interface components {
             topics?: {
                 [key: string]: number;
             } | null;
+        };
+        /**
+         * QuizStreakOut
+         * @description Consecutive days the reader finished the quiz, counted back from today (or yesterday while
+         *     today's quiz is still open); ``done_today`` says which.
+         */
+        QuizStreakOut: {
+            /** Done Today */
+            done_today: boolean;
+            /** Streak */
+            streak: number;
         };
         /**
          * ReadingStep
@@ -1056,6 +1264,29 @@ export interface components {
             /** Topics */
             topics: components["schemas"]["TopicOut"][];
         };
+        /** TimelineDay */
+        TimelineDay: {
+            /** Date */
+            date: string;
+            /** Entries */
+            entries: components["schemas"]["TimelineEntry"][];
+        };
+        /** TimelineEntry */
+        TimelineEntry: {
+            /** At */
+            at: string;
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Text */
+            text: string;
+        };
+        /** TimelineOut */
+        TimelineOut: {
+            /** Days */
+            days: components["schemas"]["TimelineDay"][];
+        };
         /**
          * TopicGroup
          * @enum {string}
@@ -1070,6 +1301,22 @@ export interface components {
             label: string;
             /** Slug */
             slug: string;
+        };
+        /** TopicWeight */
+        TopicWeight: {
+            /** Label */
+            label: string;
+            /** Slug */
+            slug: string;
+            /** Weight */
+            weight: number;
+        };
+        /** TopicsIn */
+        TopicsIn: {
+            /** Topics */
+            topics: {
+                [key: string]: number;
+            };
         };
         /** UserOut */
         UserOut: {
@@ -1508,6 +1755,272 @@ export interface operations {
             };
         };
     };
+    get_interests_me_interests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_blocked_me_interests_blocked_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BlockedIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_blocked_me_interests_blocked__topic__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topic: string;
+            };
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entity_me_interests_entities__entity_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: string;
+            };
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pin_entity_me_interests_entities__entity_id__pin_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: string;
+            };
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PinIn"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_reset_me_interests_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_timeline_me_interests_timeline_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_topics_me_interests_topics_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TopicsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_profile_me_profile_get: {
         parameters: {
             query?: never;
@@ -1561,6 +2074,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quiz_streak_me_quiz_streak_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                dp_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizStreakOut"];
                 };
             };
             /** @description Validation Error */

@@ -32,6 +32,7 @@ export type SavedItem = Schemas["SavedItem"];
 export type Story = Schemas["StoryOut"];
 export type StoryImage = Schemas["StoryImage"];
 export type StorySource = Schemas["StorySource"];
+export type QuizStreak = Schemas["QuizStreakOut"];
 export type Interests = {
   topics: { slug: string; label: string; weight: number }[];
   entities: { id: string; kind: string; name: string; pinned: boolean }[];
@@ -113,6 +114,7 @@ export function createApiClient({ baseUrl = "/api", headers = {}, fetch: fetchIm
       get: () => request<Profile>("GET", "/me/profile"),
       update: (changes: ProfileUpdate) => request<Profile>("PUT", "/me/profile", changes),
     },
+    quizStreak: () => request<QuizStreak>("GET", "/me/quiz-streak"),
     interests: {
       get: () => request<Interests>("GET", "/me/interests"),
       timeline: () => request<Timeline>("GET", "/me/interests/timeline"),
