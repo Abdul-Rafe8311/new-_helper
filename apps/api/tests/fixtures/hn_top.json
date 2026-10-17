@@ -1,0 +1,4 @@
+{"hits": [
+  {"objectID": "1", "title": "A new open model beats the benchmarks", "url": "https://example.org/model?utm_source=hn", "author": "pg", "points": 410, "created_at_i": 1792200000},
+  {"objectID": "3", "title": "Rust 2.0 roadmap published", "url": "https://blog.rust-lang.org/roadmap", "author": "steve", "points": 220, "created_at_i": 1792195000}
+]}

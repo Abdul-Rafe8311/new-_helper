@@ -1,0 +1,6 @@
+{"data": {"children": [
+  {"data": {"title": "City approves new transit plan", "url": "https://news.example.net/transit", "created_utc": 1792190000, "author": "u1", "is_self": false, "over_18": false}},
+  {"data": {"title": "Discussion thread", "url": "https://www.reddit.com/r/worldnews/comments/abc", "created_utc": 1792190000, "author": "u2", "is_self": true, "over_18": false}},
+  {"data": {"title": "Image post", "url": "https://i.redd.it/pic.jpg", "created_utc": 1792190000, "author": "u3", "is_self": false, "over_18": false}},
+  {"data": {"title": "NSFW story", "url": "https://x.example.net/a", "created_utc": 1792190000, "author": "u4", "is_self": false, "over_18": true}}
+]}}

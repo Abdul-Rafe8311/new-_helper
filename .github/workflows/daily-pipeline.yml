@@ -55,6 +55,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LLM_DAILY_BUDGET_USD: ${{ vars.LLM_DAILY_BUDGET_USD || '2.0' }}
           FASTEMBED_CACHE_DIR: ~/.cache/fastembed
+          # Optional: Apify fallbacks switch on only when this secret exists.
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
           STAGE: ${{ inputs.stage || 'all' }}
           USER_EMAIL: ${{ inputs.user_email }}
         run: uv run python -m app.pipeline --stage "$STAGE" --user-email "$USER_EMAIL"

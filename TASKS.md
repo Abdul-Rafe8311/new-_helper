@@ -5,7 +5,7 @@
 - [x] T2 Backend core
 - [x] T3 Web shell & design system
 - [x] T4 CD & deploy
-- [ ] T5 Ingestion
+- [x] T5 Ingestion
 - [x] T6 Enrichment
 - [x] T7 Onboarding
 - [ ] T8 Ranking & composer
@@ -32,18 +32,22 @@
 - T4: the first deploy run builds the GHCR image; its package must then be made public (UI-only setting) for Render to pull it.
 - T4: pipeline stages ingest/enrich/learn/compose/render are not implemented yet; `--stage all` skips them.
 - T4: Render's `WEB_URL` env var should equal the live web URL (https://new-helper-nine.vercel.app).
+- T5: migration 0004 adds `sources.high_value` and the `decoded_links` cache; the registry gained Google News, Hacker News and three arXiv rows (query-driven sources) and `high_value: true` on quality >= 0.8 feeds.
+- T5: the Apify actors' input/output schemas (`hiver/google-news-scraper`, `apify/website-content-crawler`) are mapped best-effort and have never been run: there is no token yet. Verify before relying on them.
+- T5: `ingest` stores articles with the raw excerpt only; embeddings, topics, headline and summary come in T6.
+- T5: ingest has no per-run article cap beyond 40 per fetcher; Krebs (403) and DW (timeouts) were failing on the reference run and will be auto-deactivated after five consecutive failures.
+- T5: `tests/conftest.py` now creates the isolated test schema explicitly (`schema_translate_map`); before, local DB tests with `TEST_DB_SCHEMA` read the real `public` tables.
 - T6: forced `tool_choice` is rejected by the newer models, so the LLM provider offers one tool with `tool_choice: auto`, names it in the system prompt, validates, and retries once with the error.
 - T6: LLM prices are hard-coded in `app/ai/llm.py` (`PRICES`); unknown models are costed like Sonnet. Update them when prices change.
 - T6: the topic threshold (0.55 blended) and the 0.86 cluster cosine are untuned against real bge-small output; revisit with real articles after T5 lands.
 - T6: clustering is a pairwise self-join over the 36h window, fine for a few thousand articles; switch to per-article HNSW lookups if the window grows past ~10k.
 - T6: migration 0003 was not run against a real migrated DB locally (no Docker); CI's `alembic check` is the verification.
 - T6: set the `ANTHROPIC_API_KEY` secret in the `production` environment before the first scheduled run.
-- T7: autosaved answers live in `reader_profiles.onboarding_state` (migration 0004); taste-test answers are `reader_events` (onboarding_like/skip), one per article, so re-answering replaces.
+- T7: autosaved answers live in `reader_profiles.onboarding_state` (migration 0005); taste-test answers are `reader_events` (onboarding_like/skip), one per article, so re-answering replaces.
 - T7: `/onboarding/complete` opens today's edition and runs an `EditionGenerator` as a background task. The stub marks it ready with placeholder content and writes `stats.stage`; T8 swaps it in `get_edition_generator` (`app/api/deps.py`) and must keep writing the stage names (gathering, choosing, writing, typesetting, done).
 - T7: the taste test needs enriched articles (stored topics and embeddings from T5/T6); with none, the step says so and can be passed.
 - T7: parsed keywords are matched with Postgres full-text search over the last 7 days (at most 12 keywords, 5 articles each) with no index; add a GIN index if the article table grows.
 - T7: `/onboarding/parse` is guarded by the daily LLM budget but has no per-user rate limit. The real model is only used there; tests use FakeLLM.
 - T7: e2e now needs `pnpm build:e2e` (the `/api` rewrite points at `e2e/mock-api.mjs`); CI does this.
-- T7: `tests/conftest.py` used to skip creating tables in `TEST_DB_SCHEMA` when `public` already had them, so local DB tests silently ran against Supabase's public tables; it now drops and recreates the schema.
-- T7: `app/ingest/` and `tests/test_ingest_http.py` (T5 work in progress) were untracked in the working tree and are not part of this PR.
+- T7: `tests/conftest.py` also drops and recreates `TEST_DB_SCHEMA` at the start of a run (T5's `schema_translate_map` change creates the tables inside it).
 - T7: set `ANTHROPIC_API_KEY` in Render's env, or `/onboarding/parse` returns 503 `llm_unavailable` (the page then offers "Continue without").
