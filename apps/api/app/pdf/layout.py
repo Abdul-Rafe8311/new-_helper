@@ -17,17 +17,23 @@ from app.pdf.snapshot import Depth, EditionSnapshot, Story
 EXPLORE_SECTION_SLOT = "explore"
 _SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"\u201c\u2018(])")
 
-# per depth: summary character budgets (lead, feature, standard, brief), key facts shown on
-# features/standard stories, front-page features and briefs.
-_BUDGET: dict[Depth, tuple[int, int, int, int]] = {
-    "brief": (420, 200, 0, 130),
-    "balanced": (560, 380, 330, 150),
-    "deep": (1400, 760, 620, 220),
+# per depth: summary character budgets for a lead, inside feature, inside standard story, brief and
+# front-page feature (the front page is a single page, so its features are kept shorter);
+# key facts shown with the lead and inside stories; how many front-page features and briefs.
+LEAD, FEATURE, STANDARD, BRIEF, FRONT_FEATURE = range(5)
+_BUDGET: dict[Depth, tuple[int, int, int, int, int]] = {
+    "brief": (420, 200, 200, 130, 150),
+    "balanced": (560, 380, 330, 150, 270),
+    "deep": (1400, 760, 620, 220, 400),
 }
 _FACTS: dict[Depth, int] = {"brief": 0, "balanced": 0, "deep": 4}
 _FRONT_FEATURES: dict[Depth, int] = {"brief": 2, "balanced": 3, "deep": 3}
-_FRONT_BRIEFS: dict[Depth, int] = {"brief": 8, "balanced": 6, "deep": 4}
+_FRONT_BRIEFS: dict[Depth, int] = {"brief": 7, "balanced": 5, "deep": 3}
 BIG_SECTION_STORIES = 4
+# The front page must fit one sheet. Each squeeze step shortens its summaries by this factor, drops
+# the lead's key facts and trims the briefs column; every third step also drops a feature.
+SQUEEZE_SCALE = 0.8
+MAX_SQUEEZE = 6
 
 
 def shorten(text: str, limit: int) -> str:
@@ -153,9 +159,11 @@ def order_sections(snapshot: EditionSnapshot, names: list[str]) -> list[str]:
     return [*rest, *explore]
 
 
-def _view(story: Story, kind: int, depth: Depth) -> StoryView:
-    limit = _BUDGET[depth][kind]
-    facts = story.key_facts[: _FACTS[depth]] if kind in (0, 1, 2) else []
+def _view(story: Story, kind: int, depth: Depth, squeeze: int = 0) -> StoryView:
+    limit = int(_BUDGET[depth][kind] * SQUEEZE_SCALE**squeeze)
+    facts = story.key_facts[: _FACTS[depth]] if kind in (LEAD, FEATURE, STANDARD) else []
+    if squeeze and kind == LEAD:
+        facts = []
     return StoryView(story=story, summary=shorten(story.summary, limit), facts=facts)
 
 
@@ -167,24 +175,24 @@ def _pull_quote(stories: list[StoryView]) -> str | None:
     return None
 
 
-def plan_pages(snapshot: EditionSnapshot) -> PagePlan:
+def plan_pages(snapshot: EditionSnapshot, squeeze: int = 0) -> PagePlan:
     depth = snapshot.depth
     lead_story = snapshot.story(snapshot.lead_item_id)
     others = [s for s in snapshot.stories if s.item_id != lead_story.item_id]
 
+    n_features = _FRONT_FEATURES[depth] - squeeze // 3
+    n_briefs = max(2, _FRONT_BRIEFS[depth] - squeeze)
     # Front page: best feature per section first, so the page is not three stories on one topic.
     features: list[Story] = []
     pool = sorted((s for s in others if s.slot == "feature"), key=lambda s: -s.score)
     for story in pool:
-        if len(features) < _FRONT_FEATURES[depth] and all(
-            story.section != f.section for f in features
-        ):
+        if len(features) < n_features and all(story.section != f.section for f in features):
             features.append(story)
     for story in pool:
-        if len(features) < _FRONT_FEATURES[depth] and story not in features:
+        if len(features) < n_features and story not in features:
             features.append(story)
     front_briefs = sorted((s for s in others if s.slot == "brief"), key=lambda s: -s.score)[
-        : _FRONT_BRIEFS[depth]
+        :n_briefs
     ]
     on_front = {
         lead_story.item_id,
@@ -205,25 +213,22 @@ def plan_pages(snapshot: EditionSnapshot) -> PagePlan:
         if depth == "brief" and not explore and len(full) > 1:
             briefs = [*full[1:], *briefs]  # one real story per section, the rest as briefs
             full = full[:1]
-        views = [
-            _view(m, 1 if m.slot == "feature" else 2 if depth != "brief" else 1, depth)
-            for m in full
-        ]
+        views = [_view(m, FEATURE if m.slot == "feature" else STANDARD, depth) for m in full]
         blocks.append(
             SectionBlock(
                 name=name,
                 explore=explore,
                 stories=views,
-                briefs=[_view(b, 3, depth) for b in briefs],
+                briefs=[_view(b, BRIEF, depth) for b in briefs],
                 pull_quote=None if explore else _pull_quote(views),
-                big=len(members) >= BIG_SECTION_STORIES,
+                big=len(views) >= BIG_SECTION_STORIES,
             )
         )
 
     front = FrontPage(
-        lead=_view(lead_story, 0, depth),
-        features=[_view(f, 1, depth) for f in features],
-        briefs=[_view(b, 3, depth) for b in front_briefs],
+        lead=_view(lead_story, LEAD, depth, squeeze),
+        features=[_view(f, FRONT_FEATURE, depth, squeeze) for f in features],
+        briefs=[_view(b, BRIEF, depth, squeeze) for b in front_briefs],
     )
     shown = [front.lead, *front.features, *(s for b in blocks for s in b.stories[:1])]
     return PagePlan(

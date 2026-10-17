@@ -82,5 +82,5 @@ source = ["app"]
 concurrency = ["greenlet", "thread"]
 
 [[tool.mypy.overrides]]
-module = ["feedparser", "trafilatura", "trafilatura.*", "newspaper", "newspaper.*", "googlenewsdecoder", "py3langid", "py3langid.*"]
+module = ["feedparser", "trafilatura", "trafilatura.*", "newspaper", "newspaper.*", "googlenewsdecoder", "py3langid", "py3langid.*", "weasyprint", "weasyprint.*"]
 ignore_missing_imports = true
