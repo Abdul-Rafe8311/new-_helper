@@ -115,9 +115,13 @@ jobs:
         run: |
           test -n "$RENDER_DEPLOY_HOOK_URL" || { echo "::error::RENDER_DEPLOY_HOOK_URL is not set"; exit 1; }
           img=$(jq -rn --arg v "$IMAGE_REF" '$v|@uri')
-          # -sS without -v so the hook URL (which embeds a key) never reaches the log.
-          curl -fsS -o /dev/null --max-time 30 -X POST "${RENDER_DEPLOY_HOOK_URL}&imgURL=${img}"
-          echo "Render deploy triggered for $IMAGE_REF"
+          # No -v and no echo of the URL: it embeds a key. Render's response body is safe to show.
+          status=$(curl -sS -o response.txt -w '%{http_code}' --max-time 30 -X POST "${RENDER_DEPLOY_HOOK_URL}&imgURL=${img}")
+          if [ "$status" -ge 400 ]; then
+            echo "::error::Render deploy hook returned HTTP $status: $(head -c 500 response.txt)"
+            exit 1
+          fi
+          echo "Render deploy triggered for $IMAGE_REF (HTTP $status)"
       - name: Wait for the new version to go live
         env:
           API_URL: ${{ vars.API_URL }}
