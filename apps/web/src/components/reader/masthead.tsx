@@ -33,7 +33,7 @@ export function Masthead({ displayName, email, pdfDate, listen = false }: Masthe
       >
         <Menu aria-hidden="true" />
       </Button>
-      <Brand href="/today" className="text-lg min-[400px]:text-2xl sm:text-3xl" />
+      <Brand href="/today" className="text-[17px] min-[400px]:text-2xl sm:text-3xl" />
       <div className="ml-auto flex items-center gap-1 sm:gap-3">
         <DownloadButton defaultDate={pdfDate} />
         {listen ? (
