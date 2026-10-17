@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI
 
+from app.api.routers import taxonomy
 from app.core.config import get_settings
 
 
@@ -13,6 +14,7 @@ def create_app() -> FastAPI:
     async def health() -> dict[str, str]:
         return {"status": "ok", "version": settings.version, "git_sha": settings.git_sha}
 
+    app.include_router(taxonomy.router)
     return app
 
 
