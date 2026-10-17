@@ -90,6 +90,7 @@ export function TasteStep({ draft, dispatch }: StepProps) {
         step={4}
         title="A quick taste test"
         lede="Real headlines from today. Swipe right or tap Interested for more like it, left for less."
+        why="Your answers tune your first edition before you have read a single story."
       />
 
       {error ? (
@@ -123,7 +124,7 @@ export function TasteStep({ draft, dispatch }: StepProps) {
           aria-label="Headline taste test"
           tabIndex={0}
           onKeyDown={onKeyDown}
-          className="mx-auto max-w-md rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          className="mx-auto max-w-md rounded-2xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
         >
           <p role="status" className="mb-3 text-center font-sans text-sm text-muted">
             {current ? `${answered + 1} of ${headlines.length}` : `All ${headlines.length} answered`}
@@ -143,9 +144,9 @@ export function TasteStep({ draft, dispatch }: StepProps) {
                   key="done"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="border-y-2 border-ink py-10 text-center"
+                  className="rounded-2xl border border-rule bg-surface py-10 text-center"
                 >
-                  <p className="font-display text-3xl font-black">Got it.</p>
+                  <p className="page-title text-3xl">Got it.</p>
                   <p className="mt-2 font-serif text-lg text-muted">
                     You liked {liked} of {headlines.length}. We&apos;ll use that to set your front page.
                   </p>
@@ -225,24 +226,24 @@ function HeadlineCard({
         opacity: 0,
         transition: { duration: reduceMotion ? 0 : 0.22 },
       }}
-      className="absolute inset-x-0 top-0 cursor-grab touch-pan-y overflow-hidden rounded-sm border border-ink bg-paper active:cursor-grabbing"
+      className="absolute inset-x-0 top-0 cursor-grab touch-pan-y overflow-hidden rounded-2xl border border-rule bg-surface shadow-[var(--shadow-card)] active:cursor-grabbing"
     >
       <CardImage url={headline.image_url} />
       <div className="space-y-2 p-4">
         <p className="kicker text-accent">{headline.source}</p>
-        <h3 className="font-display text-2xl leading-tight font-black text-balance">{headline.headline}</h3>
+        <h3 className="font-sans text-2xl leading-tight font-extrabold tracking-tight text-balance">{headline.headline}</h3>
       </div>
       <motion.span
         aria-hidden="true"
         style={{ opacity: yes }}
-        className="pointer-events-none absolute top-4 left-4 -rotate-6 rounded-sm border-2 border-accent bg-paper px-2 py-1 font-sans text-sm font-bold tracking-widest text-accent uppercase"
+        className="pointer-events-none absolute top-4 left-4 -rotate-6 rounded-full border-2 border-accent bg-surface px-3 py-1 font-sans text-sm font-bold tracking-widest text-accent uppercase"
       >
         Interested
       </motion.span>
       <motion.span
         aria-hidden="true"
         style={{ opacity: no }}
-        className="pointer-events-none absolute top-4 right-4 rotate-6 rounded-sm border-2 border-ink bg-paper px-2 py-1 font-sans text-sm font-bold tracking-widest uppercase"
+        className="pointer-events-none absolute top-4 right-4 rotate-6 rounded-full border-2 border-ink bg-surface px-3 py-1 font-sans text-sm font-bold tracking-widest uppercase"
       >
         Not for me
       </motion.span>

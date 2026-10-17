@@ -23,11 +23,12 @@ export function BeatsStep({ draft, dispatch, taxonomy }: StepProps & { taxonomy:
         step={2}
         title="Pick your beats"
         lede={`Choose at least ${MIN_TOPICS} topics. Tap one to go deeper.`}
+        why="Your beats become the sections of your paper; going deeper tells us what to look for inside them."
       />
 
       <p
         role="status"
-        className="sticky top-0 z-10 -mx-1 mb-4 bg-paper/95 px-1 py-2 font-sans text-sm text-muted backdrop-blur"
+        className="sticky top-0 z-10 -mx-1 mb-4 bg-canvas/90 px-1 py-2 font-sans text-sm text-muted backdrop-blur"
       >
         {needed > 0 ? (
           <>

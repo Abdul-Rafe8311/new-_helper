@@ -24,7 +24,12 @@ export function NameStep({ draft, dispatch, today }: StepProps & { today: string
   const listId = useId();
   return (
     <section>
-      <StepHeading step={1} title="Name your paper" lede="It's yours. Make the masthead sound like you." />
+      <StepHeading
+        step={1}
+        title="Name your paper"
+        lede="It's yours. Make the masthead sound like you."
+        why="Your paper name and city go on the masthead and date line of every edition."
+      />
 
       <div className="mb-8" data-testid="masthead-preview" aria-live="polite">
         <Masthead

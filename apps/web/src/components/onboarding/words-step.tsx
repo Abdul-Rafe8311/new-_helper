@@ -61,6 +61,7 @@ export function WordsStep({ draft, dispatch, taxonomy }: StepProps & { taxonomy:
         step={3}
         title="In your own words"
         lede="Tell us what you want to read, and what you don't. We'll turn it into topics you can edit."
+        why="Names and keywords you give us are matched against stories, and anything you rule out stays out."
       />
 
       <div className="space-y-2">
@@ -73,7 +74,7 @@ export function WordsStep({ draft, dispatch, taxonomy }: StepProps & { taxonomy:
           placeholder={WORDS_PLACEHOLDER}
           onChange={(e) => dispatch({ type: "set_text", text: e.target.value })}
           onKeyDown={onTextKey}
-          className="w-full resize-y rounded-sm border border-input bg-paper px-3 py-2 font-serif text-lg leading-snug shadow-xs outline-none placeholder:text-muted focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          className="w-full resize-y rounded-xl border border-input bg-surface px-4 py-3 font-serif text-lg leading-snug shadow-xs outline-none placeholder:text-muted focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         />
         <p className="font-sans text-xs text-muted">Optional. Press Ctrl or ⌘ + Enter to read it.</p>
       </div>
@@ -105,12 +106,12 @@ export function WordsStep({ draft, dispatch, taxonomy }: StepProps & { taxonomy:
       {draft.parsed && (hasText || heard.length > 0) ? (
         <div className="mt-6 space-y-4 border-t border-rule pt-5" aria-live="polite">
           <p className="font-serif text-lg">
-            <span className="font-display font-black">We heard:</span>{" "}
+            <span className="font-sans font-bold">We heard:</span>{" "}
             {heard.length ? heard.map(labelOf).join(", ") : "nothing yet"}.
             {not.length ? (
               <>
                 {" "}
-                <span className="font-display font-black">Not:</span> {not.map(labelOf).join(", ")}.
+                <span className="font-sans font-bold">Not:</span> {not.map(labelOf).join(", ")}.
               </>
             ) : null}
           </p>
