@@ -2,16 +2,22 @@
 
 import json
 import re
-from datetime import date
+from datetime import UTC, date, datetime, timedelta
 from types import TracebackType
 from typing import Any, cast
 
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app.ai.embedder import FakeEmbedder
 from app.ai.llm import FakeLLM, LLMCall
 from app.ai.usage import note_usage
 from app.editions.weather import Weather, WeatherService
+from app.models import Article, User
+from tests.factories import make_article, make_source, make_user
+
+NOW = datetime(2026, 10, 17, 6, 0, tzinfo=UTC)
+E = FakeEmbedder()
 
 
 class _SharedSession:
@@ -97,3 +103,43 @@ class StubWeather(WeatherService):
     async def for_city(self, session: AsyncSession, city: str | None, day: date) -> Weather | None:
         self.asked.append((city, day))
         return self._weather
+
+
+async def seed_articles(
+    db: AsyncSession,
+    topic: str,
+    prefix: str,
+    count: int = 12,
+    *,
+    now: datetime = NOW,
+    **over: Any,
+) -> list[Article]:
+    out: list[Article] = []
+    source = await make_source(db, quality=0.8)
+    for i in range(count):
+        if i % 2 == 0:
+            source = await make_source(db, quality=0.8)
+        title = f"{prefix} story {i}"
+        out.append(
+            await make_article(
+                db,
+                title=title,
+                headline=title,
+                summary=f"{title} happened today. More detail follows.",
+                key_facts=["fact one", "fact two", "fact three"],
+                published_at=now - timedelta(hours=1 + i),
+                embedding=E.embed([title])[0],
+                topics={topic: 0.9},
+                cluster_id=hash(prefix) % 10_000 + i,
+                cluster_size=1 + i % 3,
+                source_id=source.id,
+                **over,
+            )
+        )
+    return out
+
+
+async def reader(db: AsyncSession, **profile: Any) -> User:
+    profile.setdefault("onboarding_completed", True)
+    profile.setdefault("reading_minutes", 10)
+    return await make_user(db, display_name="Sara Khan", city="Lahore", profile=profile)

@@ -6,7 +6,6 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ai.embedder import FakeEmbedder
 from app.ai.llm import FakeLLM
 from app.core.errors import AppError
 from app.editions.service import (
@@ -17,15 +16,20 @@ from app.editions.service import (
     local_date,
 )
 from app.editions.weather import Weather
-from app.models import Article, Edition, EditionItem, EditionStatus, Slot, User
+from app.models import Edition, EditionItem, EditionStatus, Slot
 from app.models.enums import Depth
-from tests.editions_helpers import StubWeather, fake_editor, sessionmaker_for
-from tests.factories import make_article, make_source, make_user
+from tests.editions_helpers import (
+    NOW,
+    E,
+    StubWeather,
+    fake_editor,
+    reader,
+    seed_articles,
+    sessionmaker_for,
+)
 from tests.personalize_helpers import selection
 
-NOW = datetime(2026, 10, 17, 6, 0, tzinfo=UTC)
 TODAY = NOW.date()
-E = FakeEmbedder()
 MODEL = "claude-sonnet-5-5"
 
 
@@ -37,40 +41,6 @@ def service(
     now: datetime = NOW,
 ) -> EditionService:
     return EditionService(sessionmaker_for(db), llm, MODEL, weather=weather, clock=lambda: now)
-
-
-async def seed_articles(
-    db: AsyncSession, topic: str, prefix: str, count: int = 12, **over: Any
-) -> list[Article]:
-    out: list[Article] = []
-    source = await make_source(db, quality=0.8)
-    for i in range(count):
-        if i % 2 == 0:
-            source = await make_source(db, quality=0.8)
-        title = f"{prefix} story {i}"
-        out.append(
-            await make_article(
-                db,
-                title=title,
-                headline=title,
-                summary=f"{title} happened today. More detail follows.",
-                key_facts=["fact one", "fact two", "fact three"],
-                published_at=NOW - timedelta(hours=1 + i),
-                embedding=E.embed([title])[0],
-                topics={topic: 0.9},
-                cluster_id=hash(prefix) % 10_000 + i,
-                cluster_size=1 + i % 3,
-                source_id=source.id,
-                **over,
-            )
-        )
-    return out
-
-
-async def reader(db: AsyncSession, **profile: Any) -> User:
-    profile.setdefault("onboarding_completed", True)
-    profile.setdefault("reading_minutes", 10)
-    return await make_user(db, display_name="Sara Khan", city="Lahore", profile=profile)
 
 
 @pytest.mark.integration
