@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel><title>Full Content Wire</title><link>https://full.example.com/</link><description>x</description>
+    <item>
+      <title>Committee backs amended proposal</title>
+      <link>https://full.example.com/politics/committee</link>
+      <pubDate>Fri, 17 Oct 2026 06:30:00 GMT</pubDate>
+      <description>Teaser only.</description>
+      <content:encoded><![CDATA[<p>The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote. The committee reviewed the proposal in detail and agreed on several amendments before the vote.</p><p>The post appeared first on Full Content Wire.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Teaser-only story</title>
+      <link>https://full.example.com/politics/teaser</link>
+      <pubDate>Fri, 17 Oct 2026 06:00:00 GMT</pubDate>
+      <description>Short teaser.</description>
+      <content:encoded><![CDATA[<p>Just a couple of sentences here.</p>]]></content:encoded>
+    </item>
+  </channel>
+</rss>

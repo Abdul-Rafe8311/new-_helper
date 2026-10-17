@@ -49,4 +49,4 @@ Redeploy a previous image: in Render, *Manual Deploy -> Deploy an existing image
 
 ## Daily pipeline
 
-`daily-pipeline.yml` runs `python -m app.pipeline --stage <stage>` against the production database at 00:30 UTC (05:30 Pakistan time) and on demand (inputs `stage`, optional `user_email`). Implemented stages: `healthcheck` and `seed`; `all` runs the healthcheck and then whichever daily stages exist. Later tasks add ingest, enrich, learn, compose and render.
+`daily-pipeline.yml` runs `python -m app.pipeline --stage <stage>` against the production database at 00:30 UTC (05:30 Pakistan time) and on demand (inputs `stage`, optional `user_email`). Implemented stages: `healthcheck`, `seed`, `ingest` (see `docs/ingestion.md`) and `enrich`; `all` runs the healthcheck and then whichever daily stages exist. Later tasks add learn, compose and render. Set the optional `APIFY_TOKEN` secret to enable the Apify fallbacks.

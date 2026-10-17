@@ -50,6 +50,14 @@ async def engine() -> AsyncIterator[AsyncEngine]:
         if TEST_DB_SCHEMA:
             await conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{TEST_DB_SCHEMA}"'))
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector SCHEMA public"))
+    # create_all skips tables that are already visible on the search path (e.g. public.articles on
+    # a migrated dev database), so create them explicitly inside the test schema.
+    creator = (
+        eng.execution_options(schema_translate_map={None: TEST_DB_SCHEMA})
+        if TEST_DB_SCHEMA
+        else eng
+    )
+    async with creator.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield eng
     if TEST_DB_SCHEMA:

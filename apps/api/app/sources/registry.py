@@ -17,6 +17,7 @@ class SourceSpec(BaseModel):
     url: str = Field(pattern=r"^https?://")
     topics: list[str] = Field(min_length=1)
     quality: float = Field(default=0.5, ge=0, le=1)
+    high_value: bool = False
 
     @field_validator("topics")
     @classmethod

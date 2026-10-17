@@ -37,11 +37,21 @@ DEMO_TOPICS = {
 async def seed_sources(session: AsyncSession, specs: list[SourceSpec]) -> int:
     for spec in specs:
         stmt = insert(Source).values(
-            name=spec.name, kind=spec.kind, url=spec.url, topics=spec.topics, quality=spec.quality
+            name=spec.name,
+            kind=spec.kind,
+            url=spec.url,
+            topics=spec.topics,
+            quality=spec.quality,
+            high_value=spec.high_value,
         )
         stmt = stmt.on_conflict_do_update(
             index_elements=[Source.url],
-            set_={"name": spec.name, "kind": spec.kind, "topics": spec.topics},
+            set_={
+                "name": spec.name,
+                "kind": spec.kind,
+                "topics": spec.topics,
+                "high_value": spec.high_value,
+            },
         )
         await session.execute(stmt)
     await session.commit()

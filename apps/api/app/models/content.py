@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
+import sqlalchemy as sa
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -23,6 +24,10 @@ class Source(UUIDPrimaryKey, Timestamps, Base):
     topics: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
     quality: Mapped[float] = mapped_column(Float, nullable=False, default=0.5)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    # Worth a paid extraction fallback (Apify) when open-source extraction fails.
+    high_value: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=sa.false()
+    )
     etag: Mapped[str | None] = mapped_column(String(255))
     last_modified: Mapped[str | None] = mapped_column(String(255))
     last_fetched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -63,3 +68,12 @@ class Article(UUIDPrimaryKey, Timestamps, Base):
     embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIM))
     cluster_id: Mapped[int | None] = mapped_column(Integer, index=True)
     cluster_size: Mapped[int | None] = mapped_column(Integer)
+
+
+class DecodedLink(UUIDPrimaryKey, Timestamps, Base):
+    """Cache of Google News redirect links resolved to publisher URLs (decoding is rate-limited)."""
+
+    __tablename__ = "decoded_links"
+
+    google_url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    publisher_url: Mapped[str] = mapped_column(Text, nullable=False)
