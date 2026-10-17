@@ -12,6 +12,7 @@ import re
 from collections.abc import AsyncIterator
 
 import pytest
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -48,7 +49,10 @@ async def engine() -> AsyncIterator[AsyncEngine]:
     eng = build_engine(TEST_DATABASE_URL, search_path=search_path)
     async with eng.begin() as conn:
         if TEST_DB_SCHEMA:
-            await conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{TEST_DB_SCHEMA}"'))
+            # Start clean and skip the existence check: it would see tables that are visible
+            # through "public" on the search path and wrongly skip creating our own copies.
+            await conn.execute(text(f'DROP SCHEMA IF EXISTS "{TEST_DB_SCHEMA}" CASCADE'))
+            await conn.execute(text(f'CREATE SCHEMA "{TEST_DB_SCHEMA}"'))
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector SCHEMA public"))
     # create_all skips tables that are already visible on the search path (e.g. public.articles on
     # a migrated dev database), so create them explicitly inside the test schema.
@@ -82,12 +86,18 @@ async def db(engine: AsyncEngine) -> AsyncIterator[AsyncSession]:
 
 
 @pytest.fixture
-async def client(db: AsyncSession) -> AsyncIterator[AsyncClient]:
-    api = create_app(TEST_SETTINGS)
+def api(db: AsyncSession) -> FastAPI:
+    """The app wired to the test session; tests override other dependencies on it."""
+    app = create_app(TEST_SETTINGS)
 
     async def _session() -> AsyncIterator[AsyncSession]:
         yield db
 
-    api.dependency_overrides[get_session] = _session
+    app.dependency_overrides[get_session] = _session
+    return app
+
+
+@pytest.fixture
+async def client(api: FastAPI) -> AsyncIterator[AsyncClient]:
     async with AsyncClient(transport=ASGITransport(app=api), base_url="http://test") as c:
         yield c

@@ -198,9 +198,9 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
-      - name: Production build
-        run: pnpm build
-      - name: Playwright smoke tests
+      - name: Production build (proxying /api to the e2e mock API)
+        run: pnpm build:e2e
+      - name: Playwright tests
         run: pnpm test:e2e
       - name: Upload Playwright report
         if: failure()

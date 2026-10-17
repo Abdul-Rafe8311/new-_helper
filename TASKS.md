@@ -7,7 +7,7 @@
 - [x] T4 CD & deploy
 - [x] T5 Ingestion
 - [x] T6 Enrichment
-- [ ] T7 Onboarding
+- [x] T7 Onboarding
 - [ ] T8 Ranking & composer
 - [ ] T9 PDF
 - [ ] T10 Web reader & archive
@@ -43,3 +43,11 @@
 - T6: clustering is a pairwise self-join over the 36h window, fine for a few thousand articles; switch to per-article HNSW lookups if the window grows past ~10k.
 - T6: migration 0003 was not run against a real migrated DB locally (no Docker); CI's `alembic check` is the verification.
 - T6: set the `ANTHROPIC_API_KEY` secret in the `production` environment before the first scheduled run.
+- T7: autosaved answers live in `reader_profiles.onboarding_state` (migration 0005); taste-test answers are `reader_events` (onboarding_like/skip), one per article, so re-answering replaces.
+- T7: `/onboarding/complete` opens today's edition and runs an `EditionGenerator` as a background task. The stub marks it ready with placeholder content and writes `stats.stage`; T8 swaps it in `get_edition_generator` (`app/api/deps.py`) and must keep writing the stage names (gathering, choosing, writing, typesetting, done).
+- T7: the taste test needs enriched articles (stored topics and embeddings from T5/T6); with none, the step says so and can be passed.
+- T7: parsed keywords are matched with Postgres full-text search over the last 7 days (at most 12 keywords, 5 articles each) with no index; add a GIN index if the article table grows.
+- T7: `/onboarding/parse` is guarded by the daily LLM budget but has no per-user rate limit. The real model is only used there; tests use FakeLLM.
+- T7: e2e now needs `pnpm build:e2e` (the `/api` rewrite points at `e2e/mock-api.mjs`); CI does this.
+- T7: `tests/conftest.py` also drops and recreates `TEST_DB_SCHEMA` at the start of a run (T5's `schema_translate_map` change creates the tables inside it).
+- T7: set `ANTHROPIC_API_KEY` in Render's env, or `/onboarding/parse` returns 503 `llm_unavailable` (the page then offers "Continue without").
