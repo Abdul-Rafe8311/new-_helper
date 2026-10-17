@@ -137,12 +137,13 @@ async def render_edition(
     wanted = {
         story_id: snapshot.story(story_id).image_url for story_id in plan_pages(snapshot).image_ids
     }
-    cache = ImageCache(Path(settings.storage_local_dir) / "image-cache", settings.user_agent)
-    try:
-        images = await cache.fetch_many({k: u for k, u in wanted.items() if u})
-    finally:
-        await cache.aclose()
-    pdf = await asyncio.to_thread(render_pdf, snapshot, images)  # CPU-bound, keep the loop free
+    async with _RENDER_GATE:
+        cache = ImageCache(Path(settings.storage_local_dir) / "image-cache", settings.user_agent)
+        try:
+            images = await cache.fetch_many({k: u for k, u in wanted.items() if u})
+        finally:
+            await cache.aclose()
+        pdf = await asyncio.to_thread(render_pdf, snapshot, images)  # CPU-bound, off the loop
     await storage.put(path, pdf, PDF_CONTENT_TYPE)
     edition.pdf_path = path
     edition.pdf_hash = fingerprint

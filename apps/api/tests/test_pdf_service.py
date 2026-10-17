@@ -1,13 +1,15 @@
+import asyncio
 import io
+import time
 from datetime import date, timedelta
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 from pypdf import PdfReader
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
-from app.models import EditionStatus
+from app.models import Edition, EditionStatus
 from app.pdf.service import (
     EditionNotReadyError,
     load_snapshot,
@@ -18,7 +20,7 @@ from app.pdf.service import (
 from app.pdf.stage import RECENT_DAYS, run_render
 from app.storage import LocalStorage
 from tests.factories import make_user
-from tests.pdf_helpers import make_fixture_edition
+from tests.pdf_helpers import fixture_snapshot, make_fixture_edition
 
 pytestmark = pytest.mark.integration
 
@@ -163,3 +165,30 @@ async def test_one_failing_edition_does_not_stop_the_rest(db, storage, settings,
     report = await run_render(_Sessions(db), storage, settings, today=FIXTURE_DAY)  # type: ignore[arg-type]
     assert (report.editions, report.failed) == (1, 1)
     assert first.pdf_path is None
+
+
+async def test_renders_run_one_at_a_time(storage, settings, monkeypatch):
+    """The API has 512 MB: two requests must not typeset side by side."""
+    running = peak = 0
+
+    def slow_render(snapshot, images):
+        nonlocal running, peak
+        running += 1
+        peak = max(peak, running)
+        time.sleep(0.05)
+        running -= 1
+        return b"%PDF-fake"
+
+    async def fixture_snapshot_for(session, edition, conf):
+        return fixture_snapshot()
+
+    monkeypatch.setattr("app.pdf.service.render_pdf", slow_render)
+    monkeypatch.setattr("app.pdf.service.load_snapshot", fixture_snapshot_for)
+    editions = [
+        Edition(id=uuid4(), user_id=uuid4(), edition_date=FIXTURE_DAY, number=1, status="ready")
+        for _ in range(2)
+    ]
+    for edition in editions:
+        edition.status = EditionStatus.READY
+    await asyncio.gather(*(render_edition(None, storage, settings, e) for e in editions))  # type: ignore[arg-type]
+    assert peak == 1
