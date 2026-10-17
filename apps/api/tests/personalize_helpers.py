@@ -67,3 +67,12 @@ def candidate(**over: Any) -> Candidate:
 
 def uid(n: int) -> UUID:
     return UUID(int=n)
+
+
+def selection(score: float = 0.5, *, explore: bool = False, why: str = "why", **over: Any) -> Any:
+    """A Selection around a fresh candidate."""
+    from app.personalize.select import Selection
+    from app.personalize.types import Scored
+
+    c = candidate(**over)
+    return Selection(Scored(c, score, {"components": {}, "raw": {}}), explore, why)
