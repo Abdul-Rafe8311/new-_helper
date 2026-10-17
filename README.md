@@ -8,7 +8,7 @@ A personalised morning newspaper that gathers the day's stories, writes one edit
 
 **<https://new-helper-nine.vercel.app>**
 
-The demo account is seeded. Use the demo button on the sign-in page to get in without signing up.
+The demo account is seeded (`make seed` creates it), so the demo needs no sign-up. The API also has a one-click demo login at `POST /auth/demo`.
 
 <!-- TODO: add a screenshot of /today (docs/screenshots/today.png). Only the /interests screenshots exist so far. -->
 > TODO: screenshot of `/today` is not in the repo yet.
