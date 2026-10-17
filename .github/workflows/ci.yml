@@ -87,6 +87,16 @@ jobs:
         run: uv run ruff format --check .
       - name: Mypy
         run: uv run mypy app
+      - name: Migrations apply to a fresh DB (and round-trip)
+        run: |
+          uv run alembic upgrade head
+          uv run alembic check
+          uv run alembic downgrade base
+          uv run alembic upgrade head
+      - name: Seed works (twice, idempotent)
+        run: |
+          uv run python -m app.scripts.seed
+          uv run python -m app.scripts.seed
       - name: Pytest (with pgvector)
         run: uv run pytest -rs
       - name: Upload coverage
