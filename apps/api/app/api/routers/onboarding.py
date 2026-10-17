@@ -3,15 +3,24 @@
 from typing import Annotated
 
 import structlog
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 
 from app.ai.llm import LLMError
-from app.api.deps import CurrentUser, LLMDep, SessionDep, SettingsDep, current_user
+from app.api.deps import (
+    CurrentUser,
+    EditionGeneratorDep,
+    LLMDep,
+    SessionDep,
+    SettingsDep,
+    current_user,
+)
 from app.core.errors import AppError
-from app.onboarding import service
+from app.onboarding import completion, service
 from app.onboarding.parse import parse_interests
 from app.onboarding.suggestions import suggestions_for
 from app.schemas.onboarding import (
+    CompleteOut,
+    EditionStatusOut,
     HeadlinesOut,
     OnboardingStateOut,
     ParsedInterests,
@@ -65,3 +74,22 @@ async def get_headlines(user: CurrentUser, session: SessionDep) -> HeadlinesOut:
 @router.post("/taste", status_code=204)
 async def post_taste(body: TasteAnswerIn, user: CurrentUser, session: SessionDep) -> None:
     await service.record_answer(session, user, body.article_id, body.interested)
+
+
+@router.post("/complete")
+async def complete(
+    user: CurrentUser,
+    session: SessionDep,
+    generator: EditionGeneratorDep,
+    background: BackgroundTasks,
+) -> CompleteOut:
+    """Build the profile and start the first edition; poll GET /onboarding/status for progress."""
+    edition, run = await completion.complete_onboarding(session, user)
+    if run:
+        background.add_task(generator.generate, edition.id)
+    return CompleteOut(edition_id=edition.id, status=edition.status.value)
+
+
+@router.get("/status")
+async def get_status(user: CurrentUser, session: SessionDep) -> EditionStatusOut:
+    return await service.edition_status(session, user)

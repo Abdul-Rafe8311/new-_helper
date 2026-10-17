@@ -167,3 +167,16 @@ class HeadlinesOut(BaseModel):
 class TasteAnswerIn(BaseModel):
     article_id: UUID
     interested: bool
+
+
+class CompleteOut(BaseModel):
+    edition_id: UUID
+    status: Literal["pending", "ready", "failed"]
+
+
+class EditionStatusOut(BaseModel):
+    """Progress of the first edition, polled by the printing-press finale."""
+
+    status: Literal["none", "pending", "ready", "failed"]
+    stage: Literal["gathering", "choosing", "writing", "typesetting", "done"] | None = None
+    edition_id: UUID | None = None

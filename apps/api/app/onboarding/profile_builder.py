@@ -69,7 +69,7 @@ def topic_weights(inp: BuilderInput) -> dict[str, float]:
     return {slug: round(w / top, 4) for slug, w in ranked}
 
 
-def _keywords(inp: BuilderInput) -> list[str]:
+def collect_keywords(inp: BuilderInput) -> list[str]:
     candidates = list(inp.parsed.keywords) if inp.parsed else []
     candidates += [label for slug in inp.explicit_topics for label in inp.deeper.get(slug, ())]
     blocked = {k.casefold() for k in inp.parsed.blocked.keywords} if inp.parsed else set()
@@ -113,7 +113,7 @@ def build_profile(inp: BuilderInput) -> BuiltProfile:
     context = (parsed.context if parsed else "") or inp.raw_text
     return BuiltProfile(
         topics=weights,
-        keywords=_keywords(inp),
+        keywords=collect_keywords(inp),
         entities=entities,
         blocked={"topics": list(blocked.topics), "keywords": list(blocked.keywords), "sources": []},
         context_notes=context.strip()[:2000] or None,

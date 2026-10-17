@@ -9,10 +9,12 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
-from app.models import Article, EventType, ReaderEvent, Source, User
+from app.models import Article, Edition, EventType, ReaderEvent, Source, User
+from app.onboarding.generator import STAGES
 from app.onboarding.headlines import load_candidates, pick_headlines
 from app.schemas.onboarding import (
     BeatsStep,
+    EditionStatusOut,
     HeadlineOut,
     HeadlinesOut,
     NameStep,
@@ -24,6 +26,7 @@ from app.schemas.onboarding import (
 )
 
 FINALE_STEP = 6
+STAGE_NAMES = {*STAGES, "done"}
 _MODEL_FOR_STEP: dict[int, type[BaseModel]] = {
     1: NameStep,
     2: BeatsStep,
@@ -174,3 +177,18 @@ async def record_answer(
         )
     )
     await session.commit()
+
+
+async def edition_status(session: AsyncSession, user: User) -> EditionStatusOut:
+    """The reader's most recent edition, as the finale animation needs it."""
+    edition = await session.scalar(
+        select(Edition).where(Edition.user_id == user.id).order_by(Edition.edition_date.desc())
+    )
+    if edition is None:
+        return EditionStatusOut(status="none")
+    stage = edition.stats.get("stage")
+    return EditionStatusOut(
+        status=edition.status.value,
+        stage=stage if stage in STAGE_NAMES else None,
+        edition_id=edition.id,
+    )

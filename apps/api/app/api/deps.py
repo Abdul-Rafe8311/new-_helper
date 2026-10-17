@@ -15,6 +15,7 @@ from app.core.errors import AppError
 from app.core.security import SESSION_COOKIE, decode_session_token
 from app.db.session import get_session, get_sessionmaker
 from app.models import User
+from app.onboarding.generator import EditionGenerator, StubEditionGenerator
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
@@ -70,3 +71,11 @@ async def get_llm(settings: SettingsDep) -> LLMProvider:
 
 
 LLMDep = Annotated[LLMProvider, Depends(get_llm)]
+
+
+def get_edition_generator() -> EditionGenerator:
+    """Task 8 swaps the stub for the real ranker and composer."""
+    return StubEditionGenerator(get_sessionmaker())
+
+
+EditionGeneratorDep = Annotated[EditionGenerator, Depends(get_edition_generator)]
