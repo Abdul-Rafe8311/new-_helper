@@ -15,6 +15,7 @@ beforeAll(() => {
     removeEventListener: vi.fn(),
   })) as unknown as typeof window.matchMedia;
   window.IntersectionObserver ??= class {
+    constructor(readonly callback: IntersectionObserverCallback) {}
     observe = vi.fn();
     disconnect = vi.fn();
     unobserve = vi.fn();
