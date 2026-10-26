@@ -34,7 +34,7 @@ jobs:
         working-directory: apps/api
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.0 # no floating major tag upstream
+      - uses: astral-sh/setup-uv@v10.3.2 # no floating major tag upstream
         with:
           version: "0.13.1"
           python-version: "3.12"
