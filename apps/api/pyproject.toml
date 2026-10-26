@@ -25,7 +25,7 @@ dependencies = [
     "pyjwt>=2.15.1",
     "pyyaml>=6.0.3",
     "qrcode[pil]>=8.2",
-    "selectolax<1",
+    "selectolax<2",
     "sqlalchemy[asyncio]>=2.1.5",
     "structlog>=26.1.0",
     "tenacity>=9.2.1",
